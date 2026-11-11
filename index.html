@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
   --bg:#f8fafc;--surface:#f1f5f9;--line:#e2e8f0;--card:#ffffff;
@@ -173,6 +174,7 @@ table.t{border-collapse:collapse;width:100%;font-size:13px}
     </nav>
     <button class="btn" id="undoBtn" title="Visszavonás (Ctrl+Z)" disabled>↶ Vissza</button>
     <button class="btn primary" id="exportBtn">Excel export</button>
+    <button class="btn" id="shareBtn" style="display:none">Megosztás</button>
     <button class="btn" id="logoutBtn" style="display:none">Kilépés</button>
     <div class="status"><span class="dot" id="sDot"></span><span id="sText">Betöltés…</span></div>
   </div>
@@ -216,6 +218,13 @@ table.t{border-collapse:collapse;width:100%;font-size:13px}
   <div class="lgrow"><button class="btn primary" type="submit">Belépés</button><button class="btn" type="button" id="lgCreate" style="display:none">Új nyilvántartás létrehozása</button></div>
   <div class="lgmsg" id="lgMsg"></div>
 </form></div>
+<div class="login" id="share"><div class="lgcard" style="max-width:440px">
+  <h2>Belépési link</h2><p class="desc" id="shDesc"></p>
+  <div id="shQr" style="display:flex;justify-content:center;margin:6px 0 12px"></div>
+  <label>Link<textarea id="shLink" readonly rows="3" style="display:block;width:100%;margin-top:4px;border:1px solid var(--line);border-radius:8px;padding:8px;font:12px/1.4 Inter,Arial;resize:none"></textarea></label>
+  <div class="lgrow"><button class="btn primary" id="shCopy" type="button">Link másolása</button><button class="btn" id="shNative" type="button" style="display:none">Küldés…</button><button class="btn" id="shClose" type="button">Bezárás</button></div>
+  <p class="desc" style="margin-top:12px;font-size:12px">Aki megkapja a linket, belép vele, amíg a kulcsot vissza nem vonod (GitHub → Settings → Developer settings → Fine-grained tokens → Delete). Csak annak küldd el, akinek szánod.</p>
+</div></div>
 <div class="pop" id="pop"></div>
 <div class="toast" id="toast"></div>
 
@@ -682,15 +691,36 @@ async function startWith(token,repo,remember,allowCreate){
     await save();if(GH.blocked)return;
   }else{GH.token=token;GH.repo=repo;GH.sha=rem.sha;loadInto(rem.data)}
   LS.set("bz_token",token,remember);LS.set("bz_repo",repo,remember);
-  $("#login").classList.remove("on");$("#logoutBtn").style.display="";status("ok","Szinkronban");renderAll();
+  $("#login").classList.remove("on");$("#logoutBtn").style.display="";$("#shareBtn").style.display="";status("ok","Szinkronban");renderAll();
   setInterval(poll,45000);document.addEventListener("visibilitychange",poll);
 }
 $("#lgForm").addEventListener("submit",ev=>{ev.preventDefault();startWith($("#lgToken").value.trim(),$("#lgRepo").value.trim(),$("#lgRemember").checked,false)});
 $("#lgCreate").addEventListener("click",()=>startWith($("#lgToken").value.trim(),$("#lgRepo").value.trim(),$("#lgRemember").checked,true));
 $("#logoutBtn").addEventListener("click",()=>{if(pendingOps.length&&!confirmLogout())return;LS.clear();location.reload()});
+function shareLink(tok,repo){return location.origin+location.pathname+"#"+new URLSearchParams({k:tok,r:repo||GH.repo}).toString()}
+function openShare(tok,desc){
+  const link=shareLink(tok||GH.token);$("#shLink").value=link;
+  $("#shDesc").textContent=desc||"Ezzel a linkkel egy másik eszközön (pl. a telefonodon) egy lépésben beléphetsz – ugyanazzal a kulccsal, amivel most itt vagy. Telefonon elég a kamerával beolvasni a QR-kódot.";
+  const q=$("#shQr");q.innerHTML="";
+  if(typeof QRCode!=="undefined"){new QRCode(q,{text:link,width:220,height:220,colorDark:"#0f172a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}
+  else q.textContent="(A QR-kód nem töltődött be – használd a linket.)";
+  $("#shNative").style.display=navigator.share?"":"none";$("#share").classList.add("on");
+}
+$("#shareBtn").addEventListener("click",()=>openShare());
+$("#shClose").addEventListener("click",()=>{$("#share").classList.remove("on");$("#shQr").innerHTML="";$("#shLink").value=""});
+$("#shCopy").addEventListener("click",async()=>{const t=$("#shLink");try{await navigator.clipboard.writeText(t.value);toast("Link a vágólapon")}catch(e){t.focus();t.select();try{document.execCommand("copy");toast("Link a vágólapon")}catch(e2){toast("Jelöld ki és másold kézzel")}}});
+$("#shNative").addEventListener("click",async()=>{try{await navigator.share({title:"Beosztás – belépés",url:$("#shLink").value})}catch(e){}});
 function confirmLogout(){const b=$("#logoutBtn");if(b.dataset.c==="1")return true;b.dataset.c="1";b.textContent="Nem mentett változás! Kilépsz?";setTimeout(()=>{b.dataset.c="";b.textContent="Kilépés"},3500);return false}
 (function boot(){
   renderAll();status("","Nincs belépve");
+  // belépési link: #k=<kulcs>&r=<repó> – a hash nem megy ki a szerverre, betöltés után azonnal törlöm a címsorból
+  try{if(location.hash.startsWith("#k=")){const q=new URLSearchParams(location.hash.slice(1));const tk=q.get("k"),rp=q.get("r")||"jtdevzero/beosztas-adat";history.replaceState(null,"",location.pathname);
+    if(tk){$("#lgToken").value=tk;startWith(tk,rp,true,false).then(()=>{if(!GH.token)showLogin("A belépési link nem érvényes (lehet, hogy a kulcsot visszavonták).")});return}}}catch(e){}
+  // másik kulcs megosztása (window.name = "bzshare:<kulcs>"): a saját belépéssel nyit, és megosztó ablakot mutat
+  let shareTok=null;try{if(typeof window.name==="string"&&window.name.startsWith("bzshare:github_pat_")){shareTok=window.name.slice(8);window.name=""}}catch(e){}
+  if(shareTok){const t0=LS.get("bz_token"),r0=LS.get("bz_repo")||"jtdevzero/beosztas-adat";
+    if(t0){startWith(t0,r0,true,false).then(()=>{if(GH.token)openShare(shareTok,"Ez egy külön kulcs (pl. az üzletvezetőé). Telefonon olvassa be a QR-kódot a kamerával, vagy küldd el neki a linket.");else showLogin()})}
+    else showLogin("Előbb lépj be, utána újra a megosztás.");return}
   // egyszeri átadás ugyanabban a fülben (window.name), hogy a kulcsot ne kelljen másolni
   try{if(typeof window.name==="string"&&window.name.startsWith("bz:github_pat_")){const tk=window.name.slice(3);window.name="";$("#lgToken").value=tk;startWith(tk,"jtdevzero/beosztas-adat",true,false).then(()=>{if(!GH.token)showLogin("A kulcs átadása nem sikerült – lépj be kézzel.")});return}}catch(e){}
   const t=LS.get("bz_token"),r=LS.get("bz_repo");
