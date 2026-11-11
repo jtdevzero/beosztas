@@ -691,6 +691,8 @@ $("#logoutBtn").addEventListener("click",()=>{if(pendingOps.length&&!confirmLogo
 function confirmLogout(){const b=$("#logoutBtn");if(b.dataset.c==="1")return true;b.dataset.c="1";b.textContent="Nem mentett változás! Kilépsz?";setTimeout(()=>{b.dataset.c="";b.textContent="Kilépés"},3500);return false}
 (function boot(){
   renderAll();status("","Nincs belépve");
+  // egyszeri átadás ugyanabban a fülben (window.name), hogy a kulcsot ne kelljen másolni
+  try{if(typeof window.name==="string"&&window.name.startsWith("bz:github_pat_")){const tk=window.name.slice(3);window.name="";$("#lgToken").value=tk;startWith(tk,"jtdevzero/beosztas-adat",true,false).then(()=>{if(!GH.token)showLogin("A kulcs átadása nem sikerült – lépj be kézzel.")});return}}catch(e){}
   const t=LS.get("bz_token"),r=LS.get("bz_repo");
   if(t&&r){$("#lgToken").value=t;startWith(t,r,!!(()=>{try{return localStorage.getItem("bz_token")}catch(e){return null}})(),false).then(()=>{if(!GH.token)showLogin("A mentett belépés nem érvényes – lépj be újra.")})}
   else showLogin();
