@@ -498,3 +498,12 @@ body{background:radial-gradient(ellipse at 5% 0%,#254f665c,transparent 48%),radi
  .discovery-header{margin-top:0;margin-bottom:4px}
  .card-stage{height:calc(100svh - 208px)}
 }
+
+/* Two-position switches: one moving thumb, distinct colors at each stop. */
+.discovery-header .quick-mode-buttons,.discovery-header .media-tabs{--switch-top:#3b638c;--switch-bottom:#936249;position:relative;isolation:isolate;gap:0;padding:3px;border-radius:11px;background:#080f1c;box-shadow:inset 0 2px 5px #0008;border-color:#4b5a70}
+.discovery-header .media-tabs{--switch-top:#806742;--switch-bottom:#655582}
+.discovery-header .quick-mode-buttons:before,.discovery-header .media-tabs:before{content:'';position:absolute;inset:3px 3px auto;height:calc((100% - 6px)/2);border-radius:7px;background:linear-gradient(150deg,var(--switch-top),color-mix(in srgb,var(--switch-top),#000 22%));box-shadow:inset 0 1px #ffffff40,0 2px 5px #0006;z-index:-1;transition:transform 180ms ease,background 180ms ease;pointer-events:none}
+.discovery-header .quick-mode-buttons:has(#quick-pair[aria-pressed=true]):before,.discovery-header .media-tabs:has(#media-tv[aria-pressed=true]):before{transform:translateY(100%);background:linear-gradient(150deg,var(--switch-bottom),color-mix(in srgb,var(--switch-bottom),#000 22%))}
+.discovery-header .quick-mode-buttons>button,.discovery-header .media-tabs>button{background:transparent!important;box-shadow:none!important;color:#aebbd0;border:0;position:relative;min-height:34px;transition:color 180ms ease}
+.discovery-header .quick-mode-buttons>button[aria-pressed=true],.discovery-header .media-tabs>button[aria-pressed=true]{color:#fff8ee;font-weight:700}
+@media(prefers-reduced-motion:reduce){.discovery-header .quick-mode-buttons:before,.discovery-header .media-tabs:before{transition:none}}
