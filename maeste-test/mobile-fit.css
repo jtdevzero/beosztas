@@ -128,3 +128,42 @@
   }
   .quick-providers { margin-top:2px; }
 }
+
+/* Step 2: full-width wordmark, tighter services and uncropped film artwork. */
+@media (max-width:700px) {
+  .discovery-header .headline-search { width:100%; min-width:0; }
+  .discovery-header .playit-heading {
+    display:block; width:100%; max-width:none; min-width:0;
+    height:32px; max-height:32px; overflow:visible;
+  }
+  .discovery-header .playit-heading svg {
+    display:block; width:100%; max-width:none; height:32px; max-height:32px;
+  }
+  .quick-providers {
+    gap:2px; justify-content:center; align-items:center;
+    width:calc(100% - 24px); padding-inline:0; margin-inline:12px;
+  }
+  .quick-providers button {
+    flex:0 0 auto; min-width:0; width:39px;
+    height:38px; min-height:38px; padding:1px 2px 4px;
+  }
+  .quick-providers button img { width:31px; height:31px; max-width:31px; max-height:31px; }
+  .movie-card .poster-frame, .deck-peek .poster-frame {
+    background:#0a1219; overflow:hidden;
+  }
+  .movie-card .poster-frame .poster-image,
+  .deck-peek .poster-frame .deck-peek-poster {
+    width:100%; height:100%; max-height:none;
+    object-fit:contain; object-position:center center;
+    background:#0a1219;
+  }
+  .movie-card .card-shade,
+  .movie-card:has(.card-availability) .card-shade {
+    background:linear-gradient(180deg,rgba(5,12,18,.38),transparent 19%,transparent 55%,rgba(5,12,18,.62) 76%,rgba(5,12,18,.94) 100%);
+  }
+}
+@media (max-width:360px) {
+  .quick-providers { justify-content:flex-start; }
+  .quick-providers button { width:36px; }
+  .quick-providers button img { width:29px; height:29px; }
+}
