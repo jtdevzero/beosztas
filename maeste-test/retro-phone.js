@@ -18,6 +18,7 @@
       keypad.append(key);
     });
     password.before(phone);
+    phone.querySelector('.retro-dial-screen').append(password);
     const dots = phone.querySelector('.retro-dots');
     const switchButton = phone.querySelector('.retro-mode-switch');
     const error = document.getElementById('access-error');
@@ -35,6 +36,8 @@
       switchButton.setAttribute('aria-pressed', String(letterMode));
       switchButton.setAttribute('aria-label', letterMode ? 'Számbevitel bekapcsolása' : 'Betűbevitel bekapcsolása');
       phone.classList.toggle('retro-letters', letterMode);
+      // Keep the same top screen for both touch keys and the native keyboard.
+      phone.classList.toggle('retro-native', password.classList.contains('retro-visible-input'));
     }
     function changePassword(next) {
       password.value = next;
@@ -61,12 +64,18 @@
       changePassword(password.value.slice(0,-1)); lastKey = '';
     });
     phone.querySelector('.retro-keyboard').addEventListener('click', () => {
-      const open = phone.classList.toggle('retro-native');
+      const open = !password.classList.contains('retro-visible-input');
       password.classList.toggle('retro-visible-input', open);
+      phone.classList.toggle('retro-native', open);
       phone.querySelector('.retro-keyboard').textContent = open ? 'Tárcsázó' : 'Billentyűzet';
-      if (open) password.focus({preventScroll:true}); else password.blur();
+      if (open) password.focus({preventScroll:true}); else { password.blur(); update(); }
     });
     password.addEventListener('input', () => { lastKey = ''; update(); });
+    // The original application focuses the password when the gate opens.
+    // In dial-pad mode prevent that focus from opening a second input surface.
+    password.addEventListener('focus', () => {
+      if (!password.classList.contains('retro-visible-input')) queueMicrotask(() => password.blur());
+    });
     if (error) {
       let wasVisible = false;
       const observeError = () => {
