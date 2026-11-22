@@ -63,3 +63,68 @@
   .movie-card .card-body .card-overview { display:none; }
   .movie-card .card-body { padding:9px 12px 7px; }
 }
+
+/* Step 1: PLAYIT heading and colored utility buttons share one compact masthead. */
+@media (max-width:700px) {
+  .discovery { padding-top:3px; }
+  .discovery-header {
+    display:grid; grid-template-columns:minmax(0,42%) minmax(0,58%);
+    align-items:stretch; column-gap:0; margin:0 12px 5px;
+  }
+  .discovery-header > div:first-child { min-width:0; }
+  .discovery-header .headline-search {
+    height:100%; display:flex; flex-direction:column;
+    justify-content:space-between; align-items:stretch; gap:2px;
+  }
+  .discovery-header .playit-heading { flex:none; width:100%; height:30px; max-height:30px; margin:0; }
+  .discovery-header .playit-heading svg { width:100%; height:30px; max-height:30px; }
+  .playit-quick-actions {
+    display:flex!important; flex-direction:row; align-items:center;
+    justify-content:space-between; gap:3px; min-width:0; width:100%; height:40px;
+  }
+  .playit-quick-actions > button {
+    position:relative; display:grid; place-items:center; flex:1; min-width:0;
+    width:auto; height:38px; min-height:38px; margin:0; padding:5px 2px;
+    border-radius:9px; border:1px solid currentColor;
+    background:color-mix(in srgb,currentColor 16%,#101d28)!important;
+    box-shadow:none;
+  }
+  .playit-quick-actions > button svg { width:18px; height:18px; stroke-width:2; }
+  .playit-quick-actions #search-open { color:#6ed5ee; }
+  .playit-quick-actions #seen-open { color:#a99cf7; }
+  .playit-quick-actions #filters-toggle { color:#e9b668; }
+  .playit-quick-actions #favorites-open { color:#ef87a5; }
+  .playit-quick-actions .mobile-action-label,
+  .playit-quick-actions #list-label,
+  .playit-quick-actions .seen-header-label { display:none!important; }
+  .playit-quick-actions .count-badge {
+    position:absolute; right:-3px; top:-4px; transform:scale(.72); transform-origin:top right;
+    pointer-events:none;
+  }
+  .discovery-header > .quick-start-controls {
+    position:relative; display:grid; grid-template-columns:1fr; grid-template-rows:1fr 1fr;
+    align-items:stretch; gap:3px; padding-left:8px; min-width:0; min-height:72px;
+  }
+  .discovery-header .quick-mode-buttons,
+  .discovery-header .media-tabs {
+    width:100%; min-width:0; min-height:34px; height:34px;
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr;
+  }
+  .discovery-header .quick-mode-buttons:before,
+  .discovery-header .media-tabs:before {
+    inset:2px auto 2px 2px; width:calc((100% - 4px)/2); height:auto;
+  }
+  .discovery-header .quick-mode-buttons:has(#quick-pair[aria-pressed=true]):before,
+  .discovery-header .media-tabs:has(#media-tv[aria-pressed=true]):before {
+    transform:translateX(100%);
+  }
+  .discovery-header .quick-mode-buttons>button,
+  .discovery-header .media-tabs>button {
+    min-width:0; min-height:30px; height:30px; padding:2px 3px; font-size:11px;
+  }
+  .discovery-header .edition-counter {
+    position:absolute; top:-2px; right:2px; width:auto; min-width:0;
+    pointer-events:none; opacity:.85; transform:translateY(-100%);
+  }
+  .quick-providers { margin-top:2px; }
+}
