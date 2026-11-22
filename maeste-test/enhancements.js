@@ -38,6 +38,36 @@
       refresh();
     }
 
+    const swipe = document.querySelector('.swipe-area');
+    if (swipe && !document.getElementById('cinema-view-toggle')) {
+      const toggle = document.createElement('button');
+      toggle.id = 'cinema-view-toggle';
+      toggle.type = 'button';
+      toggle.textContent = '◉';
+      toggle.setAttribute('aria-label', 'Plakátadatok elrejtése');
+      toggle.setAttribute('aria-pressed', 'false');
+      swipe.prepend(toggle);
+      toggle.addEventListener('click', () => {
+        const clean = document.body.classList.toggle('cinema-clean-poster');
+        toggle.textContent = clean ? '▤' : '◉';
+        toggle.setAttribute('aria-label', clean ? 'Plakátadatok megjelenítése' : 'Plakátadatok elrejtése');
+        toggle.setAttribute('aria-pressed', String(clean));
+      });
+    }
+    const shell = document.querySelector('.app-shell');
+    if (shell) {
+      const animateEntrance = () => {
+        if (shell.hidden) return;
+        shell.classList.remove('cinema-entering');
+        void shell.offsetWidth;
+        shell.classList.add('cinema-entering');
+        setTimeout(() => shell.classList.remove('cinema-entering'), 750);
+      };
+      new MutationObserver(records => {
+        if (records.some(record => record.attributeName === 'hidden') && !shell.hidden) animateEntrance();
+      }).observe(shell, { attributes:true, attributeFilter:['hidden'] });
+    }
+
     const dock = document.getElementById('movie-actions');
     if (dock) {
       let timer;
