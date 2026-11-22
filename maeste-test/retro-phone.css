@@ -60,13 +60,13 @@
   letter-spacing:.32em; white-space:nowrap; overflow:hidden;
 }
 .retro-keypad {
-  width:min(100%,294px);margin:auto;
+  width:min(100%,244px);margin:auto;
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   column-gap:15px;row-gap:12px;
 }
 .retro-key {
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:1px;min-width:0;width:100%;aspect-ratio:1.5;min-height:56px;
+  gap:1px;min-width:0;width:100%;aspect-ratio:1;min-height:0;
   padding:5px 2px;border:1px solid #9a927f59;border-radius:50%;
   background:radial-gradient(circle at 50% 5%,#2a3941,#17252e 64%,#101b23 100%);
   box-shadow:inset 0 1px #ffffff20,0 4px 8px #0004;
@@ -101,7 +101,7 @@
   #access-gate:has(.retro-phone) .access-card .brand {margin-bottom:3px!important;}
   #access-gate:has(.retro-phone) .access-card::before {margin-bottom:7px;}
   .retro-dial-screen {height:43px;margin-bottom:10px;}
-  .retro-keypad {row-gap:7px;column-gap:13px;max-width:252px;}
+  .retro-keypad {row-gap:7px;column-gap:13px;max-width:220px;}
   .retro-key {min-height:45px;}
   .retro-key strong {font-size:21px;}
   .retro-phone-tools {margin-top:4px;}
