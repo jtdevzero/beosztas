@@ -8384,3 +8384,13 @@ body::before {
   .gesture-hint { margin-top:8px; }
   .main-footer { margin-top:10px; }
 }
+/* Full-size mobile poster: the voting controls are the last visible section. */
+@media(max-width:700px) {
+  .card-stage { height:clamp(470px,72svh,720px); }
+  #gesture-hint,.main-footer { display:none!important; }
+  .movie-actions { margin-bottom:calc(8px + env(safe-area-inset-bottom,0px)); }
+}
+.mobile-source-credit { display:none; }
+@media(max-width:700px) {
+  .mobile-source-credit { display:block; margin-top:18px; font-size:10px; line-height:1.6; }
+}
