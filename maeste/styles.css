@@ -8128,3 +8128,26 @@ body {
     background:var(--canvas);
   }
 }
+
+/* Keep mobile copy below the complete poster so it cannot hide the artwork. */
+@media(max-width:700px) {
+  .movie-card {
+    display:block;
+  }
+  .poster-image {
+    position:relative;
+    inset:auto;
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:70svh;
+  }
+  .deck-peek-poster {
+    height:auto;
+    max-height:70svh;
+    aspect-ratio:2 / 3;
+  }
+  .card-body {
+    padding-top:18px;
+  }
+}
