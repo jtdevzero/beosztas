@@ -172,3 +172,22 @@
   .retro-caret,.retro-error .retro-dial-screen {animation:none;}
   .retro-key {transition:none;}
 }
+
+/* One screen, one input: native keyboard no longer creates a second field below. */
+.retro-dial-screen {position:relative;isolation:isolate;}
+#access-form:has(.retro-phone) #access-password.retro-visible-input {
+  position:absolute!important;inset:0!important;
+  left:0!important;top:0!important;
+  display:block!important;box-sizing:border-box!important;
+  width:100%!important;height:100%!important;
+  margin:0!important;padding:7px 14px!important;
+  border:0!important;border-radius:10px!important;
+  background:transparent!important;color:#f5e7d0!important;
+  text-align:center!important;font-size:21px!important;
+  letter-spacing:.22em!important;box-shadow:none!important;
+}
+.retro-native .retro-dots {visibility:hidden;}
+.retro-native .retro-keypad {display:none;}
+.retro-native .retro-phone-tools .retro-mode-switch,
+.retro-native .retro-phone-tools .retro-clear {visibility:hidden;}
+.retro-native .retro-dial-screen {margin-bottom:10px;}
