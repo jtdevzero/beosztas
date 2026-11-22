@@ -433,3 +433,24 @@
 .movie-card .card-kicker,.movie-card .film-edition-label,
 .deck-peek .card-kicker,.deck-peek .film-edition-label {display:none!important;}
 #cinema-view-toggle {display:none!important;}
+
+/* Final cinema polish — keep geometry and existing votes untouched. */
+@media(max-width:700px) {
+  .provider-strip .quick-providers button {opacity:.84;filter:saturate(.84) brightness(.96);}
+  .provider-strip .quick-providers button[aria-pressed="true"] {opacity:1;filter:none;}
+  .movie-card .card-shade,
+  .movie-card:has(.card-availability) .card-shade {
+    background:linear-gradient(180deg,rgba(4,10,14,.19),transparent 21%,transparent 58%,rgba(3,9,15,.42) 76%,rgba(3,10,16,.91) 100%);
+  }
+  #card-stage.test-poster-arriving {
+    animation:test-screen-light 420ms ease-out both;
+  }
+  @keyframes test-screen-light {
+    0% {filter:brightness(.89);}
+    46% {filter:brightness(1.055);}
+    100% {filter:brightness(1);}
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #card-stage.test-poster-arriving {animation:none;}
+}
