@@ -24,7 +24,9 @@
       let updating = false;
       const refresh = () => {
         if (updating || toast.hidden) return;
-        const shortened = shorten(toast.textContent || '');
+        const current = toast.textContent || '';
+        const shortened = shorten(current);
+        if (!shortened && /^[✓↶]/.test(current) && toast.dataset.compact === 'true') return;
         toast.dataset.compact = shortened ? 'true' : 'false';
         if (shortened && toast.textContent !== shortened) {
           updating = true;
