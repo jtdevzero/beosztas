@@ -277,6 +277,21 @@
     const seen = new Set(state.seen.map(mediaKey));
     return state.deck.slice(state.index + 1).find(movie => !seen.has(mediaKey(movie)) && (!state.room || !Object.prototype.hasOwnProperty.call(state.room.myVotes || {}, String(movie.id))));
   }
+  const warmedPosters = new Map();
+  function warmUpcomingPosters() {
+    const seen = new Set(state.seen.map(mediaKey));
+    const upcoming = state.deck.slice(Math.max(0, state.index) + 1)
+      .filter(movie => !seen.has(mediaKey(movie)) && (!state.room || !Object.prototype.hasOwnProperty.call(state.room.myVotes || {}, String(movie.id))))
+      .slice(0, 2);
+    const wanted = new Set(upcoming.map(movie => image(movie.poster_path, 'w780')).filter(Boolean));
+    for (const source of warmedPosters.keys()) if (!wanted.has(source)) warmedPosters.delete(source);
+    for (const source of wanted) {
+      if (warmedPosters.has(source)) continue;
+      const poster = new Image(); poster.decoding = 'async'; poster.src = source;
+      warmedPosters.set(source, poster);
+      poster.decode?.().catch(() => {});
+    }
+  }
   function renderCard() {
     if (state.busy) return;
     const seenIds = new Set(state.seen.map(mediaKey)), heldSeen = activeSeenVoteHold();
@@ -294,7 +309,7 @@
       .find(element => Number(element.dataset.movieId) === Number(movie.id) && element.dataset.mediaType === typeOf(movie))
       ?.querySelector('img');
     const nextPoster = next ? image(next.poster_path, 'w780') : '';
-    const peek = next ? `<div class="deck-peek" data-movie-id="${Number(next.id)}" data-media-type="${typeOf(next)}" aria-hidden="true" inert><div class="poster-frame">${nextPoster ? `<img class="deck-peek-poster" src="${nextPoster}" alt="" draggable="false" decoding="async" fetchpriority="low">` : `<div class="deck-peek-fallback"><span>✦</span><p>${esc(title(next))}</p></div>`}</div><div class="deck-peek-shade"></div></div>` : '';
+    const peek = next ? `<div class="deck-peek" data-movie-id="${Number(next.id)}" data-media-type="${typeOf(next)}" aria-hidden="true" inert><div class="poster-frame">${nextPoster ? `<img class="deck-peek-poster" src="${nextPoster}" alt="" draggable="false" decoding="async" fetchpriority="high">` : `<div class="deck-peek-fallback"><span>✦</span><p>${esc(title(next))}</p></div>`}</div><div class="deck-peek-shade"></div></div>` : '';
     const metadata = [rating(movie) ? `<span class="rating-tag">★ ${rating(movie)}</span>` : '', year(movie) ? `<span>${esc(year(movie))}</span>` : '', ...genreNames(movie).slice(0, 2).map(name => `<span>${esc(name)}</span>`)].filter(Boolean).join('<span class="meta-dot">·</span>');
     stage.innerHTML = `${peek}<article class="movie-card" data-movie-id="${Number(movie.id)}" data-media-type="${typeOf(movie)}" aria-label="${esc(title(movie))}"><div class="poster-frame">${poster ? `<img class="poster-image" src="${poster}" alt="${esc(title(movie))} ${noun(typeOf(movie))}poszter" draggable="false" fetchpriority="high">` : '<div class="poster-placeholder" aria-hidden="true">✦</div>'}</div><div class="card-shade"></div><div class="card-top"><span class="card-kicker"><span aria-hidden="true">✦</span> ${state.recommendation?.personalized && !state.room ? 'AZ ÍZLÉSEDHEZ HANGOLVA' : 'A MA ESTI MŰSORON'}</span><button type="button" class="card-info" data-details="${mediaKey(movie)}" aria-label="${esc(title(movie))} részletei">i</button></div><div class="swipe-stamp yes" aria-hidden="true">JÖHET</div><div class="swipe-stamp no" aria-hidden="true">MOST NEM</div><div class="swipe-stamp seen" aria-hidden="true">MÁR LÁTTAM</div><div class="card-body"><span class="film-edition-label">VÁLASZTÁS A MA ESTÉHEZ</span><div class="card-availability availability-loading" aria-live="polite">Elérhetőség ellenőrzése…</div><div class="movie-tags">${metadata}</div><h3 class="${title(movie).length > 32 ? 'long-title' : ''}">${esc(title(movie))}</h3><p class="card-overview">${esc(movie.overview || 'Egy új történet, amit érdemes felfedezni. Nyisd meg a részleteket és az előzetest.')}</p><button class="card-details-link" type="button" data-details="${mediaKey(movie)}">A történet és az előzetes <span aria-hidden="true"></span></button></div></article>`;
     stage.classList.toggle('has-peek', Boolean(next));
@@ -313,12 +328,13 @@
     const cardKey = mediaKey(movie);
     if (stage.dataset.presentedMovie !== cardKey && effectiveEffectsMode() !== 'off' && !document.hidden) {
       const incoming = $('.movie-card', stage);
-      const entrance = incoming.animate([{ transform: 'translate3d(0,10px,0) scale(.985)', opacity: .65 }, { transform: 'translate3d(0,0,0) scale(1)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.22,1,.36,1)' });
+      const entrance = incoming.animate([{ transform: 'translate3d(0,5px,0) scale(.995)', opacity: .9 }, { transform: 'translate3d(0,0,0) scale(1)', opacity: 1 }], { duration: 160, easing: 'cubic-bezier(.22,1,.36,1)' });
       incoming.addEventListener('pointerdown', () => entrance.cancel(), { once: true });
     }
     stage.dataset.presentedMovie = cardKey;
     setBusy(false); attachSwipe(); loadCardAvailability(movie);
     if (next) prefetchAvailability(next);
+    warmUpcomingPosters();
     $('.deck-peek-poster', stage)?.decode?.().catch(() => {});
   }
   function renderSummary() {
@@ -724,7 +740,7 @@
   }
   function showMatch(movie) {
     if ($('dialog[open]')) { toast(`Közös találat: ${title(movie)}`); return; }
-    $('#match-content').innerHTML = `<div class="match-movie">${image(movie.poster_path, 'w154') ? `<img src="${image(movie.poster_path, 'w154')}" alt="">` : ''}<div><h3>${esc(title(movie))}</h3><p>${typeOf(movie) === 'tv' ? 'Sorozat' : 'Film'}${year(movie) ? ` · ${esc(year(movie))}` : ''}${rating(movie) ? ` · ★ ${rating(movie)}` : ''}</p><button type="button" data-details="${mediaKey(movie)}">Hol nézhetjük meg? </button></div></div>`;
+    $('#match-content').innerHTML = `<p class="match-premiere">KÉT IGEN. EGY KÖZÖS MOZIÉLMÉNY.</p><div class="match-movie">${image(movie.poster_path, 'w342') ? `<img src="${image(movie.poster_path, 'w342')}" alt="">` : ''}<div><h3>${esc(title(movie))}</h3><p>${typeOf(movie) === 'tv' ? 'Sorozat' : 'Film'}${year(movie) ? ` · ${esc(year(movie))}` : ''}${rating(movie) ? ` · ★ ${rating(movie)}` : ''}</p><button type="button" data-details="${mediaKey(movie)}">Hol nézhetjük meg? </button></div></div>`;
     openDialog($('#match-dialog'));
   }
   async function pollRoom() {
