@@ -468,3 +468,26 @@
   #movie-actions[data-vote-glow] .vote-button,
   #movie-actions[data-vote-glow] #undo-vote {transition-duration:130ms!important;}
 }
+
+/* Performance pass: cheap touch feedback and composited movement on demand. */
+@media(max-width:700px) {
+  .movie-card.dragging,.movie-card.is-burning,.movie-card.is-portaling,
+  .movie-card.is-archiving {will-change:transform,opacity;}
+  .vote-button,.action-small,.quick-providers button,.playit-quick-actions button,
+  .quick-mode-buttons button,.media-tabs button {touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .provider-strip .quick-providers button {transition-duration:100ms!important;}
+  .app-shell.cinema-entering::after {animation-duration:250ms!important;}
+  .movie-card.is-burning,.movie-card.is-archiving,.movie-card.is-portaling,
+  .movie-card.effects-subtle {animation-duration:175ms!important;}
+}
+#playit-performance {
+  position:fixed;z-index:150;right:10px;bottom:calc(146px + env(safe-area-inset-bottom,0px));
+  max-width:calc(100vw - 20px);padding:6px 10px;
+  background:#08151de8;color:#f2d5a3;border:1px solid #b9935d9c;
+  border-radius:8px;font:600 11px/1.2 ui-monospace,SFMono-Regular,monospace;
+  pointer-events:none;box-shadow:0 2px 12px #0009;
+}
+@media(prefers-reduced-motion:reduce) {
+  .movie-card.dragging,.movie-card.is-burning,.movie-card.is-portaling,
+  .movie-card.is-archiving {will-change:auto;}
+}
