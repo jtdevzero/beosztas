@@ -488,3 +488,13 @@ body{background:radial-gradient(ellipse at 5% 0%,#254f665c,transparent 48%),radi
  .card-stage{aspect-ratio:auto;height:calc(100svh - 230px);min-height:500px;max-height:780px}
  .movie-card{min-height:100%}
 }
+
+/* A continuous compact masthead leaves more room for the poster. */
+.topbar{border-bottom:0;height:68px}
+.discovery{padding-top:0}
+@media(max-width:700px){
+ .topbar{height:52px}
+ .discovery{padding-top:0}
+ .discovery-header{margin-top:0;margin-bottom:4px}
+ .card-stage{height:calc(100svh - 208px)}
+}
