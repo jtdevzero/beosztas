@@ -194,3 +194,15 @@
 
 /* The password dots are now the first screen child; old ornament-hiding CSS must not hide them. */
 .retro-dial-screen > .retro-dots:first-child {display:inline-flex!important;}
+
+/* The real password input is the sole masked screen in both modes. */
+#access-form .retro-dial-screen > .retro-dots {display:none!important;}
+#access-form .retro-dial-screen > #access-password.retro-visible-input {
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;margin:0!important;
+  padding:7px 14px!important;opacity:1!important;pointer-events:auto!important;
+  border:0!important;box-shadow:none!important;background:transparent!important;
+  color:#f5e7d0!important;text-align:center!important;font-size:21px!important;
+  letter-spacing:.2em!important;
+}
+#access-form .retro-dial-screen > #access-password[readonly] {caret-color:transparent;}
