@@ -8293,3 +8293,18 @@ body::before {
 @media(prefers-reduced-motion:reduce) {
   .card-stage,.movie-card .poster-frame { transition:none; }
 }
+
+/* Fast, compositor-only voting: three distinct exits without expensive overlays. */
+.movie-card.is-burning { animation:choice-card-burn 280ms cubic-bezier(.25,.75,.3,1) both; }
+.movie-card.is-archiving {
+  animation:card-file-away 300ms cubic-bezier(.25,.75,.3,1) both;
+  --archive-x:0px;
+  --archive-y:-48px;
+  --archive-scale:.86;
+}
+.movie-card.is-portaling { animation:card-confirm-exit 270ms cubic-bezier(.25,.75,.3,1) both; }
+.movie-card:is(.is-burning,.is-archiving,.is-portaling) .card-body,
+.movie-card:is(.is-burning,.is-archiving,.is-portaling) .card-top { animation:none!important; }
+@media(prefers-reduced-motion:reduce) {
+  .movie-card:is(.is-burning,.is-archiving,.is-portaling) { animation:none!important; }
+}

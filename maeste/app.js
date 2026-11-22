@@ -475,8 +475,9 @@
     const variants = { no: ['is-burning', 'choice-card-burn'], seen: ['is-archiving', 'card-file-away'], yes: ['is-portaling', 'card-confirm-exit'] };
     const [cardClass, fullAnimationName] = variants[choice];
     const animationName = mode === 'subtle' ? 'card-gentle-exit' : fullAnimationName;
+    const lightweightEffects = true; // Mobile-friendly: no secondary animated overlay layers.
     let libraryTarget = null;
-    if (mode === 'subtle') {
+    if (mode === 'subtle' || lightweightEffects) {
       effects.className = 'subtle-effects';
     } else if (choice === 'no') {
       effects.className = 'vote-effects discard-effects';
@@ -537,8 +538,8 @@
         document.addEventListener('visibilitychange', onVisibility);
         document.addEventListener('maeste:effects-change', onEffectsChange);
         if (motion.addEventListener) motion.addEventListener('change', onMotion); else motion.addListener?.(onMotion);
-        timeout = setTimeout(finish, mode === 'subtle' ? 400 : 850);
-        if (mode === 'full') stage.append(effects);
+        timeout = setTimeout(finish, mode === 'subtle' ? 400 : 480);
+        if (mode === 'full' && !lightweightEffects) stage.append(effects);
         // The exit starts at the released pose; replace the inline drag transform
         // and the saving state together before the browser paints another frame.
         card.style.transform = '';
@@ -560,6 +561,8 @@
     const hadSeen = state.seen.some(item => mediaKey(item) === mediaKey(movie)), hadLike = state.likes.some(item => mediaKey(item) === mediaKey(movie));
     const priorDismissed = state.dismissed.find(item => mediaKey(item) === mediaKey(movie)) || null; let seenSaved = false;
     const card = $('.movie-card'); markVoteSaving(card, choice);
+    // Give touch feedback immediately while the network mutation completes.
+    const exitAnimation = playVoteAnimation(card, choice);
     try {
       if (choice === 'seen') { await updateSeen(mediaKey(movie)); seenSaved = true; }
       if (!stillCurrent()) return;
@@ -570,7 +573,7 @@
       }
       if (!originRoom && choice === 'yes' && !hadLike) { state.likes.push(movie); save('maeste.likes', state.likes); }
       learnPreference(movie, choice);
-      await playVoteAnimation(card, choice);
+      await exitAnimation;
       if (!stillCurrent()) return;
       if (originRoom) applyRoom(roomData, true);
       else {
