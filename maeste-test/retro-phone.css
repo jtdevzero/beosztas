@@ -54,7 +54,7 @@
   border-radius:11px; box-shadow:inset 0 2px 8px #0008;
   color:#e4d2b6;
 }
-.retro-dial-screen > span:first-child {display:none;}
+
 .retro-dots {
   font:500 18px/1 ui-monospace,SFMono-Regular,monospace;
   letter-spacing:.32em; white-space:nowrap; overflow:hidden;
