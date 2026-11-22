@@ -8394,3 +8394,45 @@ body::before {
 @media(max-width:700px) {
   .mobile-source-credit { display:block; margin-top:18px; font-size:10px; line-height:1.6; }
 }
+
+/* Thumb-reachable voting dock. Fixed in the viewport, independent of poster swipes. */
+@media(max-width:700px) {
+  #movie-actions:not([hidden]) {
+    position:fixed;
+    left:50%;
+    right:auto;
+    bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    z-index:70;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:min(440px,calc(100vw - 24px));
+    margin:0;
+    padding:8px;
+    gap:7px;
+    border:1px solid #c59b645e;
+    border-radius:16px;
+    background:#101d28f5;
+    box-shadow:0 10px 30px #000a,0 0 0 1px #0005;
+    transform:translateX(-50%);
+  }
+  #movie-actions[hidden] { display:none!important; }
+  #movie-actions .vote-button {
+    flex:1;
+    width:auto;
+    min-width:0;
+    min-height:54px;
+    height:54px;
+    padding:7px 5px;
+    gap:4px;
+    border-radius:11px;
+  }
+  #movie-actions #vote-seen { flex:1.2; }
+  #movie-actions .vote-button small { font-size:11px; }
+  #movie-actions .vote-button svg { width:19px; height:19px; }
+  #movie-actions #undo-vote { flex:none; min-width:34px; width:34px; min-height:48px; }
+  #movie-actions .action-spacer { display:none; }
+  .swipe-area { padding-bottom:calc(85px + env(safe-area-inset-bottom,0px)); }
+  body.sheet-open #movie-actions,
+  body:has(dialog[open]) #movie-actions { visibility:hidden; pointer-events:none; }
+}
