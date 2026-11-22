@@ -191,3 +191,6 @@
 .retro-native .retro-phone-tools .retro-mode-switch,
 .retro-native .retro-phone-tools .retro-clear {visibility:hidden;}
 .retro-native .retro-dial-screen {margin-bottom:10px;}
+
+/* The password dots are now the first screen child; old ornament-hiding CSS must not hide them. */
+.retro-dial-screen > .retro-dots:first-child {display:inline-flex!important;}
