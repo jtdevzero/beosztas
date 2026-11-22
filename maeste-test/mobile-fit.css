@@ -167,3 +167,48 @@
   .quick-providers button { width:36px; }
   .quick-providers button img { width:29px; height:29px; }
 }
+
+/* Step 3: retain the original swipe card; frame it as a private cinema screen. */
+@media (max-width:700px) {
+  .swipe-area {
+    position:relative; isolation:isolate; align-items:center;
+    padding:5px 0 4px;
+    background:
+      linear-gradient(90deg,rgba(18,7,11,.92),rgba(6,15,21,.45) 17%,rgba(6,15,21,.2) 50%,rgba(6,15,21,.45) 83%,rgba(18,7,11,.92)),
+      url('../maeste/cinema-login.webp') center / cover no-repeat;
+  }
+  .card-stage {
+    position:relative; z-index:1; align-self:center;
+    width:min(90%,440px); max-width:440px;
+    margin-inline:auto; min-width:0;
+    box-shadow:0 0 0 3px #221710,0 0 0 5px #a97c4559,0 12px 28px #000a;
+  }
+  .card-stage .movie-card,.card-stage .deck-peek { width:100%; }
+  /* Small, atmospheric upholstery rather than another content row. */
+  .swipe-area::after {
+    content:'';
+    pointer-events:none; position:fixed; z-index:3;
+    left:0; right:0; bottom:calc(63px + env(safe-area-inset-bottom,0px));
+    height:23px;
+    background:
+      repeating-radial-gradient(ellipse 17px 19px at 16px 24px,
+        #a4584a 0 2px,#6e2530 8px,#3b131b 15px,transparent 17px) 0 0 / 34px 28px repeat-x;
+    filter:drop-shadow(0 -3px 5px #0009);
+    opacity:.76;
+  }
+  #movie-actions:not([hidden]) {
+    background:
+      linear-gradient(180deg,rgba(85,30,39,.96),#221923 43%,#101d28 100%);
+    border-top:1px solid #a66b56;
+    box-shadow:0 -8px 18px #0007;
+  }
+  #movie-actions .vote-button,#movie-actions #undo-vote {
+    position:relative; z-index:1;
+  }
+}
+@media (max-width:360px) {
+  .card-stage { width:92%; }
+}
+@media (max-width:700px) and (max-height:700px) {
+  .swipe-area::after { bottom:calc(58px + env(safe-area-inset-bottom,0px)); height:17px; }
+}
