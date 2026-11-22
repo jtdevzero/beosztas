@@ -2,10 +2,11 @@
 /* Shared theme, semantic colors and sizing. */
 :root {
   color-scheme:dark;
-  --bg:#2b3037;
-  --panel:#353c45;
-  --panel-soft:#404852;
-  --line:#535b65;
+  --canvas:#18313b;
+  --bg:var(--canvas);
+  --panel:#203d48;
+  --panel-soft:#294c58;
+  --line:#44616b;
   --text:#e1ddd5;
   --muted:#b3b4b8;
   --accent:#d7a575;
@@ -32,7 +33,7 @@
   --action-yes-end:#d0a568;
   --action-yes-border:#f5deb1;
   --text-on-accent:#231a0f;
-  --selection-surface:#48515c;
+  --selection-surface:#315260;
   --touch-target:44px;
   --card-height:clamp(400px, calc(100svh - 230px), 740px)
 }
@@ -8051,8 +8052,8 @@ body {
 }
 
 
-/* Muted slate surrounds the posters; cinematic surfaces keep their own contrast. */
-.access-gate,.movie-card,.deck-peek {
+/* The login keeps its cinematic palette. */
+.access-gate {
   color-scheme:dark;
   --bg:#090f1b;
   --panel:#141f30;
@@ -8100,4 +8101,30 @@ body {
 }
 .field-hint,.field-label,.loading-providers,.main-footer p,.main-footer .attribution,.main-footer a,.footer-brand {
   color:var(--muted);
+}
+
+/* One canvas color for the page and every exposed poster surround. */
+.movie-card,.deck-peek {
+  --bg:var(--canvas);
+  --panel:var(--canvas);
+}
+.card-stage,.movie-card,.deck-peek,.poster-image,.deck-peek-poster,.poster-placeholder,.deck-peek-fallback {
+  background:var(--canvas);
+}
+.card-stage {
+  box-shadow:none;
+}
+.movie-card {
+  border-color:transparent;
+}
+.card-stage::before,.card-stage::after {
+  background:var(--canvas);
+}
+@media(max-width:700px) {
+  .movie-card .card-shade,.movie-card:has(.card-availability) .card-shade,.deck-peek-shade {
+    background:none;
+  }
+  .card-body {
+    background:var(--canvas);
+  }
 }
