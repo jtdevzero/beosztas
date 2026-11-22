@@ -212,3 +212,25 @@
 @media (max-width:700px) and (max-height:700px) {
   .swipe-area::after { bottom:calc(58px + env(safe-area-inset-bottom,0px)); height:17px; }
 }
+
+/* Step 4: the outer gold frame follows the movie poster's 2:3 geometry. */
+@media (max-width:700px) {
+  .swipe-area { container-type:size; }
+  .card-stage {
+    width:min(90%, calc(66.6667cqh - 10px));
+    max-width:440px; min-width:0;
+    flex:1 1 0; height:auto!important;
+    align-self:center;
+  }
+  .card-stage .poster-frame,
+  .card-stage .movie-card .poster-frame {
+    background:#091319;
+  }
+  .card-stage .poster-frame .poster-image,
+  .card-stage .deck-peek-poster {
+    object-fit:contain; object-position:center;
+  }
+}
+@media (max-width:360px) {
+  .card-stage { width:min(92%, calc(66.6667cqh - 10px)); }
+}
