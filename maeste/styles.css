@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&display=swap');
 /* Shared theme, semantic colors and sizing. */
 :root {
-  color-scheme:light;
-  --bg:#f2efe8;
-  --panel:#fffcf7;
-  --panel-soft:#e9e3d9;
-  --line:#d5ccbf;
-  --text:#202b3a;
-  --muted:#626975;
-  --accent:#995329;
-  --coral:#a14735;
-  --green:#395d55;
+  color-scheme:dark;
+  --bg:#2b3037;
+  --panel:#353c45;
+  --panel-soft:#404852;
+  --line:#535b65;
+  --text:#e1ddd5;
+  --muted:#b3b4b8;
+  --accent:#d7a575;
+  --coral:#dda08f;
+  --green:#a8c1b2;
   --serif:'Bricolage Grotesque',sans-serif;
   --sans:'DM Sans',sans-serif;
   --display:'Bricolage Grotesque',sans-serif;
@@ -32,7 +32,7 @@
   --action-yes-end:#d0a568;
   --action-yes-border:#f5deb1;
   --text-on-accent:#231a0f;
-  --selection-surface:#e7ded1;
+  --selection-surface:#48515c;
   --touch-target:44px;
   --card-height:clamp(400px, calc(100svh - 230px), 740px)
 }
@@ -2804,7 +2804,7 @@ input {
   flex:none;
   border-radius:4px;
   object-fit:cover;
-  background:#edf0e7
+  background:var(--panel-soft)
 }
 
 .availability-chip span,.availability-service span {
@@ -5079,7 +5079,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   width:36px;
   height:50px;
   border-radius:2px;
-  background:#dfe0d8
+  background:var(--panel-soft)
 }
 
 .mini-movie span {
@@ -5159,7 +5159,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 }
 
 .secondary-button:hover:not(:disabled) {
-  background:#e7e8df;
+  background:var(--panel-soft);
   border-color:#abb09e
 }
 
@@ -5214,7 +5214,7 @@ select {
 }
 
 .close-button:hover {
-  background:#e7e8df
+  background:var(--panel-soft)
 }
 
 .tiny-star {
@@ -5267,7 +5267,7 @@ select {
 
 .connection-banner,.pair-banner,.decision-banner {
   border:1px solid var(--line);
-  background:#ebece4;
+  background:var(--panel-soft);
   color:var(--text);
   border-radius:4px;
   padding:14px 18px;
@@ -5475,7 +5475,7 @@ body.sheet-open {
 
 .room-summary {
   font-size:12px;
-  background:#ebece4;
+  background:var(--panel-soft);
   border-color:var(--line);
   color:var(--text)
 }
@@ -5551,7 +5551,7 @@ body.sheet-open {
 
 .backup-controls {
   border:1px solid var(--line);
-  background:#efefe7;
+  background:var(--panel-soft);
   border-radius:4px;
   padding:18px;
   gap:12px
@@ -5614,7 +5614,7 @@ body.sheet-open {
 }
 
 .search-actions>button:hover {
-  background:#ebece4
+  background:var(--panel-soft)
 }
 
 .search-item .search-meta {
@@ -5636,7 +5636,7 @@ body.sheet-open {
 
 .detail-hero {
   height:280px;
-  background:#dfe1d6
+  background:var(--panel-soft)
 }
 
 .detail-hero:after {
@@ -5665,7 +5665,7 @@ body.sheet-open {
 }
 
 .availability-provider {
-  background:#efefe7;
+  background:var(--panel-soft);
   border:1px solid var(--line);
   border-radius:4px;
   color:var(--text);
@@ -5696,7 +5696,7 @@ body.sheet-open {
   font-size:13px;
   border-color:var(--line);
   color:var(--text);
-  background:#efefe7;
+  background:var(--panel-soft);
   border-radius:4px
 }
 
@@ -5704,13 +5704,13 @@ body.sheet-open {
   font:700 44px var(--display);
   color:var(--accent);
   letter-spacing:5px;
-  background:#efefe7;
+  background:var(--panel-soft);
   border-color:var(--line);
   border-radius:4px
 }
 
 .room-member {
-  background:#efefe7;
+  background:var(--panel-soft);
   border-color:var(--line);
   color:var(--text)
 }
@@ -5734,7 +5734,7 @@ body.sheet-open {
 }
 
 .match-movie {
-  background:#efefe7;
+  background:var(--panel-soft);
   border-color:var(--line);
   border-radius:4px
 }
@@ -5772,7 +5772,7 @@ body.sheet-open {
 }
 
 .decision-status,.decision-result {
-  background:#efefe7;
+  background:var(--panel-soft);
   border-color:var(--line);
   border-radius:4px;
   color:var(--text)
@@ -8051,7 +8051,7 @@ body {
 }
 
 
-/* Warm paper surrounds the posters; cinematic surfaces keep their own contrast. */
+/* Muted slate surrounds the posters; cinematic surfaces keep their own contrast. */
 .access-gate,.movie-card,.deck-peek {
   color-scheme:dark;
   --bg:#090f1b;
@@ -8088,4 +8088,16 @@ body {
   object-fit:contain;
   object-position:center;
   background:var(--panel);
+}
+
+/* Low-glare reading surfaces for evening use. */
+.app-shell .primary-button,.modal .primary-button {
+  color:var(--text-on-accent);
+}
+.app-shell .primary-button:hover:not(:disabled),.modal .primary-button:hover:not(:disabled) {
+  background:#e1b58c;
+  border-color:#e1b58c;
+}
+.field-hint,.field-label,.loading-providers,.main-footer p,.main-footer .attribution,.main-footer a,.footer-brand {
+  color:var(--muted);
 }
