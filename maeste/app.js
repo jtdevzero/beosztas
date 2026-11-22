@@ -671,6 +671,8 @@
         else if (Math.abs(dx) > Math.abs(dy) * 1.2 || Math.hypot(dx, dy) >= 24) axis = 'x';
       }
       if (!axis) return;
+      // On touchscreens the page must not steal a downward "Már láttam" gesture.
+      if (event.cancelable) event.preventDefault();
       card.classList.add('dragging');
       if (axis === 'y') {
         const down = Math.max(0, dy);
@@ -690,7 +692,7 @@
       if (!active || event.pointerId !== pointerId) return;
       active = false;
       if (frame) { cancelAnimationFrame(frame); paintPose(); }
-      const choice = !cancelled && axis === 'y' && (dy > Math.min(110, card.clientHeight * .2) || (dy > 35 && velocityY > .65 && event.timeStamp - lastTime < 90)) ? 'seen'
+      const choice = !cancelled && axis === 'y' && (dy > Math.min(70, card.clientHeight * .14) || (dy > 28 && velocityY > .5 && event.timeStamp - lastTime < 120)) ? 'seen'
         : !cancelled && axis === 'x' && (Math.abs(dx) > Math.min(85, card.clientWidth * .23) || (Math.abs(dx) > 30 && Math.abs(velocityX) > .65 && dx * velocityX > 0 && event.timeStamp - lastTime < 90)) ? (dx > 0 ? 'yes' : 'no') : null;
       if (choice) {
         card.style.setProperty('--choice-x', `${pose.x}px`);

@@ -8364,3 +8364,23 @@ body::before {
   filter:none;
   cursor:default;
 }
+/* Mobile swipe-first layout: the film card owns vertical gestures, not page scroll. */
+@media(max-width:700px) {
+  .night-notes { display:none!important; }
+  .discovery { padding-top:10px; }
+  .discovery-header { margin-bottom:0; }
+  .quick-providers { margin-block:4px 6px; }
+  .card-stage {
+    height:clamp(300px,calc(100dvh - 350px),610px);
+    touch-action:none;
+    overscroll-behavior:contain;
+  }
+  .movie-card,.movie-card .card-body,.movie-card .poster-frame {
+    touch-action:none;
+    overscroll-behavior:contain;
+  }
+  .movie-card .card-body { overflow:hidden; }
+  .movie-actions { margin-top:10px; padding-block:7px; }
+  .gesture-hint { margin-top:8px; }
+  .main-footer { margin-top:10px; }
+}
