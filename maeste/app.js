@@ -541,7 +541,12 @@
           button?.classList.add('library-receipt');
           setTimeout(() => button?.classList.remove('library-receipt'), 360);
         }
-        clearVoteCardState(card); resolve();
+        // Hold the outgoing frame invisible until the replacement is rendered.
+        // Resetting it here used to flash the old poster back on slow connections.
+        const keepHidden = completed && contextCurrent();
+        clearVoteCardState(card);
+        if (keepHidden) { card.style.opacity = '0'; card.style.pointerEvents = 'none'; }
+        resolve();
       };
       const onEnd = event => { if (event.target === card && event.animationName === animationName) finish(event.type === 'animationend'); };
       const onVisibility = () => { if (document.hidden) finish(); };
@@ -606,7 +611,9 @@
       }
       else toast(error.message);
     } finally {
-      clearVoteCardState(card); state.voting = false; setBusy(state.busy); renderLists(); renderCard(); synchronizeRoomSeen(); maybePromptDecision();
+      state.voting = false; setBusy(state.busy); renderLists(); renderCard();
+      if (card?.isConnected) clearVoteCardState(card);
+      synchronizeRoomSeen(); maybePromptDecision();
     }
   }
   async function undoVote() {

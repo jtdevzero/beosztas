@@ -8358,3 +8358,9 @@ body::before {
 @media(prefers-reduced-motion:reduce) {
   .match-dialog[open] .match-star { animation:none; }
 }
+/* Disabled votes still prevent duplicates, but never flash grey mid-transition. */
+.movie-actions .vote-button:disabled {
+  opacity:1;
+  filter:none;
+  cursor:default;
+}
