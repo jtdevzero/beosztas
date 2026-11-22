@@ -428,3 +428,8 @@
 @media(prefers-reduced-motion:reduce) {
   .app-shell.cinema-entering::after { animation:none; display:none; }
 }
+
+/* Clean poster: no showtime badge or decorative face-covering overlay. */
+.movie-card .card-kicker,.movie-card .film-edition-label,
+.deck-peek .card-kicker,.deck-peek .film-edition-label {display:none!important;}
+#cinema-view-toggle {display:none!important;}
