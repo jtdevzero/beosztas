@@ -386,3 +386,16 @@
   #movie-actions[data-vote-glow] .vote-button,
   #movie-actions[data-vote-glow] #undo-vote { box-shadow:none; }
 }
+
+/* Step 8: grow the portrait screen without cropping artwork or covering the dock. */
+@media (max-width:700px) and (orientation:portrait) {
+  .swipe-area { padding-top:6px; padding-bottom:31px; }
+  .card-stage {
+    width:min(94%, calc(66.6667cqh - 2px));
+    margin-block:3px 7px;
+    max-height:calc(100% - 10px);
+  }
+}
+@media (max-width:360px) and (orientation:portrait) {
+  .card-stage { width:min(94%, calc(66.6667cqh - 2px)); }
+}
