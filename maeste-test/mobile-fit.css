@@ -454,3 +454,17 @@
 @media(prefers-reduced-motion:reduce){
   #card-stage.test-poster-arriving {animation:none;}
 }
+
+/* Speed pass: composited, brief transitions instead of long filter animations. */
+@media(max-width:700px) {
+  .movie-card.is-burning,.movie-card.is-archiving,.movie-card.is-portaling,
+  .movie-card.effects-subtle {animation-duration:190ms!important;}
+  #card-stage.test-poster-arriving {animation:test-poster-appear 180ms ease-out both!important;}
+  @keyframes test-poster-appear {
+    from {opacity:.92;}
+    to {opacity:1;}
+  }
+  .app-shell.cinema-entering::after {animation-duration:340ms!important;}
+  #movie-actions[data-vote-glow] .vote-button,
+  #movie-actions[data-vote-glow] #undo-vote {transition-duration:130ms!important;}
+}
