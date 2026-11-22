@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&display=swap');
 /* Shared theme, semantic colors and sizing. */
 :root {
-  color-scheme:dark;
-  --bg:#090f1b;
-  --panel:#141f30;
-  --panel-soft:#202f45;
-  --line:#35455e;
-  --text:#f8f1e6;
-  --muted:#b1bfd1;
-  --accent:#e8ad79;
-  --coral:#ef806b;
-  --green:#c5d2e4;
+  color-scheme:light;
+  --bg:#f2efe8;
+  --panel:#fffcf7;
+  --panel-soft:#e9e3d9;
+  --line:#d5ccbf;
+  --text:#202b3a;
+  --muted:#626975;
+  --accent:#995329;
+  --coral:#a14735;
+  --green:#395d55;
   --serif:'Bricolage Grotesque',sans-serif;
   --sans:'DM Sans',sans-serif;
   --display:'Bricolage Grotesque',sans-serif;
@@ -32,7 +32,7 @@
   --action-yes-end:#d0a568;
   --action-yes-border:#f5deb1;
   --text-on-accent:#231a0f;
-  --selection-surface:#293b55;
+  --selection-surface:#e7ded1;
   --touch-target:44px;
   --card-height:clamp(400px, calc(100svh - 230px), 740px)
 }
@@ -7785,8 +7785,7 @@ input,select,.modal,.filters-panel {
 
 /* Static cinematic gradients keep scrolling and card gestures lightweight. */
 body {
-  background:radial-gradient(ellipse at 5% 0%,#254f665c,transparent 48%),radial-gradient(ellipse at 100% 25%,#75412f4a,transparent 48%),linear-gradient(145deg,#101b30 0%,#0b1826 48%,#171321 100%);
-  background-color:#0b1422
+  background:var(--bg)
 }
 
 .app-shell {
@@ -8051,3 +8050,35 @@ body {
 
 }
 
+
+/* Warm paper surrounds the posters; cinematic surfaces keep their own contrast. */
+.access-gate,.movie-card,.deck-peek {
+  color-scheme:dark;
+  --bg:#090f1b;
+  --panel:#141f30;
+  --panel-soft:#202f45;
+  --line:#35455e;
+  --text:#f8f1e6;
+  --muted:#b1bfd1;
+  --accent:#e8ad79;
+  --coral:#ef806b;
+  --green:#c5d2e4;
+  color:var(--text);
+}
+.movie-actions {
+  background:var(--panel);
+  border:1px solid var(--line);
+}
+.card-stage {
+  box-shadow:0 8px 28px #202b3a14;
+}
+.card-stage::before,.card-stage::after {
+  background:var(--panel-soft);
+  border-color:var(--line);
+}
+.card-info {
+  color:var(--text-on-color);
+}
+.card-body .card-availability .availability-label {
+  color:var(--muted);
+}
