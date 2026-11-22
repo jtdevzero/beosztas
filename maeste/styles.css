@@ -8082,3 +8082,10 @@ body {
 .card-body .card-availability .availability-label {
   color:var(--muted);
 }
+
+/* Preserve the entire poster artwork at every card size. */
+.poster-image,.deck-peek-poster {
+  object-fit:contain;
+  object-position:center;
+  background:var(--panel);
+}
