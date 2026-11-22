@@ -399,3 +399,32 @@
 @media (max-width:360px) and (orientation:portrait) {
   .card-stage { width:min(94%, calc(66.6667cqh - 2px)); }
 }
+
+/* Optional spoiler-free artwork and a discreet cinema-entry fade. */
+@media(max-width:700px) {
+  #cinema-view-toggle {
+    position:absolute; top:22px; left:50%; transform:translateX(-50%);
+    z-index:9; width:29px; height:29px;
+    border:1px solid #d8b77b9e; border-radius:50%;
+    background:#0b141bdd; color:#f4dba9;
+    font-size:17px; line-height:1; display:grid; place-items:center;
+    box-shadow:0 2px 12px #0007;
+  }
+  body.cinema-clean-poster .movie-card .card-body { display:none!important; }
+  body.cinema-clean-poster .movie-card .card-kicker { opacity:.45; }
+  body.cinema-clean-poster .movie-card .card-shade {
+    background:linear-gradient(180deg,#0005,transparent 22%,transparent 100%)!important;
+  }
+  .app-shell.cinema-entering::after {
+    content:''; position:fixed; inset:0; z-index:95; pointer-events:none;
+    background:#080d12; animation:cinema-curtain-open 720ms ease-out both;
+  }
+  @keyframes cinema-curtain-open {
+    from { opacity:1; clip-path:inset(0 0 0 0); }
+    55% { opacity:.75; clip-path:inset(0 18% 0 18%); }
+    to { opacity:0; clip-path:inset(0 50% 0 50%); }
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .app-shell.cinema-entering::after { animation:none; display:none; }
+}
