@@ -8436,3 +8436,21 @@ body::before {
   body.sheet-open #movie-actions,
   body:has(dialog[open]) #movie-actions { visibility:hidden; pointer-events:none; }
 }
+/* Fixed bottom navigation, flush with the screen edge (not a floating dock). */
+@media(max-width:700px) {
+  #movie-actions:not([hidden]) {
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    max-width:none;
+    margin:0;
+    padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
+    border:0;
+    border-top:1px solid #a9815266;
+    border-radius:0;
+    box-shadow:none;
+    background:#101d28;
+    transform:none;
+  }
+}
