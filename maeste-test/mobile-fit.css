@@ -258,3 +258,35 @@
   .swipe-area { padding-bottom:31px; }
   .toast { bottom:calc(69px + env(safe-area-inset-bottom,0px)); min-height:29px; padding:7px 9px; }
 }
+
+/* Step 6: deliberate breathing room around the screen and seat-anchored toast. */
+@media (max-width:700px) {
+  .swipe-area { padding:12px 0 42px; }
+  .card-stage {
+    flex:1 1 0; min-height:0;
+    margin-block:5px 12px;
+    max-height:calc(100% - 17px);
+  }
+  #toast.toast:not([hidden]) {
+    display:block;
+    position:fixed; z-index:78;
+    left:50%; right:auto;
+    bottom:calc(64px + env(safe-area-inset-bottom,0px));
+    width:min(calc(100vw - 18px),480px); max-width:none;
+    height:25px; min-height:25px;
+    margin:0; padding:4px 8px;
+    transform:translateX(-50%);
+    color:#fff2de; font-size:clamp(9px,2.55vw,11px);
+    font-weight:700; line-height:16px; letter-spacing:0;
+    text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    border:1px solid #b67d5870; border-radius:4px;
+    background:linear-gradient(90deg,#451a24f4,#251923fa 22%,#251923fa 78%,#451a24f4);
+    box-shadow:0 1px 7px #0008;
+    pointer-events:none;
+  }
+}
+@media (max-width:700px) and (max-height:700px) {
+  .swipe-area { padding:9px 0 35px; }
+  .card-stage { margin-block:4px 8px; max-height:calc(100% - 12px); }
+  #toast.toast:not([hidden]) { bottom:calc(59px + env(safe-area-inset-bottom,0px)); }
+}
