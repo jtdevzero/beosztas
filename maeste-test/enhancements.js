@@ -52,6 +52,23 @@
       }).observe(shell, { attributes:true, attributeFilter:['hidden'] });
     }
 
+    // A subtle screen-light sweep when the existing app renders the next card.
+    const stage = document.getElementById('card-stage');
+    if (stage) {
+      let arrivalTimer;
+      const stageObserver = new MutationObserver(records => {
+        if (!records.some(record => record.addedNodes.length && Array.from(record.addedNodes).some(node =>
+          node.nodeType === 1 && (node.matches?.('.movie-card,.deck-peek') || node.querySelector?.('.movie-card,.deck-peek'))
+        ))) return;
+        stage.classList.remove('test-poster-arriving');
+        void stage.offsetWidth;
+        stage.classList.add('test-poster-arriving');
+        clearTimeout(arrivalTimer);
+        arrivalTimer = setTimeout(() => stage.classList.remove('test-poster-arriving'), 500);
+      });
+      stageObserver.observe(stage, {childList:true,subtree:true});
+    }
+
     const dock = document.getElementById('movie-actions');
     if (dock) {
       let timer;
