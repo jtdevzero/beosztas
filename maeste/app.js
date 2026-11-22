@@ -510,10 +510,10 @@
       append('effect-caption', effects, 'span', 'JÖHET!');
     }
     await new Promise(resolve => {
-      let finished = false, timeout, frame;
+      let finished = false, timeout, contextTimer;
       const finish = (completed = false) => {
         if (finished) return; finished = true;
-        clearTimeout(timeout); cancelAnimationFrame(frame);
+        clearTimeout(timeout); clearInterval(contextTimer);
         card.removeEventListener('animationend', onEnd); card.removeEventListener('animationcancel', onEnd);
         document.removeEventListener('visibilitychange', onVisibility);
         document.removeEventListener('maeste:effects-change', onEffectsChange);
@@ -530,7 +530,8 @@
       const onVisibility = () => { if (document.hidden) finish(); };
       const onMotion = () => { if (motion.matches) finish(); };
       const onEffectsChange = () => { if (effectiveEffectsMode() !== mode) finish(); };
-      const checkContext = () => { if (!contextCurrent()) finish(); else frame = requestAnimationFrame(checkContext); };
+      // Context changes need prompt cancellation, not a DOM query on every animation frame.
+      const checkContext = () => { if (!contextCurrent()) finish(); };
       try {
         card.addEventListener('animationend', onEnd); card.addEventListener('animationcancel', onEnd);
         document.addEventListener('visibilitychange', onVisibility);
@@ -542,7 +543,8 @@
         // and the saving state together before the browser paints another frame.
         card.style.transform = '';
         if (mode === 'subtle') card.classList.add('effects-subtle');
-        card.classList.add(cardClass); frame = requestAnimationFrame(checkContext);
+        card.classList.add(cardClass);
+        contextTimer = setInterval(checkContext, 100);
         if (document.hidden || motion.matches || !contextCurrent()) finish();
       } catch { finish(); }
     });

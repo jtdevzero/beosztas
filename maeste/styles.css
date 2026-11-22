@@ -3867,7 +3867,7 @@ html,body {
 
 .movie-card.is-archiving {
   z-index:20;
-  animation:card-file-away 560ms cubic-bezier(.4,0,.2,1) both;
+  animation:card-file-away 520ms cubic-bezier(.22,.7,.25,1) both;
   box-shadow:0 12px 32px #0004
 }
 
@@ -3969,8 +3969,8 @@ html,body {
     opacity:1
   }
 
-  75% {
-    opacity:.95
+  55% {
+    opacity:.9
   }
 
   100% {
@@ -7028,7 +7028,7 @@ input,select,.modal,.filters-panel {
 
 /* Every saved choice gets a distinct receipt above the poster. */
 .movie-card.is-burning {
-  animation:choice-card-burn 680ms cubic-bezier(.4,0,.4,1) both;
+  animation:choice-card-burn 520ms cubic-bezier(.22,.7,.25,1) both;
   will-change:transform,opacity
 }
 
@@ -7039,11 +7039,11 @@ input,select,.modal,.filters-panel {
   }
 
   45% {
-    opacity:.75
+    opacity:.88
   }
 
   100% {
-    transform:translate3d(0,34%,0) rotate(-14deg) scale(.06);
+    transform:translate3d(-10%,24%,0) rotate(-9deg) scale(.68);
     opacity:0
   }
 
@@ -7468,18 +7468,23 @@ input,select,.modal,.filters-panel {
 
 /* Keep the central confirmation; remove the portal departure. */
 .movie-card.is-portaling {
-  animation:card-confirm-exit 520ms ease both
+  animation:card-confirm-exit 460ms cubic-bezier(.22,.7,.25,1) both
 }
 
 @keyframes card-confirm-exit {
-  0%,75% {
+  0% {
     opacity:1;
-    transform:translate3d(var(--choice-x,0px),var(--choice-y,0px),0) rotate(var(--choice-rotation,0deg))
+    transform:translate3d(var(--choice-x,0px),var(--choice-y,0px),0) rotate(var(--choice-rotation,0deg)) scale(1)
+  }
+
+  55% {
+    opacity:1;
+    transform:translate3d(3%, -2%,0) rotate(1deg) scale(.985)
   }
 
   100% {
     opacity:0;
-    transform:translate3d(0,0,0)
+    transform:translate3d(12%,-7%,0) rotate(3deg) scale(.9)
   }
 
 }
