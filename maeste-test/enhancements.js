@@ -38,22 +38,6 @@
       refresh();
     }
 
-    const swipe = document.querySelector('.swipe-area');
-    if (swipe && !document.getElementById('cinema-view-toggle')) {
-      const toggle = document.createElement('button');
-      toggle.id = 'cinema-view-toggle';
-      toggle.type = 'button';
-      toggle.textContent = '◉';
-      toggle.setAttribute('aria-label', 'Plakátadatok elrejtése');
-      toggle.setAttribute('aria-pressed', 'false');
-      swipe.prepend(toggle);
-      toggle.addEventListener('click', () => {
-        const clean = document.body.classList.toggle('cinema-clean-poster');
-        toggle.textContent = clean ? '▤' : '◉';
-        toggle.setAttribute('aria-label', clean ? 'Plakátadatok megjelenítése' : 'Plakátadatok elrejtése');
-        toggle.setAttribute('aria-pressed', String(clean));
-      });
-    }
     const shell = document.querySelector('.app-shell');
     if (shell) {
       const animateEntrance = () => {
