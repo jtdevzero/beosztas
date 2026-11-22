@@ -8264,3 +8264,32 @@ body::before {
   .movie-card .card-body .film-edition-label { color:#f0eeea; text-shadow:0 1px 5px rgba(0,0,0,.65); }
   .movie-card .card-body .card-details-link { color:#fff; border-color:#fff; }
 }
+
+/* Private-cinema presentation: a still, gilded frame around the moving artwork. */
+.swipe-area { position:relative; }
+.movie-card .poster-frame {
+  border:6px solid #9b6a35;
+  box-shadow:inset 0 0 0 2px #f1c786,inset 0 0 22px #0009,0 0 0 1px #40260f;
+}
+.card-stage {
+  border:1px solid #a5794388;
+  box-shadow:0 0 0 4px #231b17,0 0 0 6px #a97c4559,0 16px 38px #0008;
+}
+@media(max-width:700px) {
+  .swipe-area {
+    padding-inline:12px;
+    background:linear-gradient(90deg,#39090f 0,#7a1724 4px,#27080d 11px,transparent 12px,transparent calc(100% - 12px),#27080d calc(100% - 11px),#7a1724 calc(100% - 4px),#39090f 100%);
+  }
+  .card-stage {
+    border:7px solid #9b6a35;
+    border-image:linear-gradient(135deg,#56351c,#e8bd79 17%,#8a5829 43%,#f4ce8d 66%,#51321a) 1;
+    box-shadow:0 0 0 4px #241b15,0 0 0 6px #6f4b2b,0 18px 38px #000b;
+    background:#0c1314;
+  }
+  .movie-card { border:0; border-radius:0; }
+  .movie-card .poster-frame { border:0; box-shadow:none; }
+  .movie-card .card-body { padding-bottom:20px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .card-stage,.movie-card .poster-frame { transition:none; }
+}
