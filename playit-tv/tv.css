@@ -1,0 +1,68 @@
+/* PLAYIT TV Edition — 10-foot UI; isolates all overrides under body.playit-tv-edition. */
+:root{color-scheme:dark}
+html,body.playit-tv-edition{width:100%;min-height:100%;background:#060609;overflow-x:hidden}
+body.playit-tv-edition{font-size:clamp(16px,1.2vw,24px);-webkit-text-size-adjust:100%}
+body.playit-tv-edition button,body.playit-tv-edition input,body.playit-tv-edition select{font-family:inherit}
+body.playit-tv-edition :is(button,a,input,select,summary,[tabindex]):focus-visible{
+ outline:4px solid #f5cb85!important;outline-offset:4px!important;
+ box-shadow:0 0 0 8px #19130cd9,0 0 40px #e8b666a6!important;
+ z-index:20;position:relative
+}
+body.playit-tv-edition .catalog-shell{scroll-behavior:smooth}
+body.playit-tv-edition #playit-catalog .catalog-shell{
+ width:min(96vw,1920px)!important;max-width:none!important;
+ height:100dvh!important;max-height:none!important;
+ padding:clamp(28px,2.8vh,55px) clamp(30px,4vw,90px) 100px!important;
+ margin:auto!important;gap:clamp(15px,1.3vw,26px)!important;
+ box-sizing:border-box!important;scrollbar-width:thin
+}
+body.playit-tv-edition #playit-catalog .catalog-heading small{font-size:clamp(17px,1.15vw,25px)!important}
+body.playit-tv-edition #playit-catalog .catalog-close{width:62px!important;height:62px!important;font-size:38px!important}
+body.playit-tv-edition #playit-catalog .catalog-tile-head strong{font-size:20px!important}
+body.playit-tv-edition #playit-catalog .catalog-tile-head span{font-size:16px!important}
+body.playit-tv-edition #playit-catalog .catalog-tile-rail>button{
+ flex:0 0 clamp(150px,14vw,260px)!important;
+ height:112px!important;min-height:112px!important;border-radius:18px!important
+}
+body.playit-tv-edition #playit-catalog .catalog-platforms{min-height:118px!important}
+body.playit-tv-edition #playit-catalog .catalog-platforms .tile-art{height:88px!important;min-height:88px!important}
+body.playit-tv-edition #playit-catalog .catalog-platforms .tile-art img{max-height:76px!important}
+body.playit-tv-edition #playit-catalog .catalog-platforms [data-platform=skyshowtime] .tile-art img{max-height:50px!important}
+body.playit-tv-edition #playit-catalog .catalog-tabs button{font-size:24px!important;min-height:66px!important}
+body.playit-tv-edition #playit-catalog .catalog-search input{font-size:22px!important;min-height:62px!important}
+body.playit-tv-edition #playit-catalog .catalog-search button{font-size:21px!important;min-height:62px!important}
+body.playit-tv-edition #playit-catalog .catalog-genre-disclosure summary{font-size:18px!important;min-height:52px!important}
+body.playit-tv-edition #playit-catalog .catalog-quick-filters button{font-size:17px!important;min-height:46px!important;padding:10px 18px!important}
+body.playit-tv-edition #playit-catalog .catalog-audio-control{min-height:62px!important}
+body.playit-tv-edition #playit-catalog .catalog-audio-control-copy strong{font-size:20px!important}
+body.playit-tv-edition #playit-catalog .catalog-sort-bar label{font-size:19px!important}
+body.playit-tv-edition #playit-catalog .catalog-sort-bar select{font-size:19px!important;padding:14px 38px 14px 18px!important;max-width:440px!important}
+body.playit-tv-edition #playit-catalog .cine-explore{gap:24px!important}
+body.playit-tv-edition #playit-catalog .cine-hero{min-height:clamp(300px,37vh,580px)!important;border-radius:24px!important}
+body.playit-tv-edition #playit-catalog .cine-hero-shade{padding:clamp(28px,3vw,65px)!important}
+body.playit-tv-edition #playit-catalog .cine-hero h2{font-size:clamp(38px,3.5vw,74px)!important}
+body.playit-tv-edition #playit-catalog .cine-hero p{display:block!important;font-size:clamp(17px,1.2vw,24px)!important}
+body.playit-tv-edition #playit-catalog .cine-tools button{font-size:18px!important;min-height:55px!important}
+body.playit-tv-edition #playit-catalog .cine-rail-scroll>.cine-mini-wrap{
+ flex:0 0 clamp(175px,13vw,270px)!important;width:clamp(175px,13vw,270px)!important
+}
+body.playit-tv-edition #playit-catalog .cine-mini strong{font-size:18px!important}
+body.playit-tv-edition #playit-catalog .cine-mini small{font-size:16px!important}
+body.playit-tv-edition #playit-catalog .cine-rail h3{font-size:24px!important}
+body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px!important}
+body.playit-tv-edition #playit-catalog .catalog-card{min-width:0}
+body.playit-tv-edition #playit-catalog .catalog-card h3{font-size:clamp(22px,1.75vw,33px)!important}
+body.playit-tv-edition #playit-catalog .catalog-bottom-nav{position:sticky!important;bottom:0!important;transform:none!important;opacity:1!important;pointer-events:auto!important;margin-top:18px!important}
+body.playit-tv-edition #playit-catalog .catalog-bottom-nav button{min-height:64px!important;font-size:18px!important}
+body.playit-tv-edition .access-card{width:min(740px,80vw)!important;max-width:none!important;padding:clamp(24px,3vw,60px)!important}
+body.playit-tv-edition #access-form button,body.playit-tv-edition #access-form input{min-height:60px;font-size:23px}
+body.playit-tv-edition .cine-dialog .cine-sheet{max-width:min(1000px,86vw)!important;max-height:90vh;overflow:auto}
+body.playit-tv-edition .cine-dialog button{min-height:48px}
+body.playit-tv-edition #tv-mode-banner{
+ position:fixed;right:25px;top:15px;z-index:10000;pointer-events:none;
+ padding:7px 15px;border:1px solid #d7b5778c;background:#100e0ccc;
+ color:#f7dbac;font:700 13px system-ui;letter-spacing:.13em;border-radius:99px
+}
+@media(max-width:950px){body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:1fr!important}
+body.playit-tv-edition #playit-catalog .catalog-shell{padding-inline:24px!important}}
+@media(prefers-reduced-motion:reduce){body.playit-tv-edition .catalog-shell{scroll-behavior:auto!important}}
