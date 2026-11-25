@@ -215,6 +215,29 @@
       return '<button type="button" data-genre-tile="'+escape(id)+'" aria-pressed="'+String(state.selectedGenres.includes(id))+'" title="'+escape(name)+'"><span class="genre-art" aria-hidden="true">'+icon+'</span><small>'+escape(name)+'</small></button>';
     }).join(''):'<span class="catalog-tiles-loading">A műfajok betöltéséhez jelentkezz be.</span>';
   }
+  const catalogBrandColors={netflix:'#E50914',disney:'#45A7E9',hbo:'#9063DC',prime:'#22ACD7',skyshowtime:'#CD45AD',apple:'#C3CAD6'};
+  function updateBrandTheme(){
+    if(!dialog)return;
+    const chosen=state.selectedPlatforms.filter(name=>catalogBrandColors[name]);
+    dialog.classList.toggle('catalog-branding',chosen.length>0);
+    if(!chosen.length){
+      ['--provider-accent','--provider-gradient','--provider-glow','--provider-border'].forEach(key=>dialog.style.removeProperty(key));
+      return;
+    }
+    const shades=chosen.map(name=>catalogBrandColors[name]);
+    const rgb=hex=>[1,3,5].map(offset=>parseInt(hex.slice(offset,offset+2),16));
+    const glow=shades.map((hex,index)=>{
+      const [r,g,b]=rgb(hex);
+      const x=Math.round(12+(index/Math.max(1,shades.length-1))*76);
+      return 'radial-gradient(ellipse 70% 55% at '+x+'% 3%,rgba('+r+','+g+','+b+',.22),transparent 74%)';
+    }).join(',');
+    const gradient='linear-gradient(105deg,'+shades.map((hex,index)=>hex+' '+Math.round(index*100/Math.max(1,shades.length-1))+'%').join(',')+')';
+    dialog.style.setProperty('--provider-accent',shades[0]);
+    dialog.style.setProperty('--provider-gradient',chosen.length===1?'linear-gradient(110deg,'+shades[0]+','+shades[0]+')':gradient);
+    dialog.style.setProperty('--provider-glow',glow);
+    dialog.style.setProperty('--provider-border',shades[0]+'aa');
+    dialog.dataset.themeServices=chosen.join('-');
+  }
   function updateCatalogSelections() {
     if(!dialog)return;
     const service=state.selectedPlatforms.length===1?state.selectedPlatforms[0]:'';
@@ -228,6 +251,7 @@
       button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));
     });
     dialog.querySelectorAll('[data-curation]').forEach(button=>button.classList.toggle('is-active',button.dataset.curation==='dubbed'&&state.audioOnly));
+    updateBrandTheme();
   }
   function open() {
     if (!dialog) return;
