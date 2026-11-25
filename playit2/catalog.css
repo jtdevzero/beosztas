@@ -418,3 +418,8 @@ body.catalog-open {overflow:hidden!important;}
 .catalog-footer {border-top-color:#b68b514f;}
 .catalog-footer button,.catalog-footer a {color:#e4bd84;}
 #playit-catalog-menu {background:linear-gradient(110deg,#f0d397,#b78549);border-color:#e5c58b;color:#17110a;}
+
+/* Seamless collection browsing and synopsis-search context. */
+.catalog-search-caption{margin:12px 0 7px;color:#c3ad8e;font-size:13px;line-height:1.45;letter-spacing:.015em}
+.catalog-overview{color:#bdb2a1;font-size:13px;line-height:1.5;margin:7px 0 11px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.catalog-scroll-sentinel{height:1px;width:100%;pointer-events:none}
