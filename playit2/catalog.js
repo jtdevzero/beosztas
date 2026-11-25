@@ -29,7 +29,7 @@
   const dubStorage = 'playit2.dub-review.v1';
   const readReviews = () => { try { const saved = JSON.parse(localStorage.getItem(dubStorage)); return saved && typeof saved === 'object' ? saved : {}; } catch { return {}; } };
   const reviews = readReviews();
-  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', selectedPlatforms:[], selectedGenres:[], query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, audioOnly:false, quickRating:false, quickNew:false, quickShort:false, error:'' };
+  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', selectedPlatforms:[], selectedGenres:[], query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, audioOnly:false, quickRating:false, quickNew:false, quickShort:false, sort:'popular', error:'' };
   let dialog, previousFocus, currentController;
   async function api(path, signal) {
     let token = ''; let profile = '';
@@ -97,7 +97,9 @@
         <div id="catalog-audio-progress" class="catalog-audio-progress" aria-live="polite" hidden></div>
         <button type="button" id="catalog-check-more" hidden>+ További 8 cím ellenőrzése</button>
         
-        <div class="catalog-section-title catalog-results-title"><span>02 / TALÁLATOK</span><i></i><small>Fedezd fel a következő kedvenced</small></div>
+        <div class="catalog-section-title catalog-results-title"><span>02 / TALÁLATOK</span><i></i></div>
+        <div class="catalog-sort-bar"><label for="catalog-sort">Rendezés</label><select id="catalog-sort" aria-label="Találatok rendezése"><option value="popular">🔥 Legnépszerűbb</option><option value="rating">⭐ Legjobb értékelés</option><option value="new">✨ Legújabb</option><option value="dubbed">🇭🇺 Magyar szinkronos</option><option value="personal">♡ Neked ajánljuk</option></select></div>
+        <p id="catalog-sort-note" class="catalog-sort-note" hidden></p>
         <div id="catalog-status" role="status" aria-live="polite"></div>
         <div id="catalog-grid" class="catalog-grid"></div>
         <button type="button" id="catalog-more" hidden>További találatok</button>
@@ -150,6 +152,7 @@
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
     dialog.querySelectorAll('[data-catalog-type]').forEach(button => button.addEventListener('click',() => setType(button.dataset.catalogType)));
+    $('#catalog-sort').addEventListener('change',event=>{state.sort=event.target.value;render();});
     dialog.querySelector('.catalog-search').addEventListener('submit',event => {
       event.preventDefault();
       const value=$('#catalog-query').value.trim();
@@ -430,20 +433,48 @@
       return '<div class="catalog-audio-provider"><strong>'+name+'</strong><span class="'+(p.audio==='yes'?'audio-yes':'')+'">'+sound+'</span><span>'+subs+'</span>'+link+'</div>';
     }).join('') + '</div><div class="catalog-audio-source">Streaming Availability API · '+escape(new Date(result.checkedAt).toLocaleDateString('hu-HU'))+'</div>';
   }
+  function sortSignals(item){
+    const popularity=Number(item.popularity)||0;
+    const rating=Number(item.vote_average)||0;
+    const votes=Number(item.vote_count)||0;
+    return {popularity,rating,votes,year:Number(String(item.release_date||item.first_air_date||'').slice(0,4))||0};
+  }
+  function personalSortScore(item,favorites){
+    const text=String([item.title||item.name,item.overview].join(' ')).toLocaleLowerCase('hu-HU');
+    let matches=0;for(const fav of favorites){const words=String([fav.title||fav.name,fav.overview].join(' ')).toLocaleLowerCase('hu-HU').match(/[\\p{L}]{4,}/gu)||[];for(const word of new Set(words))if(text.includes(word))matches++;}
+    return matches;
+  }
+  function sortItems(items){
+    const mode=state.sort;
+    const original=new Map(items.map((item,index)=>[keyOf(item),index]));
+    let favorites=[];
+    if(mode==='personal')try{const saved=JSON.parse(localStorage.getItem('playit2.cinema.personal.v1')||'{}');const keys=new Set(saved?.profiles?.mine||[]);favorites=state.items.filter(item=>keys.has(keyOf(item))).slice(0,30);}catch{}
+    const metric=item=>{const s=sortSignals(item);
+      if(mode==='rating')return s.rating>0?(s.rating*(s.votes>0?Math.min(1,Math.log1p(s.votes)/Math.log(51)):.65)):0;
+      if(mode==='new')return s.year;
+      if(mode==='dubbed')return (hasHungarianAudio(item)?100000:0)+(s.popularity||s.rating);
+      if(mode==='personal')return personalSortScore(item,favorites)*10+(s.popularity||s.rating);
+      return s.popularity>0?s.popularity:s.rating>0?s.rating*Math.log1p(s.votes||1):0;
+    };
+    const ranked=items.map(item=>({item,rank:metric(item),index:original.get(keyOf(item))||0}));
+    ranked.sort((a,b)=>b.rank-a.rank||a.index-b.index);
+    return ranked.map(row=>row.item);
+  }
   function visibleCatalogItems(){
     const currentYear=new Date().getFullYear();
-    return state.items.filter(item=>{
+    return sortItems(state.items.filter(item=>{
       if(state.audioOnly&&!hasHungarianAudio(item))return false;
       if(state.quickRating&&!(Number(item.vote_average)>=8))return false;
       if(state.quickNew&&!(Number(String(item.release_date||item.first_air_date||'').slice(0,4))>=currentYear-1))return false;
       if(state.quickShort){const runtime=Number(item.runtime||item.duration||item.movie_runtime||0);if(!runtime||runtime>90)return false;}
       return true;
-    });
+    }));
   }
   function render() {
     const grid=$('#catalog-grid'), status=$('#catalog-status'), more=$('#catalog-more');
     if(!grid)return;
     const items=visibleCatalogItems();
+    const note=$('#catalog-sort-note');if(note){const hasRanking=items.some(item=>sortSignals(item).popularity>0||sortSignals(item).rating>0);const hasDates=items.some(item=>sortSignals(item).year>0);const warning=state.sort==='popular'&&!hasRanking?'Nincs népszerűségi vagy értékelési adat ezekhez a mentett címekhez; ilyenkor megmarad az eredeti sorrend.':state.sort==='rating'&&!hasRanking?'Ehhez a listához nincs megbízható értékelési adat.':state.sort==='new'&&!hasDates?'Nincs megjelenési év az aktuális találatokhoz.':state.sort==='personal'?'A jelenleg betöltött kedvenceid alapján rendezve.':'';note.textContent=warning;note.hidden=!warning;}
     const checked=state.items.filter(item=>audioData.get(keyOf(item))?.checkedAt).length;
     const loading=state.items.filter(item=>audioPending.has(keyOf(item))).length;
     const progress=$('#catalog-audio-progress'),checkMore=$('#catalog-check-more'),audioControl=$('#catalog-audio-control');
