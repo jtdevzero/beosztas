@@ -1,0 +1,18 @@
+{
+  "name": "PLAYIT TV Edition",
+  "short_name": "PLAYIT TV",
+  "description": "PLAYIT streamingkatalógus Hisense VIDAA projektorra",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#060609",
+  "theme_color": "#0b0b0d",
+  "icons": [
+    {
+      "src": "../maeste/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
