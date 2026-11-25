@@ -7,6 +7,20 @@
   const audioStorage='playit2.audio-results.v1';
   try { const saved=JSON.parse(localStorage.getItem(audioStorage)||'{}');for(const [k,v] of Object.entries(saved)) if(v?.checkedAt&&Date.now()-Date.parse(v.checkedAt)<86400000)audioData.set(k,v); } catch {}
   const audioPending = new Set();
+  const collectionCache = new Map();
+  function collectionPage(service,type,page,dubbed) {
+    const key=[service,type,page,dubbed].join(':');
+    const existing=collectionCache.get(key);
+    if(existing&&Date.now()-existing.at<120000)return existing.promise;
+    const promise=fetch(AUDIO_API+'/api/collection/titles?'+new URLSearchParams({service,type,page:String(page),dubbed:String(dubbed)}),{credentials:'omit'}).then(async response=>{
+      const payload=await response.json();
+      if(!response.ok)throw new Error(payload.error||'A mentett gyűjtemény nem elérhető.');
+      return payload;
+    }).catch(error=>{collectionCache.delete(key);throw error;});
+    collectionCache.set(key,{at:Date.now(),promise});
+    if(collectionCache.size>50)collectionCache.delete(collectionCache.keys().next().value);
+    return promise;
+  }
   const serviceNames = {netflix:'Netflix',disney:'Disney+',hbo:'HBO Max',prime:'Prime Video',apple:'Apple TV+',skyshowtime:'SkyShowtime',mubi:'MUBI',crunchyroll:'Crunchyroll',curiosity:'Curiosity Stream',zee5:'ZEE5'};
   const $ = selector => document.querySelector(selector);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
@@ -87,6 +101,8 @@
       </div>`;
     document.body.append(dialog);
     launcher.addEventListener('click',open);
+    // Warm the first saved pages without spending upstream API quota.
+    setTimeout(()=>{for(const service of ['disney','skyshowtime','prime','netflix'])for(const type of ['movie','tv'])collectionPage(service,type,1,false).catch(()=>{});},1500);
     dialog.querySelector('.catalog-close').addEventListener('click',close);
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
@@ -197,9 +213,9 @@
         result=keywordResult;
       } else if (state.provider.startsWith('collection:') && !state.query) {
         const service=state.provider.split(':')[1];
-        const response=await fetch(AUDIO_API+'/api/collection/titles?'+new URLSearchParams({service,type:state.type,page:String(page),dubbed:String(state.audioOnly)}),{signal:currentController.signal});
-        const payload=await response.json();
-        if(!response.ok)throw new Error(payload.error||'A mentett gyűjtemény nem elérhető.');
+        const payload=await collectionPage(service,state.type,page,state.audioOnly);
+        if(serial!==state.serial)return;
+        if(payload.hasMore)collectionPage(service,state.type,page+1,state.audioOnly).catch(()=>{});
         result={results:(payload.items||[]).map(item=>({id:item.tmdb_id,media_type:state.type,title:item.title,release_date:item.release_year?item.release_year+'-01-01':'',poster_path:item.poster_url,providers:item.providers})),hasMore:payload.hasMore,nextPage:page+1};
       } else result=await api(url,currentController.signal);
       if(serial!==state.serial)return;
