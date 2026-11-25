@@ -667,3 +667,10 @@ body.catalog-open {overflow:hidden!important;}
 #playit-catalog .catalog-dub-badge.no{color:#e7a397}
 #playit-catalog .catalog-dub-badge.unknown{color:#b9afa1}
 #playit-catalog .catalog-bottom-nav{padding-top:7px!important;padding-bottom:calc(7px + env(safe-area-inset-bottom,0px))!important}
+
+/* Phase 2 quick filters, compact horizontal controls */
+#playit-catalog .catalog-quick-filters{display:flex;gap:7px;min-width:0;overflow-x:auto;scrollbar-width:none;padding:1px 0 4px}
+#playit-catalog .catalog-quick-filters::-webkit-scrollbar{display:none}
+#playit-catalog .catalog-quick-filters button{flex:0 0 auto;white-space:nowrap;min-height:34px;border:1px solid #a8885b8a;border-radius:999px;background:linear-gradient(140deg,#211c17,#101115);color:#e3c49c;padding:7px 11px;font:650 12px system-ui;transition:background .14s,border-color .14s}
+#playit-catalog .catalog-quick-filters button.is-active{border-color:var(--provider-accent,#ebc98c);background:linear-gradient(145deg,#3a2e1b,#181619);color:#ffe7b8}
+#playit-catalog .catalog-shell{scroll-padding-bottom:100px}
