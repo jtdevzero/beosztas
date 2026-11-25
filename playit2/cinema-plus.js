@@ -18,6 +18,12 @@
     return result?.providers?.some(p=>p.audio==='yes'&&(!chosen||p.service===chosen))||false;
   };
   const score=item=>Number(item.vote_average)||0;
+  const terms=item=>new Set(String([titleOf(item),item.overview||''].join(' ')).toLocaleLowerCase('hu-HU').match(/[\p{L}]{4,}/gu)||[]);
+  const matchScore=(item,favorites)=>{
+    const words=terms(item);
+    if(!words.size||!favorites.length)return 0;
+    return Math.max(...favorites.map(f=>{const known=terms(f);let common=0;for(const w of words)if(known.has(w))common++;return common/Math.max(1,Math.sqrt(words.size*known.size));}));
+  };
   let selectedItem=null;
   let currentView='home';
   function card(item,rank) {
@@ -30,15 +36,14 @@
     const items=visibleItems();const picked=items.find(item=>poster(item))||items[0];
     const sorted=[...items].filter(item=>score(item)>0).sort((a,b)=>score(b)-score(a));
     const dubbed=sorted.filter(checkedYes);
-    const recommendations=[...items].filter(item=>!personal.seen.includes(keyOf(item))).sort((a,b)=>{
-      const aLike=personal.profiles.mine.includes(keyOf(a))?3:0,bLike=personal.profiles.mine.includes(keyOf(b))?3:0;
-      return (score(b)+bLike)-(score(a)+aLike);
-    });
+    const favorites=items.filter(item=>personal.profiles.mine.includes(keyOf(item)));
+    const recommendations=[...items].filter(item=>!personal.seen.includes(keyOf(item))&&!personal.profiles.mine.includes(keyOf(item))).sort((a,b)=>
+      (matchScore(b,favorites)*10+score(b))-(matchScore(a,favorites)*10+score(a)));
     if(picked){const p=poster(picked);const hero=$('#cine-hero');hero.style.setProperty('--cine-hero-image',p?`url("${p.replace(/"/g,'%22')}")`:'none');
       hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>`;
     } else $('#cine-hero').innerHTML='<div class="cine-hero-shade"><span class="cine-eyebrow">PLAYIT SPOTLIGHT</span><h2>Fedezd fel a következő filmed.</h2><p>Válassz szolgáltatót vagy műfajt, és megjelennek a filmek.</p></div>';
     const topLabel=dubbed.length?'Magyar szinkronos értékelési toplista · '+dubbed.length+' igazolt cím':'Magyar szinkronos toplista · ellenőrzött adatokra vár';
-    $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail('Neked ajánljuk · a jelenlegi választásaid alapján',recommendations)+rail('Felfedezés',items);
+    $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · a betöltött filmek értékelése alapján',recommendations)+rail('Felfedezés',items);
     $('#cine-stat').textContent='A rangsor csak értékeléssel ÉS ellenőrzött magyar hangsávval rendelkező címeket sorol. A lista a betöltött találatokból épül, nem a teljes adatbázisból.';
     const tracker=$('#cine-tracker');if(tracker&&!tracker.hidden)renderTracker();
   }
