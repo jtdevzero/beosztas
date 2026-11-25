@@ -340,3 +340,81 @@ body.catalog-open {overflow:hidden!important;}
   .catalog-grid .catalog-card:first-child .catalog-card-copy {padding:14px;}
 }
 @media(prefers-reduced-motion:reduce) {.catalog-switch-track,.catalog-switch-track:before {transition:none!important;}}
+
+/* BLACK & GOLD EDITION — all catalogue surfaces, no blue or green tint. */
+#playit-catalog-open {
+  color:#efc987!important;
+  background:linear-gradient(140deg,#211a12,#080808)!important;
+  border-color:#a98045!important;
+}
+#playit-catalog {color:#f9f0de;background:rgba(0,0,0,.96);}
+.catalog-shell {
+  --gold:#e6bd76;
+  background:
+    radial-gradient(ellipse 80% 360px at 55% -190px,rgba(169,109,35,.18),transparent 85%),
+    linear-gradient(180deg,#10100f 0%,#050505 55%,#080807 100%);
+  border-left-color:#c0975652;border-right-color:#c0975652;
+  box-shadow:0 0 95px #000,inset 0 1px #eacb8420;
+}
+.catalog-heading {border-bottom-color:#c59a584c;}
+.catalog-heading h2 {color:#fff8ee;}
+.catalog-heading small,.catalog-section-title,.catalog-card-kind,.catalog-filter-label {color:#d7af70;}
+.catalog-heading p,.catalog-section-title small,.catalog-note,.catalog-audio-progress {color:#ada69b;}
+.catalog-close {color:#e5c38b;background:linear-gradient(145deg,#29231b,#080808);border-color:#ac8759;}
+.catalog-highlight {
+  border-color:#b88f5470;
+  background:radial-gradient(circle at 87% 27%,#a8763144,transparent 40%),linear-gradient(110deg,#2a2116,#11100d 60%,#0b0a08);
+}
+.catalog-highlight strong,.catalog-highlight-orb {color:#f6d392;}
+.catalog-highlight small {color:#c6b8a4;}
+.catalog-highlight-mark {color:#f2d39f21;}
+.catalog-tabs {background:#060605;border-color:#a8885761;}
+.catalog-tabs button {color:#bdb2a0;background:#090909;}
+.catalog-tabs button[aria-pressed="true"] {background:linear-gradient(108deg,#f4d9a3,#c39858);color:#17110a;box-shadow:0 4px 18px #b78b4a32;}
+.catalog-search input {background:#090909;color:#fff6e5;border-color:#af89576f;}
+.catalog-search button,#catalog-more {color:#1b130a;background:linear-gradient(125deg,#f1d39a,#ae793d);border-color:#ead09d;}
+.catalog-filters select {background:#0d0c0a;color:#eee3d0;border-color:#97774b79;}
+.catalog-audio-control {
+  background:linear-gradient(107deg,#2a2013,#100e0a 64%,#090807);
+  border-color:#bc925a84;box-shadow:0 8px 27px #0009,inset 0 1px #fff0c020;
+}
+.catalog-audio-control.is-active {
+  background:linear-gradient(107deg,#3a2a14,#151006 72%,#0c0a07);
+  border-color:#f1c87d;box-shadow:0 0 26px #daa45024,inset 0 1px #ffe5ac40;
+}
+.catalog-audio-control-copy strong {color:#f9e6c1;}
+.catalog-audio-control-copy small {color:#b6a58a;}
+.catalog-audio-control-icon {background:#be8f431a;border-color:#be965c;color:#f5cf91;}
+.catalog-switch-track {background:#2e281e;border-color:#bd9862;}
+.catalog-switch input:checked + .catalog-switch-track {background:#ad7b39;border-color:#efc680;}
+.catalog-switch-track:before {background:linear-gradient(140deg,#fff0bf,#cda35c);}
+#catalog-check-more {background:#16120d;color:#e5bb7c;border-color:#a87e47;}
+.catalog-manual-filter {border-top-color:#a37b454f;color:#bcafa0;}
+.catalog-card,
+.catalog-grid .catalog-card:first-child {
+  background:radial-gradient(circle at 0 0,#3a281222,transparent 58%),linear-gradient(148deg,#171410,#090909);
+  border-color:#aa86566e;box-shadow:0 14px 40px #000c,inset 0 1px #f6d4a111;
+}
+.catalog-card:hover {border-color:#ebc585;box-shadow:0 15px 50px #000,0 0 25px #a6763420;}
+.catalog-art {background:#080807;}
+.catalog-art:after {background:linear-gradient(transparent,#0806039a);}
+.catalog-rating {background:#050403e8;border-color:#d7ae6b;color:#f1d092;}
+.catalog-card h3 {color:#fff4df;}
+.catalog-dub-badge {background:#100e0a;color:#d4c3a6;border-color:#9772465a;}
+.catalog-dub-badge.hu {background:#211908;color:#f7d18e;border-color:#d4ab58;}
+.catalog-dub-badge.no {background:#180e0a;color:#d7a48f;border-color:#98694f;}
+.catalog-review-drawer {color:#a69a88;}
+.catalog-review button {background:#211b14;color:#e5ceaa;border-color:#a47b4b;}
+.catalog-audio-button {
+  color:#140d06;background:linear-gradient(115deg,#c08b46,#f5d69a 46%,#b9894b);
+  border-color:#f4cf8d;box-shadow:inset 0 1px #fff9,0 5px 15px #0008;
+}
+.catalog-audio-provider {background:#0b0906;border-color:#9a774c;}
+.catalog-audio-provider strong,.catalog-audio-provider .audio-yes {color:#ebbf77;}
+.catalog-audio-provider span {color:#c7bdae;}
+.catalog-audio-provider a,.catalog-details {color:#e7bd7d;}
+.catalog-audio-hint {color:#b4a38d;}
+.catalog-audio-source {color:#96836b;}
+.catalog-footer {border-top-color:#b68b514f;}
+.catalog-footer button,.catalog-footer a {color:#e4bd84;}
+#playit-catalog-menu {background:linear-gradient(110deg,#f0d397,#b78549);border-color:#e5c58b;color:#17110a;}
