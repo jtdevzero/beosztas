@@ -532,3 +532,77 @@ body.catalog-open {overflow:hidden!important;}
 /* Streaming cards are logo-led, not text buttons. */
 #playit-catalog .catalog-platforms>button small{display:none}
 #playit-catalog .catalog-platforms .tile-art{height:62px;min-height:62px}
+
+/* PLAYIT 2 cinematic adaptive brand light: selected streaming providers tint the catalog.
+   Black/gold typography remains the constant brand foundation. */
+#playit-catalog.catalog-branding .catalog-shell{
+  background:var(--provider-glow),linear-gradient(175deg,#111113 0%,#070709 56%,#080808 100%);
+  transition:background .22s ease;
+}
+#playit-catalog.catalog-branding .catalog-heading{
+  border-bottom:2px solid transparent;
+  border-image:var(--provider-gradient) 1;
+}
+#playit-catalog.catalog-branding .catalog-heading h2 span,
+#playit-catalog.catalog-branding .catalog-spark{
+  color:var(--provider-accent);
+}
+#playit-catalog.catalog-branding .catalog-highlight{
+  border-color:var(--provider-border);
+  background:var(--provider-glow),linear-gradient(105deg,#211c19,#101010 65%,#08090b);
+  box-shadow:inset 0 1px #ffffff14,0 13px 32px #0008;
+}
+#playit-catalog.catalog-branding .catalog-highlight-orb{
+  border-color:var(--provider-border);
+  box-shadow:0 0 0 5px #ffffff08,0 0 28px var(--provider-border);
+}
+#playit-catalog.catalog-branding .catalog-tile-head strong{
+  background:var(--provider-gradient);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+#playit-catalog.catalog-branding .catalog-tile-rail>button.is-active{
+  border-color:var(--provider-accent);
+  box-shadow:inset 0 1px #ffffff30,0 0 22px var(--provider-border);
+}
+#playit-catalog.catalog-branding .catalog-tile-rail>button.is-active:before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--provider-gradient);opacity:.13;
+}
+#playit-catalog.catalog-branding .catalog-section-title i{
+  background:var(--provider-gradient);opacity:.6;
+}
+#playit-catalog.catalog-branding .catalog-tabs button[aria-pressed=true]{
+  color:#f8f0e9;background:linear-gradient(#191516,#191516) padding-box,var(--provider-gradient) border-box;
+  border:1px solid transparent;box-shadow:0 0 21px var(--provider-border);
+}
+#playit-catalog.catalog-branding .catalog-audio-control{
+  border-color:var(--provider-border);
+  background:linear-gradient(120deg,#17171a,#100e0e);
+}
+#playit-catalog.catalog-branding .catalog-bottom-nav button.is-current{
+  color:#f3e3cb;border-color:var(--provider-border);
+  background:linear-gradient(140deg,#242025,#111114);
+  box-shadow:inset 0 2px var(--provider-accent);
+}
+#playit-catalog.catalog-branding .catalog-card:hover{
+  border-color:var(--provider-accent);
+  box-shadow:0 15px 50px #000,0 0 22px var(--provider-border);
+}
+#playit-catalog.catalog-branding .cine-hero{
+  border-color:var(--provider-border);
+  box-shadow:0 18px 55px #000a,0 0 28px var(--provider-border);
+}
+@media(prefers-reduced-motion:reduce){
+  #playit-catalog.catalog-branding .catalog-shell{transition:none}
+}
+
+#playit-catalog .catalog-platforms [data-platform=netflix]{--tile-accent:#E50914}
+#playit-catalog .catalog-platforms [data-platform=disney]{--tile-accent:#45A7E9}
+#playit-catalog .catalog-platforms [data-platform=hbo]{--tile-accent:#9063DC}
+#playit-catalog .catalog-platforms [data-platform=prime]{--tile-accent:#22ACD7}
+#playit-catalog .catalog-platforms [data-platform=skyshowtime]{--tile-accent:#CD45AD}
+#playit-catalog .catalog-platforms [data-platform=apple]{--tile-accent:#C3CAD6}
+#playit-catalog.catalog-branding .catalog-platforms>button.is-active{border-color:var(--tile-accent)}
+#playit-catalog.catalog-branding .catalog-bottom-nav:before{
+  content:'';position:absolute;left:0;right:0;top:0;height:2px;
+  background:var(--provider-gradient);opacity:.75;pointer-events:none;
+}
