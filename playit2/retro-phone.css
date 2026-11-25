@@ -1,0 +1,208 @@
+/* PLAYIT private access — restrained cinema keypad. Test edition only. */
+#access-gate:has(.retro-phone) {
+  grid-template-columns:1fr!important;
+  align-content:center; justify-items:center;
+  min-height:100dvh;
+  padding:clamp(18px,4vh,42px) 16px!important;
+  background:
+    linear-gradient(180deg,#071116ad,#081319df 70%,#071116f0),
+    url('../maeste/cinema-login.webp') center / cover no-repeat;
+}
+#access-gate:has(.retro-phone) .access-art {display:none!important;}
+#access-gate:has(.retro-phone) .access-card {
+  width:min(100%,390px); max-width:390px;
+  padding:25px 22px 22px!important;
+  border:1px solid #b8996861!important;
+  border-radius:19px!important;
+  background:linear-gradient(160deg,#122129f5,#0a141cfa 63%,#0d1a22f8)!important;
+  box-shadow:0 20px 80px #000b,inset 0 1px #ffffff13!important;
+}
+#access-gate:has(.retro-phone) .access-card .brand {
+  display:flex; justify-content:center; margin:0 auto 12px!important;
+  color:#eee4d3; transform:scale(.77); transform-origin:center;
+}
+#access-gate:has(.retro-phone) .access-card::before {
+  content:'PRIVÁT MOZIEST'; display:block; text-align:center;
+  color:#c5a779; font-size:10px; letter-spacing:.28em; font-weight:650;
+  margin:0 0 12px;
+}
+#access-form:has(.retro-phone) {width:100%;max-width:none;margin:auto;}
+#access-form:has(.retro-phone) > label[for="access-password"] {display:none;}
+#access-form:has(.retro-phone) #access-password:not(.retro-visible-input) {
+  position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;
+  opacity:0!important;pointer-events:none!important;
+}
+#access-form:has(.retro-phone) #access-password.retro-visible-input {
+  display:block!important;position:relative!important;opacity:1!important;
+  width:100%!important;height:45px!important;margin:10px 0!important;
+}
+.retro-phone {
+  width:100%; margin:0 auto 14px; padding:0;
+  border:0; border-radius:0; color:#eae4d9;
+  background:transparent; box-shadow:none;
+}
+.retro-phone-head {
+  display:flex; justify-content:center; gap:8px; align-items:center;
+  margin:0 0 11px; font-size:10px; letter-spacing:.19em;
+  font-weight:600; color:#ac9980;
+}
+.retro-signal {display:none;}
+.retro-dial-screen {
+  display:flex; align-items:center; justify-content:center;
+  height:56px; margin:0 0 19px; padding:8px 14px;
+  background:#071219; border:1px solid #9e85644d;
+  border-radius:11px; box-shadow:inset 0 2px 8px #0008;
+  color:#e4d2b6;
+}
+
+.retro-dots {
+  font:500 18px/1 ui-monospace,SFMono-Regular,monospace;
+  letter-spacing:.32em; white-space:nowrap; overflow:hidden;
+}
+.retro-keypad {
+  width:min(100%,244px);margin:auto;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  column-gap:15px;row-gap:12px;
+}
+.retro-key {
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;min-width:0;width:100%;aspect-ratio:1;min-height:0;
+  padding:5px 2px;border:1px solid #9a927f59;border-radius:50%;
+  background:radial-gradient(circle at 50% 5%,#2a3941,#17252e 64%,#101b23 100%);
+  box-shadow:inset 0 1px #ffffff20,0 4px 8px #0004;
+  color:#f6f0e5;touch-action:manipulation;transition:transform .12s,border-color .12s;
+}
+.retro-key:active {transform:scale(.94);border-color:#d2b588;box-shadow:inset 0 2px 7px #000a;}
+.retro-key strong {font-size:24px;font-weight:500;line-height:1.04;}
+.retro-key small {font-size:8px;letter-spacing:1.4px;color:#b2a99a;line-height:1.2;}
+.retro-letters .retro-key[data-key="*"] {border-color:#d6b785;background:#29343b;}
+.retro-phone-tools {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:6px;margin:13px 0 0;font-size:10px;color:#908d86;
+}
+.retro-phone-tools button {
+  min-height:40px;border:0;background:transparent;color:#c4b095;
+  padding:9px 3px;font-size:11px;font-weight:550;
+}
+.retro-phone-tools #retro-mode-label {text-align:center;font-size:10px;color:#9e9d9b;}
+.retro-hint {display:none;}
+#access-form:has(.retro-phone) #access-submit {
+  display:flex;align-items:center;justify-content:center;
+  width:100%;min-height:50px;margin:9px 0 0;
+  border:1px solid #d7bd8d;border-radius:10px;
+  background:linear-gradient(135deg,#e4c795,#bd9361);
+  color:#101820;font-size:15px;font-weight:700;letter-spacing:.02em;
+  box-shadow:inset 0 1px #fff7;
+}
+#access-gate:has(.retro-phone) #access-status {text-align:center;}
+@media(max-height:750px) {
+  #access-gate:has(.retro-phone) {padding:10px 16px!important;}
+  #access-gate:has(.retro-phone) .access-card {padding:14px 20px!important;}
+  #access-gate:has(.retro-phone) .access-card .brand {margin-bottom:3px!important;}
+  #access-gate:has(.retro-phone) .access-card::before {margin-bottom:7px;}
+  .retro-dial-screen {height:43px;margin-bottom:10px;}
+  .retro-keypad {row-gap:7px;column-gap:13px;max-width:220px;}
+  .retro-key {min-height:45px;}
+  .retro-key strong {font-size:21px;}
+  .retro-phone-tools {margin-top:4px;}
+  .retro-phone {margin-bottom:5px;}
+  #access-form:has(.retro-phone) #access-submit {min-height:44px;margin-top:3px;}
+}
+@media(prefers-reduced-motion:reduce){.retro-key{transition:none;}}
+
+/* Precision refinements: press depth, glass edge, cursor and explicit ABC/123 switch. */
+.retro-dial-screen {
+  background:linear-gradient(180deg,#071118,#091921);
+  border-color:#d2b78a63;
+  box-shadow:inset 0 2px 10px #000a,0 1px #ffffff0b;
+}
+.retro-dots {display:inline-flex;align-items:center;justify-content:center;min-height:24px;}
+.retro-caret {
+  display:inline-block;width:2px;height:21px;border-radius:2px;
+  background:#cfae80;box-shadow:0 0 8px #d0aa6b47;
+  animation:retro-caret-blink 1.15s steps(1,end) infinite;
+}
+@keyframes retro-caret-blink {50%{opacity:0;}}
+.retro-key {
+  position:relative;overflow:hidden;
+  background:radial-gradient(circle at 34% 15%,#344450,#1b2a33 50%,#0d1a23 100%);
+  border-color:#b2a38b78;
+  box-shadow:inset 0 1px 1px #ffffff48,inset 0 -2px 5px #0006,0 4px 8px #0006;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform 110ms ease,box-shadow 110ms ease,border-color 110ms ease;
+}
+.retro-key::before {
+  content:'';position:absolute;inset:2px 8px auto;height:35%;
+  border-radius:50%;background:linear-gradient(#ffffff13,transparent);
+  pointer-events:none;
+}
+.retro-key:active {
+  transform:translateY(2px) scale(.955);border-color:#e5cb9d;
+  box-shadow:inset 0 2px 8px #000b,0 1px 2px #0005;
+}
+.retro-key strong {font-variant-numeric:tabular-nums;font-weight:520;}
+.retro-key[data-key="*"] small,.retro-key[data-key="#"] small {color:#cbb492;}
+.retro-phone-tools {gap:8px;}
+.retro-phone-tools .retro-mode-switch {
+  border:1px solid #aa977578;border-radius:999px;
+  color:#d7c4a7;min-width:112px;min-height:38px;
+  padding:8px 12px;background:#20313a;
+  font-size:11px;font-weight:750;letter-spacing:.04em;
+}
+.retro-phone-tools .retro-mode-switch span {color:#7f8e95;margin:0 3px;}
+.retro-letters .retro-mode-switch {
+  border-color:#d4ae72;background:#3a342c;color:#f2dcba;
+  box-shadow:inset 0 0 0 1px #dbb77823;
+}
+.retro-clear {display:inline-flex;align-items:center;gap:4px;}
+.retro-clear > span {font-size:11px;}
+.retro-error .retro-dial-screen {
+  border-color:#c67b76;animation:retro-access-shake 340ms ease-out;
+}
+@keyframes retro-access-shake {
+  0%,100%{transform:translateX(0)}
+  20%,60%{transform:translateX(-4px)}
+  40%,80%{transform:translateX(4px)}
+}
+@media(max-width:360px) {
+  .retro-phone-tools .retro-mode-switch {min-width:94px;padding-inline:7px;}
+  .retro-clear > span {display:none;}
+}
+@media(prefers-reduced-motion:reduce){
+  .retro-caret,.retro-error .retro-dial-screen {animation:none;}
+  .retro-key {transition:none;}
+}
+
+/* One screen, one input: native keyboard no longer creates a second field below. */
+.retro-dial-screen {position:relative;isolation:isolate;}
+#access-form:has(.retro-phone) #access-password.retro-visible-input {
+  position:absolute!important;inset:0!important;
+  left:0!important;top:0!important;
+  display:block!important;box-sizing:border-box!important;
+  width:100%!important;height:100%!important;
+  margin:0!important;padding:7px 14px!important;
+  border:0!important;border-radius:10px!important;
+  background:transparent!important;color:#f5e7d0!important;
+  text-align:center!important;font-size:21px!important;
+  letter-spacing:.22em!important;box-shadow:none!important;
+}
+.retro-native .retro-dots {visibility:hidden;}
+.retro-native .retro-keypad {display:none;}
+.retro-native .retro-phone-tools .retro-mode-switch,
+.retro-native .retro-phone-tools .retro-clear {visibility:hidden;}
+.retro-native .retro-dial-screen {margin-bottom:10px;}
+
+/* The password dots are now the first screen child; old ornament-hiding CSS must not hide them. */
+.retro-dial-screen > .retro-dots:first-child {display:inline-flex!important;}
+
+/* The real password input is the sole masked screen in both modes. */
+#access-form .retro-dial-screen > .retro-dots {display:none!important;}
+#access-form .retro-dial-screen > #access-password.retro-visible-input {
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;margin:0!important;
+  padding:7px 14px!important;opacity:1!important;pointer-events:auto!important;
+  border:0!important;box-shadow:none!important;background:transparent!important;
+  color:#f5e7d0!important;text-align:center!important;font-size:21px!important;
+  letter-spacing:.2em!important;
+}
+#access-form .retro-dial-screen > #access-password[readonly] {caret-color:transparent;}
