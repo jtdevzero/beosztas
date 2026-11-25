@@ -34,7 +34,7 @@
   function rail(title,items,ranked=false){return `<section class="cine-rail" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cine-rail-scroll">${items.length?items.slice(0,20).map((item,i)=>card(item,ranked?i+1:null)).join(''):'<p class="cine-empty">Ehhez a sorhoz még nincs elegendő ellenőrzött adat.</p>'}</div></section>`;}
   function renderHome() {
     const host=$('#cine-explore');if(!host)return;
-    const items=visibleItems();const picked=items.find(item=>poster(item))||items[0];
+    const all=visibleItems(),filters=C()?.getState();const items=filters?.audioOnly?all.filter(checkedYes):all;const picked=items.find(item=>poster(item))||items[0];
     const sorted=[...items].filter(item=>score(item)>0).sort((a,b)=>score(b)-score(a));
     const dubbed=sorted.filter(checkedYes);
     const favorites=items.filter(item=>personal.profiles.mine.includes(keyOf(item)));
@@ -43,9 +43,9 @@
     if(picked){const p=poster(picked);const hero=$('#cine-hero');hero.style.setProperty('--cine-hero-image',p?`url("${p.replace(/"/g,'%22')}")`:'none');
       hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>`;
     } else $('#cine-hero').innerHTML='<div class="cine-hero-shade"><span class="cine-eyebrow">PLAYIT SPOTLIGHT</span><h2>Fedezd fel a következő filmed.</h2><p>Válassz szolgáltatót vagy műfajt, és megjelennek a filmek.</p></div>';
-    const topLabel=dubbed.length?'Magyar szinkronos értékelési toplista · '+dubbed.length+' igazolt cím':'Magyar szinkronos toplista · ellenőrzött adatokra vár';
+    const topLabel=dubbed.length?'Magyar szinkronos kedvencek':'Magyar szinkronos ajánlók';
     $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · az elérhető címek közül',recommendations)+rail('Felfedezés',items);
-    $('#cine-stat').textContent='A rangsor csak értékeléssel ÉS ellenőrzött magyar hangsávval rendelkező címeket sorol. A lista a betöltött találatokból épül, nem a teljes adatbázisból.';
+    $('#cine-stat').textContent='Az ajánlók a jelenleg betöltött címekből állnak össze.';
     const tracker=$('#cine-tracker');if(tracker&&!tracker.hidden)renderTracker();
   }
   function detail(item){
@@ -62,7 +62,8 @@
     const shell=$('#playit-catalog .catalog-shell');if(!shell||$('#cine-explore'))return;
     const host=document.createElement('section');host.id='cine-explore';host.className='cine-explore';
     host.innerHTML='<div id="cine-hero" class="cine-hero"></div><div class="cine-tools"><button data-cine-pick>✦ Mit nézzek ma?</button><button data-cine-match>♥ PLAYIT MATCH</button><button data-cine-lists>♡ Figyelőlistám</button><button data-cine-track-open>◈ Sorozatkövető</button></div><div id="cine-rails"></div><p id="cine-stat" class="cine-stat"></p><div id="cine-tracker" hidden></div>';
-    $('.catalog-highlight',shell)?.after(host);
+    const anchor=$('#playit-catalog .catalog-audio-control');
+    if(anchor)anchor.after(host);else $('#playit-catalog .catalog-results-title')?.before(host);
     const modal=document.createElement('div');modal.id='cine-dialog';modal.className='cine-dialog';modal.hidden=true;document.body.append(modal);
     document.addEventListener('playit:catalog-render',()=>{if(!$('#playit-catalog')?.hidden)requestAnimationFrame(renderHome)});
     shell.addEventListener('click',event=>{
@@ -90,7 +91,7 @@
       if(button.dataset.cineTrack){const item=findItem(k);personal.progress[k]||={title:titleOf(item),season:1,episode:1};save();modal.hidden=true;const t=$('#cine-tracker');t.hidden=false;renderTracker();t.scrollIntoView({block:'center'});return;}
       if(selectedItem)detail(selectedItem);renderHome();
     });
-    const nav=$('#playit-catalog [data-nav="lists"]');nav?.addEventListener('click',()=>{});
+    const nav=$('#playit-catalog [data-nav="lists"]');nav?.addEventListener('click',event=>{event.stopImmediatePropagation();renderLists();$('#cine-tracker')?.scrollIntoView({block:'center',behavior:'smooth'});},true);
     if('serviceWorker' in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
     renderHome();
   }
