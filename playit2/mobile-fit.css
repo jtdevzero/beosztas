@@ -1,0 +1,493 @@
+/* Isolated mobile experiment. The original /maeste/ stylesheet stays untouched. */
+@media (max-width:700px) {
+  html { height:100%; }
+  body:has(.app-shell:not([hidden])) { height:100dvh; overflow:hidden; overscroll-behavior:none; }
+  .app-shell:not([hidden]) { height:100dvh; min-height:0; overflow:hidden; display:flex; flex-direction:column; }
+  .app-shell > .topbar { flex:none; height:52px; min-height:52px; margin-bottom:0; }
+  .workspace { flex:1; min-height:0; overflow:hidden; }
+  .discovery {
+    height:100%; min-height:0; overflow:hidden; display:flex; flex-direction:column;
+    padding:2px 0 calc(76px + env(safe-area-inset-bottom,0px));
+  }
+  .discovery-header { flex:none; margin:0 12px 2px; gap:2px; }
+  .discovery-header .playit-heading { max-height:39px; }
+  .discovery-header .playit-heading svg { max-height:39px; }
+  .discovery-header .quick-mode-buttons>button,
+  .discovery-header .media-tabs>button { min-height:36px; padding:3px 6px; font-size:11px; }
+  .discovery-header .quick-mode-buttons,
+  .discovery-header .media-tabs { padding:2px; }
+  .discovery-header .edition-counter { padding:0; }
+  .quick-providers {
+    flex:none; margin:0 12px 5px; min-height:38px; max-height:44px;
+    overflow-x:auto; overflow-y:hidden; flex-wrap:nowrap; scrollbar-width:none;
+    overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch;
+  }
+  .quick-providers::-webkit-scrollbar { display:none; }
+  .quick-providers button { flex:none; min-width:40px; min-height:38px; padding:0 4px 4px; }
+  .quick-providers img { max-height:32px; max-width:32px; object-fit:contain; }
+  .recommendation-status:not([hidden]), .pair-banner:not([hidden]),
+  .connection-banner:not([hidden]), .decision-banner:not([hidden]) {
+    flex:none; max-height:62px; overflow:auto;
+  }
+  .screen-layout { flex:1; min-height:0; margin:0; display:flex; flex-direction:column; gap:0; }
+  .swipe-area { flex:1; min-height:0; display:flex; flex-direction:column; padding:6px 14px 4px; }
+  .card-stage {
+    flex:1; min-height:0; height:auto!important; max-height:none;
+    touch-action:none; overscroll-behavior:contain;
+  }
+  .movie-card,.deck-peek { height:100%; min-height:0; }
+  .movie-card .card-body {
+    max-height:78%; overflow:hidden; padding:14px 15px 12px;
+  }
+  .movie-card .card-body h3,.movie-card .card-body:has(.card-availability) h3 {
+    font-size:clamp(19px,5.5vw,29px); margin:4px 0 5px; line-height:1.04;
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  }
+  .movie-card .card-body .card-overview { font-size:11px; line-height:1.25; margin:4px 0; -webkit-line-clamp:2; }
+  .movie-card .film-edition-label { margin-bottom:3px; font-size:9px; }
+  .movie-card .card-body .card-availability { min-height:29px; padding-top:3px; margin-top:2px; }
+  .movie-card .card-body .card-details-link { min-height:28px; }
+  #movie-actions:not([hidden]) { min-height:64px; }
+  #movie-actions .vote-button { height:48px; min-height:48px; }
+  #movie-actions #undo-vote { min-height:44px; }
+  #gesture-hint,.main-footer { display:none!important; }
+  .night-notes { display:none!important; }
+}
+@media (max-width:700px) and (max-height:700px) {
+  .app-shell > .topbar { height:46px; min-height:46px; }
+  .discovery { padding-bottom:calc(69px + env(safe-area-inset-bottom,0px)); }
+  .discovery-header .playit-heading,.discovery-header .playit-heading svg { max-height:30px; }
+  .quick-providers { min-height:34px; max-height:36px; margin-bottom:3px; }
+  .quick-providers button { min-height:34px; }
+  .quick-providers img { max-height:28px; max-width:28px; }
+  .movie-card .card-body .card-overview { display:none; }
+  .movie-card .card-body { padding:9px 12px 7px; }
+}
+
+/* Step 1: PLAYIT heading and colored utility buttons share one compact masthead. */
+@media (max-width:700px) {
+  .discovery { padding-top:3px; }
+  .discovery-header {
+    display:grid; grid-template-columns:minmax(0,42%) minmax(0,58%);
+    align-items:stretch; column-gap:0; margin:0 12px 5px;
+  }
+  .discovery-header > div:first-child { min-width:0; }
+  .discovery-header .headline-search {
+    height:100%; display:flex; flex-direction:column;
+    justify-content:space-between; align-items:stretch; gap:2px;
+  }
+  .discovery-header .playit-heading { flex:none; width:100%; height:30px; max-height:30px; margin:0; }
+  .discovery-header .playit-heading svg { width:100%; height:30px; max-height:30px; }
+  .playit-quick-actions {
+    display:flex!important; flex-direction:row; align-items:center;
+    justify-content:space-between; gap:3px; min-width:0; width:100%; height:40px;
+  }
+  .playit-quick-actions > button {
+    position:relative; display:grid; place-items:center; flex:1; min-width:0;
+    width:auto; height:38px; min-height:38px; margin:0; padding:5px 2px;
+    border-radius:9px; border:1px solid currentColor;
+    background:color-mix(in srgb,currentColor 16%,#101d28)!important;
+    box-shadow:none;
+  }
+  .playit-quick-actions > button svg { width:18px; height:18px; stroke-width:2; }
+  .playit-quick-actions #search-open { color:#6ed5ee; }
+  .playit-quick-actions #seen-open { color:#a99cf7; }
+  .playit-quick-actions #filters-toggle { color:#e9b668; }
+  .playit-quick-actions #favorites-open { color:#ef87a5; }
+  .playit-quick-actions .mobile-action-label,
+  .playit-quick-actions #list-label,
+  .playit-quick-actions .seen-header-label { display:none!important; }
+  .playit-quick-actions .count-badge {
+    position:absolute; right:-3px; top:-4px; transform:scale(.72); transform-origin:top right;
+    pointer-events:none;
+  }
+  .discovery-header > .quick-start-controls {
+    position:relative; display:grid; grid-template-columns:1fr; grid-template-rows:1fr 1fr;
+    align-items:stretch; gap:3px; padding-left:8px; min-width:0; min-height:72px;
+  }
+  .discovery-header .quick-mode-buttons,
+  .discovery-header .media-tabs {
+    width:100%; min-width:0; min-height:34px; height:34px;
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr;
+  }
+  .discovery-header .quick-mode-buttons:before,
+  .discovery-header .media-tabs:before {
+    inset:2px auto 2px 2px; width:calc((100% - 4px)/2); height:auto;
+  }
+  .discovery-header .quick-mode-buttons:has(#quick-pair[aria-pressed=true]):before,
+  .discovery-header .media-tabs:has(#media-tv[aria-pressed=true]):before {
+    transform:translateX(100%);
+  }
+  .discovery-header .quick-mode-buttons>button,
+  .discovery-header .media-tabs>button {
+    min-width:0; min-height:30px; height:30px; padding:2px 3px; font-size:11px;
+  }
+  .discovery-header .edition-counter {
+    position:absolute; top:-2px; right:2px; width:auto; min-width:0;
+    pointer-events:none; opacity:.85; transform:translateY(-100%);
+  }
+  .quick-providers { margin-top:2px; }
+}
+
+/* Step 2: full-width wordmark, tighter services and uncropped film artwork. */
+@media (max-width:700px) {
+  .discovery-header .headline-search { width:100%; min-width:0; }
+  .discovery-header .playit-heading {
+    display:block; width:100%; max-width:none; min-width:0;
+    height:32px; max-height:32px; overflow:visible;
+  }
+  .discovery-header .playit-heading svg {
+    display:block; width:100%; max-width:none; height:32px; max-height:32px;
+  }
+  .quick-providers {
+    gap:2px; justify-content:center; align-items:center;
+    width:calc(100% - 24px); padding-inline:0; margin-inline:12px;
+  }
+  .quick-providers button {
+    flex:0 0 auto; min-width:0; width:39px;
+    height:38px; min-height:38px; padding:1px 2px 4px;
+  }
+  .quick-providers button img { width:31px; height:31px; max-width:31px; max-height:31px; }
+  .movie-card .poster-frame, .deck-peek .poster-frame {
+    background:#0a1219; overflow:hidden;
+  }
+  .movie-card .poster-frame .poster-image,
+  .deck-peek .poster-frame .deck-peek-poster {
+    width:100%; height:100%; max-height:none;
+    object-fit:contain; object-position:center center;
+    background:#0a1219;
+  }
+  .movie-card .card-shade,
+  .movie-card:has(.card-availability) .card-shade {
+    background:linear-gradient(180deg,rgba(5,12,18,.38),transparent 19%,transparent 55%,rgba(5,12,18,.62) 76%,rgba(5,12,18,.94) 100%);
+  }
+}
+@media (max-width:360px) {
+  .quick-providers { justify-content:flex-start; }
+  .quick-providers button { width:36px; }
+  .quick-providers button img { width:29px; height:29px; }
+}
+
+/* Step 3: retain the original swipe card; frame it as a private cinema screen. */
+@media (max-width:700px) {
+  .swipe-area {
+    position:relative; isolation:isolate; align-items:center;
+    padding:5px 0 4px;
+    background:
+      linear-gradient(90deg,rgba(18,7,11,.92),rgba(6,15,21,.45) 17%,rgba(6,15,21,.2) 50%,rgba(6,15,21,.45) 83%,rgba(18,7,11,.92)),
+      url('../maeste/cinema-login.webp') center / cover no-repeat;
+  }
+  .card-stage {
+    position:relative; z-index:1; align-self:center;
+    width:min(90%,440px); max-width:440px;
+    margin-inline:auto; min-width:0;
+    box-shadow:0 0 0 3px #221710,0 0 0 5px #a97c4559,0 12px 28px #000a;
+  }
+  .card-stage .movie-card,.card-stage .deck-peek { width:100%; }
+  /* Small, atmospheric upholstery rather than another content row. */
+  .swipe-area::after {
+    content:'';
+    pointer-events:none; position:fixed; z-index:3;
+    left:0; right:0; bottom:calc(63px + env(safe-area-inset-bottom,0px));
+    height:23px;
+    background:
+      repeating-radial-gradient(ellipse 17px 19px at 16px 24px,
+        #a4584a 0 2px,#6e2530 8px,#3b131b 15px,transparent 17px) 0 0 / 34px 28px repeat-x;
+    filter:drop-shadow(0 -3px 5px #0009);
+    opacity:.76;
+  }
+  #movie-actions:not([hidden]) {
+    background:
+      linear-gradient(180deg,rgba(85,30,39,.96),#221923 43%,#101d28 100%);
+    border-top:1px solid #a66b56;
+    box-shadow:0 -8px 18px #0007;
+  }
+  #movie-actions .vote-button,#movie-actions #undo-vote {
+    position:relative; z-index:1;
+  }
+}
+@media (max-width:360px) {
+  .card-stage { width:92%; }
+}
+@media (max-width:700px) and (max-height:700px) {
+  .swipe-area::after { bottom:calc(58px + env(safe-area-inset-bottom,0px)); height:17px; }
+}
+
+/* Step 4: the outer gold frame follows the movie poster's 2:3 geometry. */
+@media (max-width:700px) {
+  .swipe-area { container-type:size; }
+  .card-stage {
+    width:min(90%, calc(66.6667cqh - 10px));
+    max-width:440px; min-width:0;
+    flex:1 1 0; height:auto!important;
+    align-self:center;
+  }
+  .card-stage .poster-frame,
+  .card-stage .movie-card .poster-frame {
+    background:#091319;
+  }
+  .card-stage .poster-frame .poster-image,
+  .card-stage .deck-peek-poster {
+    object-fit:contain; object-position:center;
+  }
+}
+@media (max-width:360px) {
+  .card-stage { width:min(92%, calc(66.6667cqh - 10px)); }
+}
+
+/* Step 5: unobstructed vote controls; feedback sits in the cinema-seat aisle. */
+@media (max-width:700px) {
+  .swipe-area { padding-bottom:36px; }
+  .toast {
+    position:fixed; z-index:75;
+    left:50%; right:auto;
+    bottom:calc(74px + env(safe-area-inset-bottom,0px));
+    width:min(calc(100vw - 24px),460px); max-width:none;
+    min-height:32px; padding:8px 12px; margin:0;
+    transform:translateX(-50%);
+    border:1px solid #b1845e91; border-radius:7px;
+    color:#fff7e8; background:linear-gradient(90deg,#281b22f5,#2e2024fa,#281b22f5);
+    box-shadow:0 3px 12px #0009;
+    font-size:clamp(10px,2.7vw,12px); font-weight:600;
+    text-align:center; line-height:1.25;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    pointer-events:none;
+  }
+}
+@media (max-width:700px) and (max-height:700px) {
+  .swipe-area { padding-bottom:31px; }
+  .toast { bottom:calc(69px + env(safe-area-inset-bottom,0px)); min-height:29px; padding:7px 9px; }
+}
+
+/* Step 6: deliberate breathing room around the screen and seat-anchored toast. */
+@media (max-width:700px) {
+  .swipe-area { padding:12px 0 42px; }
+  .card-stage {
+    flex:1 1 0; min-height:0;
+    margin-block:5px 12px;
+    max-height:calc(100% - 17px);
+  }
+  #toast.toast:not([hidden]) {
+    display:block;
+    position:fixed; z-index:78;
+    left:50%; right:auto;
+    bottom:calc(64px + env(safe-area-inset-bottom,0px));
+    width:min(calc(100vw - 18px),480px); max-width:none;
+    height:25px; min-height:25px;
+    margin:0; padding:4px 8px;
+    transform:translateX(-50%);
+    color:#fff2de; font-size:clamp(9px,2.55vw,11px);
+    font-weight:700; line-height:16px; letter-spacing:0;
+    text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    border:1px solid #b67d5870; border-radius:4px;
+    background:linear-gradient(90deg,#451a24f4,#251923fa 22%,#251923fa 78%,#451a24f4);
+    box-shadow:0 1px 7px #0008;
+    pointer-events:none;
+  }
+}
+@media (max-width:700px) and (max-height:700px) {
+  .swipe-area { padding:9px 0 35px; }
+  .card-stage { margin-block:4px 8px; max-height:calc(100% - 12px); }
+  #toast.toast:not([hidden]) { bottom:calc(59px + env(safe-area-inset-bottom,0px)); }
+}
+
+/* Premium polish pack: scoped entirely to /maeste-test/. */
+@media (max-width:700px) {
+  /* Keep the six logos and the deck counter on one compact horizontal rail. */
+  .provider-strip {
+    flex:none; display:flex; align-items:center; gap:5px;
+    min-width:0; margin:0 12px 5px; height:43px;
+  }
+  .provider-strip .quick-providers {
+    flex:1 1 auto; width:auto; min-width:0;
+    height:41px; max-height:41px; margin:0; padding:0;
+    justify-content:space-evenly; gap:2px; overflow-x:auto;
+  }
+  .provider-strip .edition-counter {
+    flex:none; position:static!important; transform:none!important;
+    display:grid; place-items:center; width:46px; height:31px;
+    margin:0; padding:0; min-width:0;
+    border-radius:7px; border:1px solid #bb935f69;
+    background:#0d1720d9; pointer-events:none;
+  }
+  .provider-strip .deck-counter { font-size:11px; font-variant-numeric:tabular-nums; color:#eed2a3; }
+  .provider-strip .quick-providers button {
+    position:relative; border-radius:8px; opacity:.68;
+    filter:saturate(.72); transition:opacity 140ms ease,filter 140ms ease,box-shadow 140ms ease;
+  }
+  .provider-strip .quick-providers button[aria-pressed="true"] {
+    opacity:1; filter:none;
+    box-shadow:0 0 0 1px #dfb46d,0 0 9px #d8a45a66;
+  }
+  .provider-strip .quick-providers button[aria-pressed="true"]::after {
+    right:-1px; bottom:-1px;
+  }
+  /* Let the image remain dominant: restrained, readable typography. */
+  .movie-card .card-body h3,.movie-card .card-body:has(.card-availability) h3 {
+    font-size:clamp(20px,5.7vw,28px); letter-spacing:-.025em;
+    text-shadow:0 2px 8px #000a;
+  }
+  .movie-card .movie-tags { gap:4px; font-size:clamp(10px,2.75vw,12px); }
+  .movie-card .card-body .card-overview {
+    line-height:1.3; -webkit-line-clamp:2;
+    text-shadow:0 1px 5px #000d;
+  }
+  /* Amber wall sconces illuminate the sides without animating the whole page. */
+  .swipe-area {
+    background:
+      radial-gradient(ellipse 18% 42% at 0% 47%,#ca772b3b,transparent 100%),
+      radial-gradient(ellipse 18% 42% at 100% 47%,#ca772b3b,transparent 100%),
+      linear-gradient(90deg,#14090eeb,#0a151db0 16%,#09151d32 50%,#0a151db0 84%,#14090eeb),
+      url('../maeste/cinema-login.webp') center / cover no-repeat;
+  }
+  /* Short confirmation stays on the cinema-seat line; errors remain legible. */
+  #toast.toast[data-compact="true"]:not([hidden]) {
+    font-size:12px; letter-spacing:.015em;
+    color:#fff2d5; border-color:#d7ad69a6;
+  }
+  #toast.toast[data-compact="false"]:not([hidden]) {
+    height:auto; min-height:25px; max-height:40px;
+    white-space:normal; line-height:1.15; padding:5px 9px;
+    font-size:10px;
+  }
+  /* Tiny tactile light pulse, using box-shadow only on the pressed control. */
+  #movie-actions[data-vote-glow="vote-yes"] #vote-yes { box-shadow:0 0 0 2px #efc47b,0 0 18px #efb953a0; }
+  #movie-actions[data-vote-glow="vote-seen"] #vote-seen { box-shadow:0 0 0 2px #a4d0ff,0 0 18px #72abf888; }
+  #movie-actions[data-vote-glow="vote-no"] #vote-no { box-shadow:0 0 0 2px #d19a83,0 0 18px #cb806b88; }
+  #movie-actions[data-vote-glow="undo-vote"] #undo-vote { box-shadow:0 0 0 2px #b6b9ca,0 0 14px #999db788; }
+}
+@media(max-width:380px) {
+  .provider-strip { margin-inline:8px; gap:3px; }
+  .provider-strip .quick-providers { justify-content:flex-start; }
+  .provider-strip .quick-providers button { width:35px; min-width:35px; }
+  .provider-strip .quick-providers button img { width:29px; height:29px; }
+  .provider-strip .edition-counter { width:38px; }
+  .provider-strip .deck-counter { font-size:10px; }
+  .movie-card .card-body { padding-inline:10px; padding-bottom:8px; }
+}
+@media(max-width:700px) and (max-height:680px) {
+  .provider-strip { height:37px; margin-bottom:2px; }
+  .provider-strip .quick-providers { height:36px; }
+  .swipe-area { padding-top:6px; padding-bottom:30px; }
+  .movie-card .card-body .card-overview { display:none; }
+  .movie-card .card-body .film-edition-label { display:none; }
+  .movie-card .card-body h3 { font-size:20px; }
+}
+@media(max-width:700px) and (orientation:landscape) and (max-height:500px) {
+  /* Landscape phones cannot guarantee a full portrait card: retain access to controls. */
+  body:has(.app-shell:not([hidden])) { overflow:auto; }
+  .app-shell:not([hidden]),.workspace,.discovery { height:auto; min-height:100dvh; overflow:visible; }
+  .card-stage { height:390px!important; flex:none; }
+  .swipe-area { container-type:normal; }
+  .swipe-area::after { display:none; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .provider-strip .quick-providers button { transition:none; }
+  #movie-actions[data-vote-glow] .vote-button,
+  #movie-actions[data-vote-glow] #undo-vote { box-shadow:none; }
+}
+
+/* Step 8: grow the portrait screen without cropping artwork or covering the dock. */
+@media (max-width:700px) and (orientation:portrait) {
+  .swipe-area { padding-top:6px; padding-bottom:31px; }
+  .card-stage {
+    width:min(94%, calc(66.6667cqh - 2px));
+    margin-block:3px 7px;
+    max-height:calc(100% - 10px);
+  }
+}
+@media (max-width:360px) and (orientation:portrait) {
+  .card-stage { width:min(94%, calc(66.6667cqh - 2px)); }
+}
+
+/* Optional spoiler-free artwork and a discreet cinema-entry fade. */
+@media(max-width:700px) {
+  #cinema-view-toggle {
+    position:absolute; top:22px; left:50%; transform:translateX(-50%);
+    z-index:9; width:29px; height:29px;
+    border:1px solid #d8b77b9e; border-radius:50%;
+    background:#0b141bdd; color:#f4dba9;
+    font-size:17px; line-height:1; display:grid; place-items:center;
+    box-shadow:0 2px 12px #0007;
+  }
+  body.cinema-clean-poster .movie-card .card-body { display:none!important; }
+  body.cinema-clean-poster .movie-card .card-kicker { opacity:.45; }
+  body.cinema-clean-poster .movie-card .card-shade {
+    background:linear-gradient(180deg,#0005,transparent 22%,transparent 100%)!important;
+  }
+  .app-shell.cinema-entering::after {
+    content:''; position:fixed; inset:0; z-index:95; pointer-events:none;
+    background:#080d12; animation:cinema-curtain-open 720ms ease-out both;
+  }
+  @keyframes cinema-curtain-open {
+    from { opacity:1; clip-path:inset(0 0 0 0); }
+    55% { opacity:.75; clip-path:inset(0 18% 0 18%); }
+    to { opacity:0; clip-path:inset(0 50% 0 50%); }
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .app-shell.cinema-entering::after { animation:none; display:none; }
+}
+
+/* Clean poster: no showtime badge or decorative face-covering overlay. */
+.movie-card .card-kicker,.movie-card .film-edition-label,
+.deck-peek .card-kicker,.deck-peek .film-edition-label {display:none!important;}
+#cinema-view-toggle {display:none!important;}
+
+/* Final cinema polish — keep geometry and existing votes untouched. */
+@media(max-width:700px) {
+  .provider-strip .quick-providers button {opacity:.84;filter:saturate(.84) brightness(.96);}
+  .provider-strip .quick-providers button[aria-pressed="true"] {opacity:1;filter:none;}
+  .movie-card .card-shade,
+  .movie-card:has(.card-availability) .card-shade {
+    background:linear-gradient(180deg,rgba(4,10,14,.19),transparent 21%,transparent 58%,rgba(3,9,15,.42) 76%,rgba(3,10,16,.91) 100%);
+  }
+  #card-stage.test-poster-arriving {
+    animation:test-screen-light 420ms ease-out both;
+  }
+  @keyframes test-screen-light {
+    0% {filter:brightness(.89);}
+    46% {filter:brightness(1.055);}
+    100% {filter:brightness(1);}
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #card-stage.test-poster-arriving {animation:none;}
+}
+
+/* Speed pass: composited, brief transitions instead of long filter animations. */
+@media(max-width:700px) {
+  .movie-card.is-burning,.movie-card.is-archiving,.movie-card.is-portaling,
+  .movie-card.effects-subtle {animation-duration:190ms!important;}
+  #card-stage.test-poster-arriving {animation:test-poster-appear 180ms ease-out both!important;}
+  @keyframes test-poster-appear {
+    from {opacity:.92;}
+    to {opacity:1;}
+  }
+  .app-shell.cinema-entering::after {animation-duration:340ms!important;}
+  #movie-actions[data-vote-glow] .vote-button,
+  #movie-actions[data-vote-glow] #undo-vote {transition-duration:130ms!important;}
+}
+
+/* Performance pass: cheap touch feedback and composited movement on demand. */
+@media(max-width:700px) {
+  .movie-card.dragging,.movie-card.is-burning,.movie-card.is-portaling,
+  .movie-card.is-archiving {will-change:transform,opacity;}
+  .vote-button,.action-small,.quick-providers button,.playit-quick-actions button,
+  .quick-mode-buttons button,.media-tabs button {touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .provider-strip .quick-providers button {transition-duration:100ms!important;}
+  .app-shell.cinema-entering::after {animation-duration:250ms!important;}
+  .movie-card.is-burning,.movie-card.is-archiving,.movie-card.is-portaling,
+  .movie-card.effects-subtle {animation-duration:175ms!important;}
+}
+#playit-performance {
+  position:fixed;z-index:150;right:10px;bottom:calc(146px + env(safe-area-inset-bottom,0px));
+  max-width:calc(100vw - 20px);padding:6px 10px;
+  background:#08151de8;color:#f2d5a3;border:1px solid #b9935d9c;
+  border-radius:8px;font:600 11px/1.2 ui-monospace,SFMono-Regular,monospace;
+  pointer-events:none;box-shadow:0 2px 12px #0009;
+}
+@media(prefers-reduced-motion:reduce) {
+  .movie-card.dragging,.movie-card.is-burning,.movie-card.is-portaling,
+  .movie-card.is-archiving {will-change:auto;}
+}
