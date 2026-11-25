@@ -197,10 +197,14 @@
         if(more&&state.nextCursor)params.set('cursor',state.nextCursor);
         const response=await fetch(AUDIO_API+'/api/collection/search?'+params,{signal:currentController.signal});
         const payload=await response.json();
-        if(!response.ok)throw new Error(payload.error||'Nem sikerült keresni a címek és leírások között.');
+        if(!response.ok) {
+          // If the indexed provider quota is temporarily exhausted, title search remains available.
+          keywordResult=await api('/api/search?'+new URLSearchParams({query:state.query,mediaType:state.type,page:String(page)}),currentController.signal);
+        } else {
+          state.nextCursor=payload.nextCursor||'';
+          keywordResult={results:payload.items||[],hasMore:payload.hasMore,nextPage:page+1};
+        }
         if(serial!==state.serial)return;
-        state.nextCursor=payload.nextCursor||'';
-        keywordResult={results:payload.items||[],hasMore:payload.hasMore,nextPage:page+1};
       } else {
         const params=new URLSearchParams({mediaType:state.type,page:String(page),rating:'0'});
         if(state.provider)params.set('providers',state.provider);
