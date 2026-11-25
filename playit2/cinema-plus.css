@@ -49,3 +49,16 @@
 .cine-match-results button{border:1px solid #ad8c5e;background:#231d15;color:#e8d5b2;padding:10px;border-radius:11px}
 @media(max-width:450px){#playit-catalog .cine-hero{min-height:285px}#playit-catalog .cine-hero:after{background:linear-gradient(0deg,#050608f8,#05060888 65%,#05060840)}#playit-catalog .cine-hero-shade{padding:19px}#playit-catalog .cine-mini{flex-basis:132px}.cine-sheet{padding:20px 15px}.cine-sheet-top{gap:12px}}
 @media(prefers-reduced-motion:reduce){#playit-catalog .cine-mini-art img{transition:none}}
+
+/* v6: concise, cinematic first-screen film discovery */
+#playit-catalog .cine-explore{gap:10px;margin:0 0 5px}
+#playit-catalog .cine-hero{min-height:200px;border-radius:15px}
+#playit-catalog .cine-hero-shade{padding:17px;gap:7px}
+#playit-catalog .cine-hero h2{font-size:clamp(23px,5vw,36px)}
+#playit-catalog .cine-hero p{font-size:13px;-webkit-line-clamp:2}
+#playit-catalog .cine-tools{gap:7px}
+#playit-catalog .cine-tools button{min-height:37px;padding:8px 11px;font-size:12px}
+#playit-catalog .cine-rail-scroll{scroll-snap-type:x proximity}
+#playit-catalog .cine-mini{scroll-snap-align:start}
+#playit-catalog .cine-stat{font-size:11px;opacity:.7;margin:0}
+@media(max-width:450px){#playit-catalog .cine-hero{min-height:170px}#playit-catalog .cine-hero p{display:none}#playit-catalog .cine-hero-actions button{min-height:34px;padding:7px 11px;font-size:12px}}
