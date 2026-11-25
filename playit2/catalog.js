@@ -193,7 +193,6 @@
       if (state.query.length>=3) {
         const params=new URLSearchParams({q:state.query,type:state.type});
         const service=selectedService();
-        if(service&&!['netflix','disney','prime','skyshowtime'].includes(service))throw new Error('A leíráskeresés jelenleg Netflix, Disney+, Prime Video és SkyShowtime szolgáltatókhoz érhető el.');
         if(service)params.set('service',service);
         if(more&&state.nextCursor)params.set('cursor',state.nextCursor);
         const response=await fetch(AUDIO_API+'/api/collection/search?'+params,{signal:currentController.signal});
