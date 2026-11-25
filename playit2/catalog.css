@@ -674,3 +674,10 @@ body.catalog-open {overflow:hidden!important;}
 #playit-catalog .catalog-quick-filters button{flex:0 0 auto;white-space:nowrap;min-height:34px;border:1px solid #a8885b8a;border-radius:999px;background:linear-gradient(140deg,#211c17,#101115);color:#e3c49c;padding:7px 11px;font:650 12px system-ui;transition:background .14s,border-color .14s}
 #playit-catalog .catalog-quick-filters button.is-active{border-color:var(--provider-accent,#ebc98c);background:linear-gradient(145deg,#3a2e1b,#181619);color:#ffe7b8}
 #playit-catalog .catalog-shell{scroll-padding-bottom:100px}
+
+/* Accessible premium sorting control above movie results */
+#playit-catalog .catalog-sort-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:3px 0}
+#playit-catalog .catalog-sort-bar label{color:#d8b987;font:700 12px system-ui;letter-spacing:.04em}
+#playit-catalog .catalog-sort-bar select{appearance:none;-webkit-appearance:none;max-width:min(68%,280px);border:1px solid var(--provider-border,#b58d596b);border-radius:11px;background:#1a1715;color:#f7dfb5;font:750 13px system-ui;padding:10px 30px 10px 12px;background-image:linear-gradient(45deg,transparent 50%,#e0ba80 50%),linear-gradient(135deg,#e0ba80 50%,transparent 50%);background-position:calc(100% - 17px) 48%,calc(100% - 11px) 48%;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+#playit-catalog .catalog-sort-note{font:500 11px/1.4 system-ui;color:#d4b386;margin:-3px 0 4px}
+#playit-catalog .catalog-sort-note[hidden]{display:none!important}
