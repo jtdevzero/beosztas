@@ -452,3 +452,31 @@ body.catalog-open {overflow:hidden!important;}
 /* Always-visible navigation, independent of catalog scroll position. */
 .catalog-bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,900px);margin:0;padding:8px 12px calc(11px + env(safe-area-inset-bottom,0px));border-radius:15px 15px 0 0}
 .catalog-shell{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+
+/* 2026-11-25 iPhone layout correction: preserve vertical flex item sizes. */
+#playit-catalog .catalog-shell{min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain}
+#playit-catalog .catalog-shell > *{flex-shrink:0}
+#playit-catalog .catalog-heading{min-height:max-content;align-items:flex-start}
+#playit-catalog .catalog-heading-copy{min-width:0}
+#playit-catalog .catalog-heading-copy p{margin-bottom:0}
+#playit-catalog .catalog-platforms,
+#playit-catalog .catalog-curations{
+  box-sizing:border-box;display:flex;flex:0 0 auto;min-height:54px;height:auto;
+  align-items:stretch;overflow-x:auto;overflow-y:hidden;
+  margin:0;padding:5px 1px 9px;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;
+}
+#playit-catalog .catalog-platforms button{flex-shrink:0;min-height:44px;max-height:none;line-height:1.2;white-space:nowrap}
+#playit-catalog .catalog-curations{min-height:48px;padding-top:2px;padding-bottom:6px}
+#playit-catalog .catalog-curations button{flex-shrink:0;min-height:39px;line-height:1.2}
+#playit-catalog .catalog-collection-summary{flex:0 0 auto;margin:0;line-height:1.5}
+#playit-catalog .catalog-bottom-nav{flex:0 0 auto}
+@media(max-width:450px){
+  #playit-catalog .catalog-shell{gap:13px}
+  #playit-catalog .catalog-heading h2{font-size:clamp(34px,9vw,46px)}
+  #playit-catalog .catalog-heading-copy p{font-size:13px;line-height:1.45}
+  #playit-catalog .catalog-highlight{min-height:78px}
+  #playit-catalog .catalog-platforms{min-height:55px}
+  #playit-catalog .catalog-platforms button{padding-inline:14px;font-size:12px}
+  #playit-catalog .catalog-curations{min-height:47px}
+}
