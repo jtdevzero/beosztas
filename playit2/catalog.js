@@ -78,6 +78,7 @@
         <div id="catalog-status" role="status" aria-live="polite"></div>
         <div id="catalog-grid" class="catalog-grid"></div>
         <button type="button" id="catalog-more" hidden>További találatok</button>
+        <div id="catalog-scroll-sentinel" class="catalog-scroll-sentinel" aria-hidden="true"></div>
         <footer class="catalog-footer">
           <button type="button" id="catalog-original-search">Részletes címkereső megnyitása</button>
           <a href="https://www.netflix.com/browse/audio" target="_blank" rel="noopener noreferrer">Netflix hangsáv szerinti böngészés ↗</a>
@@ -102,6 +103,12 @@
     $('#catalog-hu-filter').addEventListener('change',event => {state.audioOnly=event.target.checked;if(state.provider.startsWith('collection:'))load(false);else{render();if(state.audioOnly)checkNextAudioBatch();}});
     $('#catalog-check-more').addEventListener('click',checkNextAudioBatch);
     $('#catalog-more').addEventListener('click',() => load(true));
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting) && !dialog.hidden && !state.busy && state.hasMore) load(true);
+      }, { root: null, rootMargin:'800px 0px', threshold:0 });
+      observer.observe($('#catalog-scroll-sentinel'));
+    }
     $('#catalog-original-search').addEventListener('click',() => {close();$('#search-open')?.click();});
     $('#catalog-grid').addEventListener('click',event => {
       const review = event.target.closest('[data-dub]');
@@ -304,7 +311,7 @@
     } else {
       status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?items.length+' találat a katalógusban':state.confirmedOnly?'Még nincs általad igazolt cím.':'Nincs találat. Próbálj másik szűrőt.');
     }
-    more.hidden=!state.hasMore||state.busy;
+    more.hidden=('IntersectionObserver' in window)||!state.hasMore||state.busy;
     more.disabled=state.busy;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
