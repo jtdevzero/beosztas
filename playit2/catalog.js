@@ -132,7 +132,7 @@
       const target=$('#catalog-collection-summary');if(!target||!payload)return;
       const totals=payload.totals||payload.services||[];
       const rows=Array.isArray(totals)?totals:Object.values(totals);
-      const count=rows.reduce((n,row)=>n+Number(row?.total||row?.count||row?.movies||0)+Number(row?.tv||row?.series||0),0);
+      const count=rows.reduce((n,row)=>n+Number(row?.titles||row?.total||row?.count||0),0);
       if(count>0)target.textContent=count.toLocaleString('hu-HU')+' szolgáltatói címelőfordulás · Magyar hangsáv csak igazolt adatok alapján';
     }).catch(()=>{});
 
