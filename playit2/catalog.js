@@ -184,7 +184,7 @@
     } catch(error) {
       if(serial!==state.serial||error.name==='AbortError')return;
       state.error=error.message;
-    } finally {if(serial===state.serial){state.busy=false;render();if(state.audioOnly)checkNextAudioBatch();}}
+    } finally {if(serial===state.serial){state.busy=false;render();hydrateCachedResults(state.items,state.type,serial).finally(()=>{if(serial===state.serial&&state.audioOnly)checkNextAudioBatch();});}}
   }
   async function checkAudio(key) {
     if (!/^(movie|tv):\d{1,9}$/.test(key) || audioPending.has(key)) return;
@@ -228,6 +228,22 @@
       for(let i=0;i<pending.length;i+=2)
         await Promise.all(pending.slice(i,i+2).map(item=>checkAudio(keyOf(item))));
     } finally {batchRunning=false;render();}
+  }
+  async function hydrateCachedResults(items,type,serial) {
+    const ids=items.filter(item=>item.media_type===type).map(item=>Number(item.id)).filter(Number.isInteger).slice(-20);
+    if(!ids.length)return;
+    try {
+      const response=await fetch(AUDIO_API+'/api/audio/cache?'+new URLSearchParams({type,ids:ids.join(',')}),{credentials:'omit'});
+      if(!response.ok)return;
+      const data=await response.json();
+      if(serial!==state.serial)return;
+      for(const item of data.items||[]) {
+        if(item?.checkedAt&&item.mediaType===type&&Number.isInteger(item.id))
+          audioData.set(type+':'+item.id,item);
+      }
+      try {localStorage.setItem(audioStorage,JSON.stringify(Object.fromEntries([...audioData].filter(([,v])=>v?.checkedAt).slice(-120))));} catch {}
+      render();
+    } catch { /* Cached badges should never block discovery. */ }
   }
   function audioMarkup(key) {
     const result = audioData.get(key);
