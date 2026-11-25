@@ -92,13 +92,14 @@
     dialog.querySelector('.catalog-search').addEventListener('submit',event => {
       event.preventDefault();
       const value=$('#catalog-query').value.trim();
+      if(state.provider.startsWith('collection:')&&value){state.error='Mentett gyűjteményben egyelőre a szolgáltató szerinti böngészés érhető el. Címkereséshez válaszd a Minden szolgáltatót.';render();return;}
       if(value.length===1) {state.error='A kereséshez legalább két karakter szükséges.';render();return;}
       state.query=value;load(false);
     });
     $('#catalog-provider').addEventListener('change',event => {state.provider=event.target.value;state.query='';$('#catalog-query').value='';load(false);});
     $('#catalog-genre').addEventListener('change',event => {state.genre=event.target.value;state.query='';$('#catalog-query').value='';load(false);});
     $('#catalog-confirmed').addEventListener('change',event => {state.confirmedOnly=event.target.checked;render();});
-    $('#catalog-hu-filter').addEventListener('change',event => {state.audioOnly=event.target.checked;render();if(state.audioOnly)checkNextAudioBatch();});
+    $('#catalog-hu-filter').addEventListener('change',event => {state.audioOnly=event.target.checked;if(state.provider.startsWith('collection:'))load(false);else{render();if(state.audioOnly)checkNextAudioBatch();}});
     $('#catalog-check-more').addEventListener('click',checkNextAudioBatch);
     $('#catalog-more').addEventListener('click',() => load(true));
     $('#catalog-original-search').addEventListener('click',() => {close();$('#search-open')?.click();});
@@ -148,7 +149,7 @@
       const config=await api('/api/config?mediaType='+state.type);
       if (state.type!==type) return;
       state.providers=config.providers||[];state.genres=config.genres||[];
-      $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id');
+      $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id')+'<optgroup label="Mentett magyar hangsáv-adatbázis"><option value="collection:disney">Disney+ · mentett gyűjtemény</option><option value="collection:skyshowtime">SkyShowtime · mentett gyűjtemény</option></optgroup>';
       $('#catalog-genre').innerHTML=options(state.genres,'Minden műfaj','name','id');
     } catch(error){state.error=error.message;}
     if(state.type!==type)return;
@@ -172,7 +173,14 @@
         if(state.genre)params.set('genres',state.genre);
         url='/api/discover?'+params;
       }
-      const result=await api(url,currentController.signal);
+      let result;
+      if (state.provider.startsWith('collection:') && !state.query) {
+        const service=state.provider.split(':')[1];
+        const response=await fetch(AUDIO_API+'/api/collection/titles?'+new URLSearchParams({service,type:state.type,page:String(page),dubbed:String(state.audioOnly)}),{signal:currentController.signal});
+        const payload=await response.json();
+        if(!response.ok)throw new Error(payload.error||'A mentett gyűjtemény nem elérhető.');
+        result={results:(payload.items||[]).map(item=>({id:item.tmdb_id,media_type:state.type,title:item.title,release_date:item.release_year?item.release_year+'-01-01':'',poster_path:item.poster_url,providers:item.providers})),hasMore:payload.hasMore,nextPage:page+1};
+      } else result=await api(url,currentController.signal);
       if(serial!==state.serial)return;
       const ids=new Set(state.items.map(keyOf));
       for (const item of result.results||[]) {
@@ -202,6 +210,7 @@
     finally { audioPending.delete(key);render(); }
   }
   function selectedService() {
+    if (state.provider.startsWith('collection:')) return state.provider.slice(11);
     if (!state.provider) return '';
     const name=String(state.providers.find(p=>String(p.provider_id)===state.provider)?.provider_name||'').toLowerCase();
     if(name.includes('netflix'))return 'netflix';
@@ -270,7 +279,7 @@
     if(progress)progress.textContent=state.audioOnly?'Ellenőrzött: '+checked+'/'+state.items.length+' cím · '+(loading||batchRunning?'Lekérdezés folyamatban…':items.length+' magyar szinkronos találat'):'Kapcsold be a magyar szinkron szűrőt az ellenőrzéshez.';
     if(checkMore){checkMore.hidden=!state.audioOnly||batchRunning||checked+loading>=state.items.length;checkMore.disabled=batchRunning;}
     grid.innerHTML=items.map(item=>{
-      const key=keyOf(item),review=reviews[key],poster=image(item.poster_path);
+      const key=keyOf(item),review=reviews[key],poster=image(item.poster_path)||(/^(https:\/\/)[a-z0-9.-]+\/[^"'<> ]+$/i.test(item.poster_path||'')?item.poster_path:'');
       const title=escape(item.title||item.name||item.original_title||item.original_name||'Cím nélkül');
       const year=String(item.release_date||item.first_air_date||'').slice(0,4);
       const score=Number(item.vote_average);
