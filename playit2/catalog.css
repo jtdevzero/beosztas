@@ -618,3 +618,38 @@ body.catalog-open {overflow:hidden!important;}
 #playit-catalog .catalog-platforms .tile-art img{max-width:95%;max-height:58px;margin:auto;object-fit:contain}
 #playit-catalog .catalog-platforms [data-platform=prime] .tile-art img{max-width:94%;max-height:45px}
 #playit-catalog .catalog-platforms [data-platform=disney] .tile-art img{max-width:94%;max-height:48px}
+
+/* v14: compact browsing — films appear much earlier on mobile. */
+#playit-catalog .catalog-shell{gap:9px}
+#playit-catalog .catalog-heading{min-height:0!important;align-items:center!important;padding:4px 0 9px!important;margin:0!important}
+#playit-catalog .catalog-heading:after{display:none!important}
+#playit-catalog .catalog-heading-copy{display:flex;align-items:center}
+#playit-catalog .catalog-heading small{font-size:12px!important;line-height:1.35;letter-spacing:.13em}
+#playit-catalog .catalog-close{width:36px;height:36px;min-width:36px;min-height:36px;line-height:1}
+#playit-catalog .catalog-platforms{min-height:78px;padding-bottom:3px}
+#playit-catalog .catalog-platforms>button{height:74px;min-height:74px;border-radius:12px;padding-block:4px}
+#playit-catalog .catalog-platforms .tile-art{height:54px;min-height:54px}
+#playit-catalog .catalog-platforms [data-platform=skyshowtime] .tile-art img{filter:invert(1) drop-shadow(0 1px 3px #0008);max-height:38px}
+#playit-catalog .catalog-platforms [data-platform=skyshowtime] .tile-art b{color:#fff;font-size:12px}
+#playit-catalog .catalog-tile-head{padding-top:0}
+#playit-catalog .catalog-tabs{margin:0!important}
+#playit-catalog .catalog-tabs button{min-height:52px!important;padding-block:10px!important}
+#playit-catalog .catalog-search{margin:0!important}
+#playit-catalog .catalog-search input{min-height:49px}
+#playit-catalog .catalog-search button{min-height:49px}
+#playit-catalog .catalog-genre-disclosure{flex:0 0 auto;border:1px solid #9c79543b;border-radius:12px;background:#141212;padding:0 12px}
+#playit-catalog .catalog-genre-disclosure>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:39px;color:#e3c28b;font:750 12px system-ui;letter-spacing:.12em;text-transform:uppercase}
+#playit-catalog .catalog-genre-disclosure>summary::-webkit-details-marker{display:none}
+#playit-catalog .catalog-genre-disclosure>summary:after{content:'⌄';font-size:18px;margin-left:auto;color:#d8b57d}
+#playit-catalog .catalog-genre-disclosure[open]>summary:after{content:'⌃'}
+#playit-catalog .catalog-genre-count{margin-left:7px;color:#d8b57d;font:600 11px system-ui;letter-spacing:0;text-transform:none}
+#playit-catalog .catalog-genre-disclosure[open] .catalog-genres{padding-top:8px}
+#playit-catalog .catalog-audio-control{margin:0!important;padding:8px 12px!important;min-height:56px!important}
+#playit-catalog .catalog-results-title{margin:1px 0!important}
+#playit-catalog .catalog-section-title{min-height:13px}
+@media(max-width:450px){
+ #playit-catalog .catalog-shell{gap:8px!important}
+ #playit-catalog .catalog-edition{display:none}
+ #playit-catalog .catalog-heading small{font-size:13px!important}
+ #playit-catalog .catalog-platforms>button{height:70px;min-height:70px}
+}
