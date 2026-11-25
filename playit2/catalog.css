@@ -606,3 +606,15 @@ body.catalog-open {overflow:hidden!important;}
   content:'';position:absolute;left:0;right:0;top:0;height:2px;
   background:var(--provider-gradient);opacity:.75;pointer-events:none;
 }
+
+/* v13: one source of truth for filters and reliable non-overlapping logos. */
+#playit-catalog .catalog-platforms .tile-art img:not([hidden])+b{display:none!important}
+#playit-catalog .catalog-platforms .tile-art b{position:relative;z-index:0;text-align:center;overflow:hidden;text-overflow:clip;max-width:100%;font-size:clamp(12px,3.3vw,19px)}
+#playit-catalog .catalog-legacy-selects[hidden]{display:none!important}
+#playit-catalog .catalog-selection-tools{display:flex;align-items:center;gap:8px;min-width:0}
+#playit-catalog .catalog-selection-tools #catalog-provider-count{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#playit-catalog #catalog-provider-clear{border:1px solid #c79b6480;border-radius:100px;background:#2d241e;color:#f0c893;padding:5px 8px;font:650 11px system-ui;white-space:nowrap;cursor:pointer}
+#playit-catalog #catalog-provider-clear[hidden]{display:none!important}
+#playit-catalog .catalog-platforms .tile-art img{max-width:95%;max-height:58px;margin:auto;object-fit:contain}
+#playit-catalog .catalog-platforms [data-platform=prime] .tile-art img{max-width:94%;max-height:45px}
+#playit-catalog .catalog-platforms [data-platform=disney] .tile-art img{max-width:94%;max-height:48px}
