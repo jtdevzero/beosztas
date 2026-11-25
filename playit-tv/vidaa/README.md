@@ -32,3 +32,24 @@ A Hisense C2 Ultra kézikönyve szerint a Browser menüben a **Add website to Sh
 ## Hivatkozások
 - VIDAA Web App Development Technical Guide: https://www.vidaa.com/wp-content/uploads/2020/12/WebApp_Development_Guide_for_VIDAA.pdf
 - Hisense C2 Ultra User Manual: https://www.awe-europe.com/files/2ec00628-ca73-4c32-992c-101443b2921e/Hisense%20C2%20ULTRA%20User%20Manual.pdf
+
+
+## Fejlesztői teszttelepítés a készüléken (VIDAA-dokumentáció alapján)
+
+**Az alábbi eljárás kizárólag akkor használható, ha a készülék firmware-je elérhetővé teszi a fejlesztői telepítőt.**
+A Hisense C2 Ultra VIDAA U7 készüléken ezt még nem igazoltuk.
+
+1. A projektoron nyisd meg a Browser alkalmazást.
+2. A címsorba írd be: `hisense://debug`
+3. Amennyiben megjelenik a fejlesztői telepítő, töltsd ki:
+   - App Name: `PLAYIT TV Edition`
+   - App URL: `https://jtdevzero.github.io/beosztas/playit-tv/`
+   - Thumbnail / Icon URL (ha az SVG működik): `https://jtdevzero.github.io/beosztas/playit-tv/vidaa/playit-icon.svg`
+   - Resolution: `1080` (Full HD UI-s koordinátarendszer).
+4. Válaszd az Install funkciót.
+5. A VIDAA Apps listájában keresd a PLAYIT TV Editiont.
+6. Ha a menü nem jelenik meg, **ne próbálj rendszerkorlátozást megkerülni**; a VIDAA partneri fejlesztői útvonalra lesz szükség.
+
+A Debug telepítés **nem** azonos az alkalmazásbolti publikálással. Az ikonos indítás és a távirányítós viselkedés eszközön ellenőrizendő.
+
+Forrás: https://www.vidaa.com/wp-content/uploads/2020/12/WebApp_Development_Guide_for_VIDAA.pdf , 2. Quick Deploying.
