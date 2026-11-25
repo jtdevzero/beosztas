@@ -292,7 +292,7 @@
             const ids=state.providers.filter(provider=>state.selectedPlatforms.includes(platformFromName(provider.provider_name))).map(provider=>provider.provider_id);
             if(!ids.length)throw new Error('A kiválasztott streamingplatformhoz nem érhető el műfajszűrés.');
             params.set('providers',ids.join(','));
-          }
+          } else if(state.provider&&!state.provider.startsWith('collection:'))params.set('providers',state.provider);
         } else if(state.provider && !state.provider.startsWith('collection:'))params.set('providers',state.provider);
         url='/api/discover?'+params;
       }
