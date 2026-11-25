@@ -72,18 +72,19 @@ function launchCatalog(){
  const open=q('#playit-catalog-open');if(open&&q('#playit-catalog')?.hidden){open.click();setTimeout(focusEntry,120);}
 }
 document.addEventListener('keydown',event=>{
- const dir={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'}[event.key];
+ const remoteCode=event.keyCode||event.which||0;
+ const dir=({37:'left',39:'right',38:'up',40:'down'})[remoteCode]||({ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'})[event.key];
  if(dir&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){
    event.preventDefault();
    if(event.repeat&&Date.now()-lastRemoteMove<95)return;
    lastRemoteMove=Date.now();moveFocus(dir);return;
  }
- if((event.key==='Backspace'||event.key==='BrowserBack')&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){
+ if((remoteCode===8||remoteCode===461||event.key==='Backspace'||event.key==='BrowserBack'||event.key==='Escape')&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){
    event.preventDefault();
    if(q('#cine-dialog:not([hidden])')){q('#cine-dialog [data-cine-close]')?.click();return;}
    if(q('#playit-catalog')&&!q('#playit-catalog').hidden){(q('.tv-side-menu [data-tv-section="discover"]')||q('.tv-side-menu button'))?.focus();return;}
  }
- if(event.key==='Enter'&&document.activeElement?.tagName==='SUMMARY')document.activeElement.click();
+ if((remoteCode===13||event.key==='Enter')&&document.activeElement?.tagName==='SUMMARY')document.activeElement.click();
 },true);
 document.addEventListener('focusin',event=>{if(shown(event.target)&&event.target.closest('.catalog-shell'))tvScroll(event.target);});
 function init(){
@@ -146,7 +147,7 @@ function mount(){
  highlight('discover');
 }
 document.addEventListener('keydown',function(e){
- if(e.key==='Menu'||e.key==='ContextMenu'||e.key==='F1'){
+ if(e.key==='Menu'||e.key==='ContextMenu'||e.key==='F1'||e.keyCode===403){
    var first=el('.tv-side-menu .tv-menu-item');if(first&&visible(el('#playit-catalog'))){e.preventDefault();e.stopImmediatePropagation();first.focus();}
  }
 },true);
