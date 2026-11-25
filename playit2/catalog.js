@@ -91,11 +91,11 @@
           <label>Streaming<select id="catalog-provider"><option value="">Minden szolgáltató</option></select></label>
           <label>Műfaj<select id="catalog-genre"><option value="">Minden műfaj</option></select></label>
         </div></div>
+        <div class="catalog-active-filters" id="catalog-active-filters" hidden aria-label="Aktív szűrők"></div>
         <div class="catalog-audio-control" id="catalog-audio-control"><div class="catalog-audio-control-copy"><span class="catalog-audio-control-icon">♫</span><div><strong>Csak magyar szinkron</strong><small>Szolgáltatónként ellenőrzött hangsáv</small></div></div><label class="catalog-switch"><input id="catalog-hu-filter" type="checkbox" aria-label="Csak magyar szinkronos címek"><span class="catalog-switch-track"></span></label></div>
-        <div id="catalog-audio-progress" class="catalog-audio-progress" aria-live="polite">Kapcsold be a magyar szinkron szűrőt az ellenőrzéshez.</div>
+        <div id="catalog-audio-progress" class="catalog-audio-progress" aria-live="polite" hidden></div>
         <button type="button" id="catalog-check-more" hidden>+ További 8 cím ellenőrzése</button>
-        <details class="catalog-manual-filter"><summary>Saját szinkronjelölések</summary><label class="catalog-dub-filter"><input id="catalog-confirmed" type="checkbox"> Csak általam igazolt címek</label></details>
-        <p class="catalog-note">A „Hangsávok ellenőrzése” gomb élő magyarországi streamingadatot kér le. A szolgáltatók nem minden címnél adnak teljes nyelvi adatot; az ilyen eredmény „Nincs adat”. Saját jelöléseid külön megmaradnak.</p>
+        
         <div class="catalog-section-title catalog-results-title"><span>02 / TALÁLATOK</span><i></i><small>Fedezd fel a következő kedvenced</small></div>
         <div id="catalog-status" role="status" aria-live="polite"></div>
         <div id="catalog-grid" class="catalog-grid"></div>
@@ -119,6 +119,7 @@
       updateCatalogSelections();load(false);
     }));
     $('#catalog-provider-clear').addEventListener('click',()=>{state.selectedPlatforms=[];state.provider='';$('#catalog-provider').value='';updateCatalogSelections();load(false);});
+    $('#catalog-active-filters').addEventListener('click',event=>{const b=event.target.closest('[data-remove-platform],[data-remove-genre],[data-remove-audio]');if(!b)return;if(b.dataset.removePlatform){state.selectedPlatforms=state.selectedPlatforms.filter(s=>s!==b.dataset.removePlatform);state.provider=state.selectedPlatforms.length===1?'collection:'+state.selectedPlatforms[0]:'';}else if(b.dataset.removeGenre){state.selectedGenres=state.selectedGenres.filter(s=>s!==b.dataset.removeGenre);state.genre=state.selectedGenres.join(',');}else if(b.hasAttribute('data-remove-audio')){state.audioOnly=false;$('#catalog-hu-filter').checked=false;}updateCatalogSelections();load(false);});
     $('#catalog-genre-tiles').addEventListener('click',event=>{
       const button=event.target.closest('[data-genre-tile]');if(!button)return;
       const id=button.dataset.genreTile;
@@ -163,7 +164,7 @@
       state.genre=event.target.value;state.selectedGenres=state.genre?[state.genre]:[];
       state.query='';$('#catalog-query').value='';updateCatalogSelections();load(false);
     });
-    $('#catalog-confirmed').addEventListener('change',event => {state.confirmedOnly=event.target.checked;render();});
+
     $('#catalog-hu-filter').addEventListener('change',event => {state.audioOnly=event.target.checked;updateCatalogSelections();if(state.provider.startsWith('collection:'))load(false);else{render();if(state.audioOnly)checkNextAudioBatch();}});
     $('#catalog-check-more').addEventListener('click',checkNextAudioBatch);
     $('#catalog-more').addEventListener('click',() => load(true));
@@ -244,6 +245,7 @@
     const count=state.selectedPlatforms.length;
     $('#catalog-provider-count').textContent=count?count+' / 6 kiválasztva · lapozz oldalra':'Válassz többet is · lapozz oldalra';
     $('#catalog-provider-clear').hidden=!count;
+    const chips=$('#catalog-active-filters');if(chips){const parts=[...state.selectedPlatforms.map(s=>'<button type="button" data-remove-platform="'+escape(s)+'">'+escape(serviceNames[s]||s)+' ×</button>'),...state.selectedGenres.map(id=>'<button type="button" data-remove-genre="'+escape(id)+'">'+escape(state.genres.find(g=>String(g.id)===id)?.name||'Műfaj')+' ×</button>')];if(state.audioOnly)parts.push('<button type="button" data-remove-audio>Magyar szinkron ×</button>');chips.innerHTML=parts.join('');chips.hidden=!parts.length;}
     const genreCount=$('#catalog-genre-count');if(genreCount)genreCount.textContent=state.selectedGenres.length?'· '+state.selectedGenres.length+' kiválasztva':'';
     updateBrandTheme();
   }
@@ -428,33 +430,30 @@
   function render() {
     const grid=$('#catalog-grid'), status=$('#catalog-status'), more=$('#catalog-more');
     if(!grid)return;
-    const manualItems=state.confirmedOnly?state.items.filter(item=>reviews[keyOf(item)]?.status==='hu'):state.items;
-    const items=state.audioOnly?manualItems.filter(hasHungarianAudio):manualItems;
+    const items=state.audioOnly?state.items.filter(hasHungarianAudio):state.items;
     const checked=state.items.filter(item=>audioData.get(keyOf(item))?.checkedAt).length;
     const loading=state.items.filter(item=>audioPending.has(keyOf(item))).length;
     const progress=$('#catalog-audio-progress'),checkMore=$('#catalog-check-more'),audioControl=$('#catalog-audio-control');
     if(audioControl)audioControl.classList.toggle('is-active',state.audioOnly);
-    if(progress)progress.textContent=state.audioOnly?'Ellenőrzött: '+checked+'/'+state.items.length+' cím · '+(loading||batchRunning?'Lekérdezés folyamatban…':items.length+' magyar szinkronos találat'):'Kapcsold be a magyar szinkron szűrőt az ellenőrzéshez.';
+    if(progress)progress.textContent=state.audioOnly&&loading?'Hangsávadatok frissítése folyamatban…':'';
     if(checkMore){checkMore.hidden=!state.audioOnly||batchRunning||checked+loading>=state.items.length;checkMore.disabled=batchRunning;}
     grid.innerHTML=items.map(item=>{
-      const key=keyOf(item),review=reviews[key],poster=image(item.poster_path)||(/^(https:\/\/)[a-z0-9.-]+\/[^"'<> ]+$/i.test(item.poster_path||'')?item.poster_path:'');
+      const key=keyOf(item),poster=image(item.poster_path)||(/^(https:\/\/)[a-z0-9.-]+\/[^"'<> ]+$/i.test(item.poster_path||'')?item.poster_path:'');
       const title=escape(item.title||item.name||item.original_title||item.original_name||'Cím nélkül');
       const year=String(item.release_date||item.first_air_date||'').slice(0,4);
       const overview=String(item.overview||'').trim().slice(0,180);
       const score=Number(item.vote_average);
-      const status=review?.status==='hu'?'✓ Magyar szinkron — saját ellenőrzés':review?.status==='no'?'Nem találtam magyar szinkront':'Magyar szinkron: nem ellenőrzött';
+      const checkedProviders=audioData.get(key)?.providers||item.providers||[];
+      const relevant=checkedProviders.filter(p=>!state.selectedPlatforms.length||state.selectedPlatforms.includes(p.service));
+      const dubState=relevant.some(p=>p.audio==='yes')?'yes':relevant.length&&relevant.every(p=>p.audio==='no')?'no':'unknown';
+      const status=dubState==='yes'?'✓ Magyar szinkron':dubState==='no'?'Nincs magyar hangsáv':'Nincs hangsávadat';
       return `<article class="catalog-card">
         <div class="catalog-art">${poster?'<img loading="lazy" decoding="async" src="'+poster+'" alt="">':'<div class="catalog-no-poster">PLAYIT</div>'}
           <span class="catalog-rating">${score>0?'★ '+score.toFixed(1):'FILM'}</span></div>
         <div class="catalog-card-copy"><div class="catalog-card-kind">${state.type==='tv'?'SOROZAT':'FILM'} <span>✦</span> ${year?escape(year):'PLAYIT'}</div><h3>${title}</h3>
           ${overview?'<p class="catalog-overview">'+escape(overview)+(overview.length>=180?'…':'')+'</p>':''}
-          <div class="catalog-dub-badge ${review?.status||'unknown'}">${status}</div>
-          <details class="catalog-review-drawer"><summary>Saját szinkronjelölés <span>+</span></summary><div class="catalog-review" role="group" aria-label="Magyar szinkron saját ellenőrzése">
-            <button type="button" data-dub="${key}" data-status="hu" aria-label="Magyar szinkron igazolása">✓ Van</button>
-            <button type="button" data-dub="${key}" data-status="no" aria-label="Magyar szinkron hiányának jelölése">Nincs</button>
-            <button type="button" data-dub="${key}" data-status="unknown" aria-label="Ellenőrzés visszavonása">?</button>
-          </div></details>
-          <button type="button" class="catalog-audio-button" data-audio-check="${key}" ${audioPending.has(key)?'disabled':''}>${audioPending.has(key)?'Hangsávok lekérdezése…':audioData.get(key)?.providers?'↻ Hangsávadatok':'♪ Hangsávok ellenőrzése'}</button>
+          <div class="catalog-dub-badge ${dubState}">${status}</div>
+          <button type="button" class="catalog-audio-button" data-audio-check="${key}" ${audioPending.has(key)?'disabled':''}>${audioPending.has(key)?'Ellenőrzés…':'Hangsávadat frissítése'}</button>
           ${audioMarkup(key)}
           <button type="button" class="catalog-details" data-catalog-details="${key}">Adatlap és elérhetőség →</button>
         </div></article>`;
@@ -462,7 +461,7 @@
     if(state.audioOnly) {
       status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?items.length+' igazolt magyar szinkronos találat':checked<state.items.length?'További filmek ellenőrzésére van szükség.':'A most ellenőrzött filmek között nincs igazolt magyar szinkronos találat.');
     } else {
-      status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?items.length+' találat a katalógusban':state.confirmedOnly?'Még nincs általad igazolt cím.':'Nincs találat. Próbálj másik szűrőt.');
+      status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?items.length+' találat a katalógusban':'Nincs találat. Próbálj másik szűrőt.');
     }
     more.hidden=('IntersectionObserver' in window)||!state.hasMore||state.busy;
     more.disabled=state.busy;
