@@ -68,7 +68,7 @@
         <header class="catalog-heading"><div class="catalog-heading-copy"><small><span class="catalog-spark">✦</span> PLAYIT 2 / THE CINEMA EDITION</small><h2>Fedezd fel<span>.</span></h2><p>Filmek és sorozatok, amelyekért érdemes ma este leülni.</p></div>
           <button type="button" class="catalog-close" aria-label="Katalógus bezárása">×</button></header>
         <div class="catalog-highlight"><span class="catalog-highlight-orb">✦</span><span><strong>A TE MOZIVILÁGOD</strong><small>Válogass, fedezd fel a szolgáltatókat és ellenőrizd a magyar hangsávot.</small></span><span class="catalog-highlight-mark">PLAYIT<span>®</span></span></div>
-        <div class="catalog-section-title"><span>01 / KOLLEKCIÓ</span><i></i><small>Mit néznél ma?</small></div>
+        <div class="catalog-platforms" role="group" aria-label="Streaming szolgáltatók"><button type="button" data-platform="netflix">NETFLIX</button><button type="button" data-platform="disney">Disney+</button><button type="button" data-platform="hbo">HBO Max</button><button type="button" data-platform="prime">prime video</button><button type="button" data-platform="skyshowtime">skyshowtime</button><button type="button" data-platform="apple">Apple TV+</button></div><div class="catalog-curations"><button type="button" data-curation="dubbed">♫ Magyar szinkronos toplista</button><button type="button" data-curation="films">✦ Filmek</button><button type="button" data-curation="series">◈ Sorozatok</button><button type="button" data-curation="all">Összes cím</button></div><p class="catalog-collection-summary" id="catalog-collection-summary" aria-live="polite">Folyamatosan bővülő, mentett streamingkatalógus</p><div class="catalog-section-title"><span>01 / KOLLEKCIÓ</span><i></i><small>Mit néznél ma?</small></div>
         <div class="catalog-tabs" role="group" aria-label="Tartalomtípus">
           <button type="button" data-catalog-type="movie" aria-pressed="true">Filmek</button>
           <button type="button" data-catalog-type="tv" aria-pressed="false">Sorozatok</button>
@@ -94,7 +94,7 @@
         <div id="catalog-grid" class="catalog-grid"></div>
         <button type="button" id="catalog-more" hidden>További találatok</button>
         <div id="catalog-scroll-sentinel" class="catalog-scroll-sentinel" aria-hidden="true"></div>
-        <footer class="catalog-footer">
+        <nav class="catalog-bottom-nav" aria-label="Katalógus navigáció"><button type="button" data-nav="home" aria-label="Főoldal"><span>⌂</span>Főoldal</button><button type="button" data-nav="discover" class="is-current" aria-label="Felfedezés"><span>✦</span>Felfedezés</button><button type="button" data-nav="search" aria-label="Keresés"><span>⌕</span>Keresés</button><button type="button" data-nav="lists" aria-label="Listáim"><span>♡</span>Listáim</button></nav><footer class="catalog-footer">
           <button type="button" id="catalog-original-search">Részletes címkereső megnyitása</button>
           <a href="https://www.netflix.com/browse/audio" target="_blank" rel="noopener noreferrer">Netflix hangsáv szerinti böngészés ↗</a>
         </footer>
@@ -102,8 +102,40 @@
     document.body.append(dialog);
     launcher.addEventListener('click',open);
     // Warm the first saved pages without spending upstream API quota.
-    setTimeout(()=>{for(const service of ['disney','skyshowtime','prime','netflix'])for(const type of ['movie','tv'])collectionPage(service,type,1,false).catch(()=>{});},1500);
+    setTimeout(()=>{for(const service of ['disney','skyshowtime','prime','netflix','hbo','apple'])for(const type of ['movie','tv'])collectionPage(service,type,1,false).catch(()=>{});},1500);
     dialog.querySelector('.catalog-close').addEventListener('click',close);
+    dialog.querySelectorAll('[data-platform]').forEach(button=>button.addEventListener('click',()=>{
+      const chosen=button.dataset.platform;
+      state.provider=state.provider==='collection:'+chosen?'':'collection:'+chosen;
+      state.query='';$('#catalog-query').value='';
+      const select=$('#catalog-provider');if([...select.options].some(option=>option.value===state.provider))select.value=state.provider;
+      updateCatalogSelections();load(false);
+      dialog.querySelector('.catalog-results-title')?.scrollIntoView({block:'start',behavior:'instant'});
+    }));
+    dialog.querySelectorAll('[data-curation]').forEach(button=>button.addEventListener('click',async()=>{
+      const action=button.dataset.curation;
+      if(action==='films'||action==='series')await setType(action==='films'?'movie':'tv');
+      else if(action==='dubbed'){
+        state.audioOnly=true;$('#catalog-hu-filter').checked=true;
+        if(!state.provider.startsWith('collection:')){state.provider='collection:netflix';$('#catalog-provider').value=state.provider;}
+        await load(false);
+      } else {state.audioOnly=false;$('#catalog-hu-filter').checked=false;state.provider='';$('#catalog-provider').value='';await load(false);}
+      updateCatalogSelections();dialog.querySelector('.catalog-results-title')?.scrollIntoView({block:'start',behavior:'instant'});
+    }));
+    dialog.querySelectorAll('[data-nav]').forEach(button=>button.addEventListener('click',()=>{
+      const mode=button.dataset.nav;dialog.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-current',b===button));
+      if(mode==='lists'){close();$('#favorites-open')?.click();return;}
+      if(mode==='search'){const input=$('#catalog-query');input?.scrollIntoView({block:'center',behavior:'instant'});input?.focus({preventScroll:true});return;}
+      dialog.querySelector(mode==='home'?'.catalog-heading':'.catalog-results-title')?.scrollIntoView({block:'start',behavior:'instant'});
+    }));
+    fetch(AUDIO_API+'/api/collection/status').then(r=>r.ok?r.json():null).then(payload=>{
+      const target=$('#catalog-collection-summary');if(!target||!payload)return;
+      const totals=payload.totals||payload.services||[];
+      const rows=Array.isArray(totals)?totals:Object.values(totals);
+      const count=rows.reduce((n,row)=>n+Number(row?.total||row?.count||row?.movies||0)+Number(row?.tv||row?.series||0),0);
+      if(count>0)target.textContent=count.toLocaleString('hu-HU')+' szolgáltatói címelőfordulás · Magyar hangsáv csak igazolt adatok alapján';
+    }).catch(()=>{});
+
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
     dialog.querySelectorAll('[data-catalog-type]').forEach(button => button.addEventListener('click',() => setType(button.dataset.catalogType)));
@@ -114,10 +146,10 @@
       if(value.length===1) {state.error='A kereséshez legalább két karakter szükséges.';render();return;}
       state.query=value;load(false);
     });
-    $('#catalog-provider').addEventListener('change',event => {state.provider=event.target.value;state.query='';$('#catalog-query').value='';load(false);});
+    $('#catalog-provider').addEventListener('change',event => {state.provider=event.target.value;state.query='';$('#catalog-query').value='';updateCatalogSelections();load(false);});
     $('#catalog-genre').addEventListener('change',event => {state.genre=event.target.value;state.query='';$('#catalog-query').value='';load(false);});
     $('#catalog-confirmed').addEventListener('change',event => {state.confirmedOnly=event.target.checked;render();});
-    $('#catalog-hu-filter').addEventListener('change',event => {state.audioOnly=event.target.checked;if(state.provider.startsWith('collection:'))load(false);else{render();if(state.audioOnly)checkNextAudioBatch();}});
+    $('#catalog-hu-filter').addEventListener('change',event => {state.audioOnly=event.target.checked;updateCatalogSelections();if(state.provider.startsWith('collection:'))load(false);else{render();if(state.audioOnly)checkNextAudioBatch();}});
     $('#catalog-check-more').addEventListener('click',checkNextAudioBatch);
     $('#catalog-more').addEventListener('click',() => load(true));
     if ('IntersectionObserver' in window) {
@@ -151,12 +183,19 @@
       }
     });
   }
+  function updateCatalogSelections() {
+    if(!dialog)return;
+    const service=state.provider.startsWith('collection:')?state.provider.slice(11):'';
+    dialog.dataset.platform=service||'all';
+    dialog.querySelectorAll('[data-platform]').forEach(button=>button.classList.toggle('is-active',button.dataset.platform===service));
+    dialog.querySelectorAll('[data-curation]').forEach(button=>button.classList.toggle('is-active',button.dataset.curation==='dubbed'&&state.audioOnly));
+  }
   function open() {
     if (!dialog) return;
     previousFocus=document.activeElement;dialog.hidden=false;
     document.body.classList.add('catalog-open');
     dialog.querySelector('.catalog-shell').focus({preventScroll:true});
-    if (!state.items.length) setType(state.type);
+    if (!state.items.length) setType(state.type);updateCatalogSelections();
   }
   function close() {
     if (!dialog) return;
@@ -173,11 +212,11 @@
       const config=await api('/api/config?mediaType='+state.type);
       if (state.type!==type) return;
       state.providers=config.providers||[];state.genres=config.genres||[];
-      $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id')+'<optgroup label="Mentett magyar hangsáv-adatbázis"><option value="collection:disney">Disney+ · mentett gyűjtemény</option><option value="collection:skyshowtime">SkyShowtime · mentett gyűjtemény</option><option value="collection:prime">Prime Video · mentett gyűjtemény</option><option value="collection:netflix">Netflix · népszerű címek</option></optgroup>';
+      $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id')+'<optgroup label="Mentett magyar hangsáv-adatbázis"><option value="collection:disney">Disney+ · mentett gyűjtemény</option><option value="collection:skyshowtime">SkyShowtime · mentett gyűjtemény</option><option value="collection:prime">Prime Video · mentett gyűjtemény</option><option value="collection:netflix">Netflix · mentett gyűjtemény</option><option value="collection:hbo">HBO Max · bővülő gyűjtemény</option><option value="collection:apple">Apple TV+ · bővülő gyűjtemény</option></optgroup>';
       $('#catalog-genre').innerHTML=options(state.genres,'Minden műfaj','name','id');
     } catch(error){state.error=error.message;}
     if(state.type!==type)return;
-    await load(false);
+    updateCatalogSelections();await load(false);
   }
   async function load(more) {
     if (!dialog || dialog.hidden) return;
