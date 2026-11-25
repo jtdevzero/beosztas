@@ -65,9 +65,8 @@
     dialog.setAttribute('aria-label','PLAYIT katalógus');
     dialog.innerHTML = `
       <div class="catalog-shell" tabindex="-1">
-        <header class="catalog-heading"><div class="catalog-heading-copy"><small><span class="catalog-spark">✦</span> PLAYIT 2 / THE CINEMA EDITION</small><h2>Fedezd fel<span>.</span></h2><p>Filmek és sorozatok, amelyekért érdemes ma este leülni.</p></div>
+        <header class="catalog-heading"><div class="catalog-heading-copy"><small><span class="catalog-spark">✦</span> PLAYIT 2 <span class="catalog-edition">/ THE CINEMA EDITION</span></small></div>
           <button type="button" class="catalog-close" aria-label="Katalógus bezárása">×</button></header>
-        <div class="catalog-highlight"><span class="catalog-highlight-orb">✦</span><span><strong>A TE MOZIVILÁGOD</strong><small>Válogass, fedezd fel a szolgáltatókat és ellenőrizd a magyar hangsávot.</small></span><span class="catalog-highlight-mark">PLAYIT<span>®</span></span></div>
         <div class="catalog-tile-head"><strong>STREAMING</strong><span class="catalog-selection-tools"><span id="catalog-provider-count">Mindegyik szolgáltató</span><button type="button" id="catalog-provider-clear" hidden>Szűrés törlése</button></span></div>
         <div class="catalog-platforms catalog-tile-rail" role="group" aria-label="Streaming szolgáltatók">
           <button type="button" data-platform="netflix" aria-pressed="false" aria-label="Netflix"><span class="tile-art"><img loading="lazy" src="https://cdn.simpleicons.org/netflix/E50914" alt="" onerror="this.hidden=true"><b>N</b></span><small>Netflix</small></button>
@@ -76,19 +75,17 @@
           <button type="button" data-platform="prime" aria-pressed="false" aria-label="Prime Video"><span class="tile-art"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Prime_Video_logo_%282024%29.svg" alt="" onerror="this.hidden=true"><b>prime</b></span><small>Prime</small></button>
           <button type="button" data-platform="skyshowtime" aria-pressed="false" aria-label="SkyShowtime"><span class="tile-art"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/SkyShowtime_Logo.svg" alt="" onerror="this.hidden=true"><b>sky</b></span><small>SkyShowtime</small></button>
           <button type="button" data-platform="apple" aria-pressed="false" aria-label="Apple TV+"><span class="tile-art"><img loading="lazy" src="https://cdn.simpleicons.org/appletv/F3F3F3" alt="" onerror="this.hidden=true"><b>tv+</b></span><small>Apple TV+</small></button>
-        </div><p class="catalog-collection-summary" id="catalog-collection-summary" aria-live="polite">Folyamatosan bővülő, mentett streamingkatalógus</p><div class="catalog-section-title"><span>01 / KOLLEKCIÓ</span><i></i><small>Mit néznél ma?</small></div>
+        </div>
         <div class="catalog-tabs" role="group" aria-label="Tartalomtípus">
           <button type="button" data-catalog-type="movie" aria-pressed="true">Filmek</button>
           <button type="button" data-catalog-type="tv" aria-pressed="false">Sorozatok</button>
         </div>
-        <p class="catalog-search-caption">Keress címre vagy a történet leírásában szereplő kifejezésre.</p>
         <form class="catalog-search">
           <label class="sr-only" for="catalog-query">Film vagy sorozat keresése</label>
           <input id="catalog-query" type="search" placeholder="Keress címre…" maxlength="100" autocomplete="off">
           <button type="submit">Keresés</button>
         </form>
-        <div class="catalog-tile-head catalog-genre-heading"><strong>MŰFAJOK</strong><span>Egyszerre négy · lapozz →</span></div>
-        <div class="catalog-genres catalog-tile-rail" id="catalog-genre-tiles" role="group" aria-label="Műfajválasztó"><span class="catalog-tiles-loading">Műfajok betöltése…</span></div>
+        <details class="catalog-genre-disclosure"><summary>Műfajok <span class="catalog-genre-count" id="catalog-genre-count"></span></summary><div class="catalog-genres catalog-tile-rail" id="catalog-genre-tiles" role="group" aria-label="Műfajválasztó"><span class="catalog-tiles-loading">Műfajok betöltése…</span></div></details>
         <div class="catalog-legacy-selects" hidden aria-hidden="true">
         <div class="catalog-filters">
           <label>Streaming<select id="catalog-provider"><option value="">Minden szolgáltató</option></select></label>
@@ -146,13 +143,6 @@
       if(mode==='search'){const input=$('#catalog-query');input?.scrollIntoView({block:'center',behavior:'instant'});input?.focus({preventScroll:true});return;}
       dialog.querySelector(mode==='home'?'.catalog-heading':'.catalog-results-title')?.scrollIntoView({block:'start',behavior:'instant'});
     }));
-    fetch(AUDIO_API+'/api/collection/status').then(r=>r.ok?r.json():null).then(payload=>{
-      const target=$('#catalog-collection-summary');if(!target||!payload)return;
-      const totals=payload.totals||payload.services||[];
-      const rows=Array.isArray(totals)?totals:Object.values(totals);
-      const count=rows.reduce((n,row)=>n+Number(row?.titles||row?.total||row?.count||0),0);
-      if(count>0)target.textContent=count.toLocaleString('hu-HU')+' szolgáltatói címelőfordulás · Magyar hangsáv csak igazolt adatok alapján';
-    }).catch(()=>{});
 
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
@@ -254,6 +244,7 @@
     const count=state.selectedPlatforms.length;
     $('#catalog-provider-count').textContent=count?count+' / 6 kiválasztva · lapozz oldalra':'Válassz többet is · lapozz oldalra';
     $('#catalog-provider-clear').hidden=!count;
+    const genreCount=$('#catalog-genre-count');if(genreCount)genreCount.textContent=state.selectedGenres.length?'· '+state.selectedGenres.length+' kiválasztva':'';
     updateBrandTheme();
   }
   function open() {
