@@ -92,3 +92,15 @@ body.catalog-open {overflow:hidden!important;}
 @media(prefers-reduced-motion:reduce) {
   #playit-catalog * {scroll-behavior:auto!important;transition:none!important;}
 }
+
+/* Highly visible secondary entry in the existing filter sheet. */
+#playit-catalog-menu {
+  display:block;width:calc(100% - 24px);min-height:48px;margin:8px 12px 15px;
+  border:1px solid #dfbf8a;border-radius:12px;
+  background:linear-gradient(110deg,#d9bb83,#aa7d4c);
+  color:#111c21;font-size:13px;font-weight:800;
+  box-shadow:0 4px 14px #0005;
+}
+@media(max-width:700px){
+  .playit-quick-actions #playit-catalog-open {color:#dfc28e!important;}
+}
