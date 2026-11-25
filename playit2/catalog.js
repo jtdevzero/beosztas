@@ -30,6 +30,15 @@
     launcher.setAttribute('title','Filmkatalógus');
     launcher.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
     $('#search-open')?.after(launcher);
+    const filterHeader = document.querySelector('#filters-panel .mobile-panel-head');
+    if (filterHeader && !document.getElementById('playit-catalog-menu')) {
+      const menuButton = document.createElement('button');
+      menuButton.id = 'playit-catalog-menu';
+      menuButton.type = 'button';
+      menuButton.textContent = '🎬 Film- és sorozatkatalógus megnyitása';
+      filterHeader.after(menuButton);
+      menuButton.addEventListener('click', open);
+    }
     dialog = document.createElement('div');
     dialog.id='playit-catalog'; dialog.hidden=true;
     dialog.setAttribute('role','dialog'); dialog.setAttribute('aria-modal','true');
@@ -63,6 +72,17 @@
       </div>`;
     document.body.append(dialog);
     launcher.addEventListener('click',open);
+    // A direct, shareable URL to the catalog works after the existing password gate.
+    if (new URLSearchParams(location.search).get('catalog') === '1') {
+      const shell = document.querySelector('.app-shell');
+      let opened = false;
+      const showWhenUnlocked = () => {
+        if (opened || !shell || shell.hidden) return;
+        opened = true; open();
+      };
+      if (shell) new MutationObserver(showWhenUnlocked).observe(shell, {attributes:true,attributeFilter:['hidden']});
+      showWhenUnlocked();
+    }
     dialog.querySelector('.catalog-close').addEventListener('click',close);
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
