@@ -59,6 +59,7 @@
           <button type="button" data-catalog-type="movie" aria-pressed="true">Filmek</button>
           <button type="button" data-catalog-type="tv" aria-pressed="false">Sorozatok</button>
         </div>
+        <p class="catalog-search-caption">Keress címre vagy a történet leírásában szereplő kifejezésre.</p>
         <form class="catalog-search">
           <label class="sr-only" for="catalog-query">Film vagy sorozat keresése</label>
           <input id="catalog-query" type="search" placeholder="Keress címre…" maxlength="100" autocomplete="off">
@@ -93,7 +94,7 @@
     dialog.querySelector('.catalog-search').addEventListener('submit',event => {
       event.preventDefault();
       const value=$('#catalog-query').value.trim();
-      if(state.provider.startsWith('collection:')&&value){state.error='Mentett gyűjteményben egyelőre a szolgáltató szerinti böngészés érhető el. Címkereséshez válaszd a Minden szolgáltatót.';render();return;}
+      if(value.length===2){state.error='A cím- és leíráskereséshez legalább 3 karakter szükséges.';render();return;}
       if(value.length===1) {state.error='A kereséshez legalább két karakter szükséges.';render();return;}
       state.query=value;load(false);
     });
@@ -168,12 +169,23 @@
     currentController=new AbortController();
     const serial=++state.serial;
     const page=more?state.nextPage:1;
-    if (!more) {state.page=1;state.items=[];}
+    if (!more) {state.page=1;state.items=[];state.nextCursor='';}
     state.error='';state.busy=true;render();
     try {
       let url;
-      if (state.query.length>=2) {
-        url='/api/search?'+new URLSearchParams({query:state.query,mediaType:state.type,page:String(page)});
+      let keywordResult;
+      if (state.query.length>=3) {
+        const params=new URLSearchParams({q:state.query,type:state.type});
+        const service=selectedService();
+        if(service&&!['netflix','disney','prime','skyshowtime'].includes(service))throw new Error('A leíráskeresés jelenleg Netflix, Disney+, Prime Video és SkyShowtime szolgáltatókhoz érhető el.');
+        if(service)params.set('service',service);
+        if(more&&state.nextCursor)params.set('cursor',state.nextCursor);
+        const response=await fetch(AUDIO_API+'/api/collection/search?'+params,{signal:currentController.signal});
+        const payload=await response.json();
+        if(!response.ok)throw new Error(payload.error||'Nem sikerült keresni a címek és leírások között.');
+        if(serial!==state.serial)return;
+        state.nextCursor=payload.nextCursor||'';
+        keywordResult={results:payload.items||[],hasMore:payload.hasMore,nextPage:page+1};
       } else {
         const params=new URLSearchParams({mediaType:state.type,page:String(page),rating:'0'});
         if(state.provider)params.set('providers',state.provider);
@@ -181,7 +193,9 @@
         url='/api/discover?'+params;
       }
       let result;
-      if (state.provider.startsWith('collection:') && !state.query) {
+      if (keywordResult) {
+        result=keywordResult;
+      } else if (state.provider.startsWith('collection:') && !state.query) {
         const service=state.provider.split(':')[1];
         const response=await fetch(AUDIO_API+'/api/collection/titles?'+new URLSearchParams({service,type:state.type,page:String(page),dubbed:String(state.audioOnly)}),{signal:currentController.signal});
         const payload=await response.json();
@@ -289,12 +303,14 @@
       const key=keyOf(item),review=reviews[key],poster=image(item.poster_path)||(/^(https:\/\/)[a-z0-9.-]+\/[^"'<> ]+$/i.test(item.poster_path||'')?item.poster_path:'');
       const title=escape(item.title||item.name||item.original_title||item.original_name||'Cím nélkül');
       const year=String(item.release_date||item.first_air_date||'').slice(0,4);
+      const overview=String(item.overview||'').trim().slice(0,180);
       const score=Number(item.vote_average);
       const status=review?.status==='hu'?'✓ Magyar szinkron — saját ellenőrzés':review?.status==='no'?'Nem találtam magyar szinkront':'Magyar szinkron: nem ellenőrzött';
       return `<article class="catalog-card">
         <div class="catalog-art">${poster?'<img loading="lazy" decoding="async" src="'+poster+'" alt="">':'<div class="catalog-no-poster">PLAYIT</div>'}
           <span class="catalog-rating">${score>0?'★ '+score.toFixed(1):'FILM'}</span></div>
         <div class="catalog-card-copy"><div class="catalog-card-kind">${state.type==='tv'?'SOROZAT':'FILM'} <span>✦</span> ${year?escape(year):'PLAYIT'}</div><h3>${title}</h3>
+          ${overview?'<p class="catalog-overview">'+escape(overview)+(overview.length>=180?'…':'')+'</p>':''}
           <div class="catalog-dub-badge ${review?.status||'unknown'}">${status}</div>
           <details class="catalog-review-drawer"><summary>Saját szinkronjelölés <span>+</span></summary><div class="catalog-review" role="group" aria-label="Magyar szinkron saját ellenőrzése">
             <button type="button" data-dub="${key}" data-status="hu" aria-label="Magyar szinkron igazolása">✓ Van</button>
