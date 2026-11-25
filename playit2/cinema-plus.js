@@ -99,5 +99,15 @@
     const picks=shared.length?shared:items.filter(item=>mine.has(keyOf(item))||partner.has(keyOf(item)));
     const modal=$('#cine-dialog');modal.innerHTML=`<div class="cine-sheet cine-match"><button class="cine-x" data-cine-close aria-label="Bezárás">×</button><span class="cine-eyebrow">PLAYIT MATCH</span><h2>Közös moziest</h2><p>Jelöld ki mindkettőtök kedvenceit! A rendszer először a közös jelölésekből ajánl.</p><div class="cine-match-results">${picks.length?picks.slice(0,12).map(item=>`<button data-cine-partner="${esc(keyOf(item))}">${esc(titleOf(item))} ${partner.has(keyOf(item))?'♥':'♡'}</button>`).join(''):'<p>Először jelölj kedvenceket a filmadatlapokon; ezután itt párod is kiválaszthatja őket.</p>'}</div><p class="cine-stat">${shared.length} közös kedvenc a jelenleg betöltött címek között.</p></div>`;modal.hidden=false;
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0),{once:true});else setTimeout(init,0);
+  function mountWhenReady(){
+    init();
+    if($('#cine-explore'))return;
+    const observer=new MutationObserver(()=>{
+      init();
+      if($('#cine-explore'))observer.disconnect();
+    });
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    window.addEventListener('pageshow',()=>{if(!$('#cine-explore'))init();},{once:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mountWhenReady,{once:true});else mountWhenReady();
 })();
