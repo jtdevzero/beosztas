@@ -14,7 +14,9 @@
   const keyOf=item=>(item.media_type==='tv'?'tv':'movie')+':'+Number(item.id);
   const poster=item=>{const p=item?.poster_path||'';return /^https:\/\/[a-z0-9.-]+\//i.test(p)?p:/^\/[a-zA-Z0-9._/-]+$/.test(p)?'https://image.tmdb.org/t/p/w500'+p:''};
   const titleOf=item=>item?.title||item?.name||item?.original_title||item?.original_name||'Cím nélkül';
-  const visibleItems=()=>C()?.getItems()||[];
+  const visibleItems=()=>C()?.getVisibleItems?.()||C()?.getItems()||[];
+  let spotlightIndex=0;
+  const spotlightPool=()=>visibleItems().filter(item=>!personal.seen.includes(keyOf(item))&&poster(item)).slice(0,12);
   const checkedYes=item=>{
     const result=C()?.getAudio(keyOf(item));
     const chosen=C()?.getService();
@@ -45,19 +47,19 @@
   let currentView='home';
   function card(item,rank) {
     const k=keyOf(item),p=poster(item),year=(item.release_date||item.first_air_date||'').slice(0,4);
-    return `<button type="button" class="cine-mini" data-cine-detail="${esc(k)}" aria-label="${esc(titleOf(item))} adatlapja"><span class="cine-mini-art">${p?`<img loading="lazy" decoding="async" src="${esc(p)}" alt="">`:'<span>PLAYIT</span>'}${rank?`<b>${rank}</b>`:''}</span><strong>${esc(titleOf(item))}</strong><small>${checkedYes(item)?'✓ HU hangsáv':year||'Film / sorozat'}</small></button>`;
+    return `<article class="cine-mini-wrap"><button type="button" class="cine-mini" data-cine-detail="${esc(k)}" aria-label="${esc(titleOf(item))} adatlapja"><span class="cine-mini-art">${p?`<img loading="lazy" decoding="async" src="${esc(p)}" alt="">`:'<span>PLAYIT</span>'}${rank?`<b>${rank}</b>`:''}</span><strong>${esc(titleOf(item))}</strong><small>${checkedYes(item)?'✓ HU hangsáv':year||'Film / sorozat'}</small></button><button type="button" class="cine-mini-save" data-cine-watch="${esc(k)}" aria-label="${esc(titleOf(item))} ${personal.watchlist.includes(k)?'eltávolítása a listáról':'mentése a listára'}">${personal.watchlist.includes(k)?'♥':'♡'}</button></article>`;
   }
   function rail(title,items,ranked=false){return `<section class="cine-rail" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cine-rail-scroll">${items.length?items.slice(0,20).map((item,i)=>card(item,ranked?i+1:null)).join(''):'<p class="cine-empty">Ehhez a sorhoz még nincs elegendő ellenőrzött adat.</p>'}</div></section>`;}
   function renderHome() {
     const host=$('#cine-explore');if(!host)return;
-    const all=visibleItems(),filters=C()?.getState();const items=filters?.audioOnly?all.filter(checkedYes):all;const picked=items.find(item=>poster(item))||items[0];
+    const all=visibleItems(),filters=C()?.getState();const items=filters?.audioOnly?all.filter(checkedYes):all;const spot=spotlightPool();const picked=spot.length?spot[spotlightIndex%spot.length]:items.find(item=>poster(item))||items[0];
     const sorted=[...items].filter(item=>score(item)>0).sort((a,b)=>score(b)-score(a));
     const dubbed=sorted.filter(checkedYes);
     const favorites=items.filter(item=>personal.profiles.mine.includes(keyOf(item)));
     const recommendations=[...items].filter(item=>!personal.seen.includes(keyOf(item))&&!personal.profiles.mine.includes(keyOf(item))).sort((a,b)=>
       (matchScore(b,favorites)*10+score(b))-(matchScore(a,favorites)*10+score(a)));
     if(picked){const p=poster(picked);const hero=$('#cine-hero');hero.style.setProperty('--cine-hero-image',p?`url("${p.replace(/"/g,'%22')}")`:'none');
-      hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>`;
+      hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>${spot.length>1?`<div class="cine-spotlight-controls" aria-label="Kiemelt filmek"><button type="button" data-spotlight="prev" aria-label="Előző kiemelt film">‹</button><span>${spotlightIndex%spot.length+1} / ${spot.length}</span><button type="button" data-spotlight="next" aria-label="Következő kiemelt film">›</button></div>`:''}`;
     } else $('#cine-hero').innerHTML='<div class="cine-hero-shade"><span class="cine-eyebrow">PLAYIT SPOTLIGHT</span><h2>Fedezd fel a következő filmed.</h2><p>Válassz szolgáltatót vagy műfajt, és megjelennek a filmek.</p></div>';
     const topLabel=dubbed.length?'Magyar szinkronos kedvencek':'Magyar szinkronos ajánlók';
     $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · az elérhető címek közül',recommendations)+rail('Felfedezés',items);
@@ -84,8 +86,9 @@
     const modal=document.createElement('div');modal.id='cine-dialog';modal.className='cine-dialog';modal.hidden=true;document.body.append(modal);
     document.addEventListener('playit:catalog-render',()=>{if(!$('#playit-catalog')?.hidden)requestAnimationFrame(renderHome)});
     shell.addEventListener('click',event=>{
-      const button=event.target.closest('[data-cine-detail],[data-cine-watch],[data-cine-pick],[data-cine-wizard],[data-cine-compare],[data-cine-match],[data-cine-lists],[data-cine-track-open],[data-cine-tracker-close],[data-cine-remove],[data-cine-progress]');if(!button)return;
+      const button=event.target.closest('[data-spotlight],[data-cine-detail],[data-cine-watch],[data-cine-pick],[data-cine-wizard],[data-cine-compare],[data-cine-match],[data-cine-lists],[data-cine-track-open],[data-cine-tracker-close],[data-cine-remove],[data-cine-progress]');if(!button)return;
       const k=button.dataset.cineDetail||button.dataset.cineWatch||button.dataset.cineRemove||button.dataset.cineProgress;
+      if(button.dataset.spotlight){const len=spotlightPool().length;if(len){spotlightIndex=(spotlightIndex+(button.dataset.spotlight==='next'?1:len-1))%len;renderHome();}return;}
       if(button.dataset.cineDetail){const item=findItem(k);if(item)detail(item);}
       else if(button.dataset.cineWatch){setMembership('watchlist',k);renderHome();}
       else if(button.hasAttribute('data-cine-pick')){const items=visibleItems().filter(item=>!personal.seen.includes(keyOf(item)));const pool=items.filter(checkedYes);const list=pool.length?pool:items;const item=list[Math.floor(Math.random()*list.length)];if(item)detail(item);}
@@ -113,6 +116,11 @@
       if(selectedItem)detail(selectedItem);renderHome();
     });
     const nav=$('#playit-catalog [data-nav="lists"]');nav?.addEventListener('click',event=>{event.stopImmediatePropagation();renderLists();$('#cine-tracker')?.scrollIntoView({block:'center',behavior:'smooth'});},true);
+    const scroller=$('#playit-catalog .catalog-shell');const bottom=$('#playit-catalog .catalog-bottom-nav');let previousScroll=0;
+    scroller?.addEventListener('scroll',()=>{const current=scroller.scrollTop;if(!bottom)return;const delta=current-previousScroll;if(Math.abs(delta)>8){bottom.classList.toggle('is-collapsed',delta>0&&current>190);previousScroll=current;}},{passive:true});
+    bottom?.addEventListener('focusin',()=>bottom.classList.remove('is-collapsed'));
+    const hero=$('#cine-hero');let touchX=null;hero?.addEventListener('touchstart',e=>{touchX=e.touches[0]?.clientX??null;},{passive:true});hero?.addEventListener('touchend',e=>{if(touchX===null)return;const diff=(e.changedTouches[0]?.clientX??touchX)-touchX;touchX=null;const len=spotlightPool().length;if(Math.abs(diff)>50&&len>1){spotlightIndex=(spotlightIndex+(diff<0?1:len-1))%len;renderHome();}},{passive:true});
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(document.hidden||$('#playit-catalog')?.hidden||!$('#cine-dialog')?.hidden)return;const len=spotlightPool().length;if(len>1){spotlightIndex=(spotlightIndex+1)%len;renderHome();}},9000);
     if('serviceWorker' in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
     renderHome();
   }
