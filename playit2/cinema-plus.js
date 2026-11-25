@@ -43,7 +43,7 @@
       hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>`;
     } else $('#cine-hero').innerHTML='<div class="cine-hero-shade"><span class="cine-eyebrow">PLAYIT SPOTLIGHT</span><h2>Fedezd fel a következő filmed.</h2><p>Válassz szolgáltatót vagy műfajt, és megjelennek a filmek.</p></div>';
     const topLabel=dubbed.length?'Magyar szinkronos értékelési toplista · '+dubbed.length+' igazolt cím':'Magyar szinkronos toplista · ellenőrzött adatokra vár';
-    $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · a betöltött filmek értékelése alapján',recommendations)+rail('Felfedezés',items);
+    $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · az elérhető címek közül',recommendations)+rail('Felfedezés',items);
     $('#cine-stat').textContent='A rangsor csak értékeléssel ÉS ellenőrzött magyar hangsávval rendelkező címeket sorol. A lista a betöltött találatokból épül, nem a teljes adatbázisból.';
     const tracker=$('#cine-tracker');if(tracker&&!tracker.hidden)renderTracker();
   }
