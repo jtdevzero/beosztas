@@ -15,7 +15,8 @@
   const checkedYes=item=>{
     const result=C()?.getAudio(keyOf(item));
     const chosen=C()?.getService();
-    return result?.providers?.some(p=>p.audio==='yes'&&(!chosen||p.service===chosen))||false;
+    const providers=C()?.getState()?.selectedPlatforms||[];
+    return result?.providers?.some(p=>p.audio==='yes'&&(!providers.length||providers.includes(p.service))&&(!chosen||p.service===chosen))||false;
   };
   const score=item=>Number(item.vote_average)||0;
   const terms=item=>new Set(String([titleOf(item),item.overview||''].join(' ')).toLocaleLowerCase('hu-HU').match(/[\p{L}]{4,}/gu)||[]);
