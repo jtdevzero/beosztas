@@ -104,3 +104,22 @@ body.catalog-open {overflow:hidden!important;}
 @media(max-width:700px){
   .playit-quick-actions #playit-catalog-open {color:#dfc28e!important;}
 }
+
+/* Verified, service-specific Hungarian audio data. */
+.catalog-audio-button {
+  display:block;width:100%;min-height:38px;border:1px solid #d2b17691;border-radius:8px;
+  background:linear-gradient(115deg,#2b3a42,#17242e);color:#f5d7a7;
+  font-size:11px;font-weight:750;letter-spacing:.01em;
+}
+.catalog-audio-button:disabled {opacity:.58;cursor:wait;}
+.catalog-audio-hint {font-size:10px;line-height:1.45;color:#a9b4b9;}
+.catalog-audio-error {color:#e7af98;}
+.catalog-audio-list {display:grid;gap:7px;padding-top:7px;border-top:1px solid #b4997655;}
+.catalog-audio-provider {
+  display:flex;gap:4px;flex-direction:column;padding:8px;
+  border-radius:8px;background:#07151d;color:#cad1d2;font-size:10px;line-height:1.3;
+}
+.catalog-audio-provider strong {color:#e6c28a;font-size:11px;}
+.catalog-audio-provider .audio-yes {color:#9fdfc2;font-weight:800;}
+.catalog-audio-provider a {color:#d6b47b;text-decoration:underline;}
+.catalog-audio-source {font-size:9px;color:#819299;}
