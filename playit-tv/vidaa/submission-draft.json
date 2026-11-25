@@ -1,0 +1,24 @@
+{
+  "status": "draft-not-submitted",
+  "appName": "PLAYIT TV Edition",
+  "description": "Magyar filmes és sorozatos katalógus, streaming és magyar szinkron szűrőkkel.",
+  "language": "hu-HU",
+  "targetPlatform": "VIDAA U7",
+  "targetDevice": "Hisense C2 Ultra",
+  "appType": "hosted-web-app",
+  "startUrl": "https://jtdevzero.github.io/beosztas/playit-tv/",
+  "icon": "https://jtdevzero.github.io/beosztas/playit-tv/vidaa/playit-icon.svg",
+  "authentication": "existing-backend-password-protected",
+  "navigation": [
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "Enter",
+    "Back"
+  ],
+  "developerId": null,
+  "appId": null,
+  "storeApproved": false,
+  "requiresPartnerPortal": true
+}
