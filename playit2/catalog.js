@@ -149,7 +149,7 @@
       const config=await api('/api/config?mediaType='+state.type);
       if (state.type!==type) return;
       state.providers=config.providers||[];state.genres=config.genres||[];
-      $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id')+'<optgroup label="Mentett magyar hangsáv-adatbázis"><option value="collection:disney">Disney+ · mentett gyűjtemény</option><option value="collection:skyshowtime">SkyShowtime · mentett gyűjtemény</option></optgroup>';
+      $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id')+'<optgroup label="Mentett magyar hangsáv-adatbázis"><option value="collection:disney">Disney+ · mentett gyűjtemény</option><option value="collection:skyshowtime">SkyShowtime · mentett gyűjtemény</option><option value="collection:prime">Prime Video · mentett gyűjtemény</option><option value="collection:netflix">Netflix · népszerű címek</option></optgroup>';
       $('#catalog-genre').innerHTML=options(state.genres,'Minden műfaj','name','id');
     } catch(error){state.error=error.message;}
     if(state.type!==type)return;
