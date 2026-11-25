@@ -29,7 +29,7 @@
   const dubStorage = 'playit2.dub-review.v1';
   const readReviews = () => { try { const saved = JSON.parse(localStorage.getItem(dubStorage)); return saved && typeof saved === 'object' ? saved : {}; } catch { return {}; } };
   const reviews = readReviews();
-  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', selectedPlatforms:[], selectedGenres:[], query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, audioOnly:false, error:'' };
+  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', selectedPlatforms:[], selectedGenres:[], query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, audioOnly:false, quickRating:false, quickNew:false, quickShort:false, error:'' };
   let dialog, previousFocus, currentController;
   async function api(path, signal) {
     let token = ''; let profile = '';
@@ -92,6 +92,7 @@
           <label>Műfaj<select id="catalog-genre"><option value="">Minden műfaj</option></select></label>
         </div></div>
         <div class="catalog-active-filters" id="catalog-active-filters" hidden aria-label="Aktív szűrők"></div>
+        <div class="catalog-quick-filters" role="group" aria-label="Gyorsszűrők"><button type="button" data-quick="rating" aria-pressed="false">★ 8+ értékelés</button><button type="button" data-quick="new" aria-pressed="false">✦ Újdonságok</button><button type="button" data-quick="short" aria-pressed="false">◷ 90 perc alatt</button><button type="button" data-quick="recommend">♡ Neked ajánljuk</button></div>
         <div class="catalog-audio-control" id="catalog-audio-control"><div class="catalog-audio-control-copy"><span class="catalog-audio-control-icon">♫</span><div><strong>Csak magyar szinkron</strong><small>Szolgáltatónként ellenőrzött hangsáv</small></div></div><label class="catalog-switch"><input id="catalog-hu-filter" type="checkbox" aria-label="Csak magyar szinkronos címek"><span class="catalog-switch-track"></span></label></div>
         <div id="catalog-audio-progress" class="catalog-audio-progress" aria-live="polite" hidden></div>
         <button type="button" id="catalog-check-more" hidden>+ További 8 cím ellenőrzése</button>
@@ -119,6 +120,7 @@
       updateCatalogSelections();load(false);
     }));
     $('#catalog-provider-clear').addEventListener('click',()=>{state.selectedPlatforms=[];state.provider='';$('#catalog-provider').value='';updateCatalogSelections();load(false);});
+    dialog.querySelector('.catalog-quick-filters').addEventListener('click',event=>{const b=event.target.closest('[data-quick]');if(!b)return;const action=b.dataset.quick;if(action==='recommend'){document.querySelector('#cine-rails .cine-rail:nth-child(2)')?.scrollIntoView({block:'center',behavior:'smooth'});return;}const key={rating:'quickRating',new:'quickNew',short:'quickShort'}[action];if(!key)return;state[key]=!state[key];updateCatalogSelections();render();});
     $('#catalog-active-filters').addEventListener('click',event=>{const b=event.target.closest('[data-remove-platform],[data-remove-genre],[data-remove-audio]');if(!b)return;if(b.dataset.removePlatform){state.selectedPlatforms=state.selectedPlatforms.filter(s=>s!==b.dataset.removePlatform);state.provider=state.selectedPlatforms.length===1?'collection:'+state.selectedPlatforms[0]:'';}else if(b.dataset.removeGenre){state.selectedGenres=state.selectedGenres.filter(s=>s!==b.dataset.removeGenre);state.genre=state.selectedGenres.join(',');}else if(b.hasAttribute('data-remove-audio')){state.audioOnly=false;$('#catalog-hu-filter').checked=false;}updateCatalogSelections();load(false);});
     $('#catalog-genre-tiles').addEventListener('click',event=>{
       const button=event.target.closest('[data-genre-tile]');if(!button)return;
@@ -245,6 +247,7 @@
     const count=state.selectedPlatforms.length;
     $('#catalog-provider-count').textContent=count?count+' / 6 kiválasztva · lapozz oldalra':'Válassz többet is · lapozz oldalra';
     $('#catalog-provider-clear').hidden=!count;
+    dialog.querySelectorAll('.catalog-quick-filters [data-quick]').forEach(b=>{const key={rating:'quickRating',new:'quickNew',short:'quickShort'}[b.dataset.quick];if(!key)return;b.setAttribute('aria-pressed',String(state[key]));b.classList.toggle('is-active',state[key]);});
     const chips=$('#catalog-active-filters');if(chips){const parts=[...state.selectedPlatforms.map(s=>'<button type="button" data-remove-platform="'+escape(s)+'">'+escape(serviceNames[s]||s)+' ×</button>'),...state.selectedGenres.map(id=>'<button type="button" data-remove-genre="'+escape(id)+'">'+escape(state.genres.find(g=>String(g.id)===id)?.name||'Műfaj')+' ×</button>')];if(state.audioOnly)parts.push('<button type="button" data-remove-audio>Magyar szinkron ×</button>');chips.innerHTML=parts.join('');chips.hidden=!parts.length;}
     const genreCount=$('#catalog-genre-count');if(genreCount)genreCount.textContent=state.selectedGenres.length?'· '+state.selectedGenres.length+' kiválasztva':'';
     updateBrandTheme();
@@ -427,10 +430,20 @@
       return '<div class="catalog-audio-provider"><strong>'+name+'</strong><span class="'+(p.audio==='yes'?'audio-yes':'')+'">'+sound+'</span><span>'+subs+'</span>'+link+'</div>';
     }).join('') + '</div><div class="catalog-audio-source">Streaming Availability API · '+escape(new Date(result.checkedAt).toLocaleDateString('hu-HU'))+'</div>';
   }
+  function visibleCatalogItems(){
+    const currentYear=new Date().getFullYear();
+    return state.items.filter(item=>{
+      if(state.audioOnly&&!hasHungarianAudio(item))return false;
+      if(state.quickRating&&!(Number(item.vote_average)>=8))return false;
+      if(state.quickNew&&!(Number(String(item.release_date||item.first_air_date||'').slice(0,4))>=currentYear-1))return false;
+      if(state.quickShort){const runtime=Number(item.runtime||item.duration||item.movie_runtime||0);if(!runtime||runtime>90)return false;}
+      return true;
+    });
+  }
   function render() {
     const grid=$('#catalog-grid'), status=$('#catalog-status'), more=$('#catalog-more');
     if(!grid)return;
-    const items=state.audioOnly?state.items.filter(hasHungarianAudio):state.items;
+    const items=visibleCatalogItems();
     const checked=state.items.filter(item=>audioData.get(keyOf(item))?.checkedAt).length;
     const loading=state.items.filter(item=>audioPending.has(keyOf(item))).length;
     const progress=$('#catalog-audio-progress'),checkMore=$('#catalog-check-more'),audioControl=$('#catalog-audio-control');
@@ -467,7 +480,7 @@
     more.disabled=state.busy;
     document.dispatchEvent(new Event('playit:catalog-render'));
   }
-  window.PLAYIT_CATALOG={getItems:()=>state.items.slice(),getType:()=>state.type,getAudio:key=>audioData.get(key),getService:selectedService,getState:()=>({...state,items:state.items.slice()}),setType};
+  window.PLAYIT_CATALOG={getItems:()=>state.items.slice(),getVisibleItems:()=>visibleCatalogItems(),getType:()=>state.type,getAudio:key=>audioData.get(key),getService:selectedService,getState:()=>({...state,items:state.items.slice()}),setType};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
   else build();
 })();
