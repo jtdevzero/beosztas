@@ -49,8 +49,10 @@
     dialog.setAttribute('aria-label','PLAYIT katalógus');
     dialog.innerHTML = `
       <div class="catalog-shell" tabindex="-1">
-        <header class="catalog-heading"><div><small>PLAYIT 2 · CINEMA LIBRARY</small><h2>Katalógus<span>.</span></h2></div>
+        <header class="catalog-heading"><div class="catalog-heading-copy"><small><span class="catalog-spark">✦</span> PLAYIT 2 / THE CINEMA EDITION</small><h2>Fedezd fel<span>.</span></h2><p>Filmek és sorozatok, amelyekért érdemes ma este leülni.</p></div>
           <button type="button" class="catalog-close" aria-label="Katalógus bezárása">×</button></header>
+        <div class="catalog-highlight"><span class="catalog-highlight-orb">✦</span><span><strong>A TE MOZIVILÁGOD</strong><small>Válogass, fedezd fel a szolgáltatókat és ellenőrizd a magyar hangsávot.</small></span><span class="catalog-highlight-mark">PLAYIT<span>®</span></span></div>
+        <div class="catalog-section-title"><span>01 / KOLLEKCIÓ</span><i></i><small>Mit néznél ma?</small></div>
         <div class="catalog-tabs" role="group" aria-label="Tartalomtípus">
           <button type="button" data-catalog-type="movie" aria-pressed="true">Filmek</button>
           <button type="button" data-catalog-type="tv" aria-pressed="false">Sorozatok</button>
@@ -60,12 +62,14 @@
           <input id="catalog-query" type="search" placeholder="Keress címre…" maxlength="100" autocomplete="off">
           <button type="submit">Keresés</button>
         </form>
+        <div class="catalog-filter-label">FINOMHANGOLÁS <span>✦</span></div>
         <div class="catalog-filters">
           <label>Streaming<select id="catalog-provider"><option value="">Minden szolgáltató</option></select></label>
           <label>Műfaj<select id="catalog-genre"><option value="">Minden műfaj</option></select></label>
         </div>
         <label class="catalog-dub-filter"><input id="catalog-confirmed" type="checkbox"> Csak általam igazolt magyar szinkronos címek</label>
         <p class="catalog-note">A „Hangsávok ellenőrzése” gomb élő magyarországi streamingadatot kér le. A szolgáltatók nem minden címnél adnak teljes nyelvi adatot; az ilyen eredmény „Nincs adat”. Saját jelöléseid külön megmaradnak.</p>
+        <div class="catalog-section-title catalog-results-title"><span>02 / TALÁLATOK</span><i></i><small>Fedezd fel a következő kedvenced</small></div>
         <div id="catalog-status" role="status" aria-live="polite"></div>
         <div id="catalog-grid" class="catalog-grid"></div>
         <button type="button" id="catalog-more" hidden>További találatok</button>
@@ -226,13 +230,13 @@
       return `<article class="catalog-card">
         <div class="catalog-art">${poster?'<img loading="lazy" decoding="async" src="'+poster+'" alt="">':'<div class="catalog-no-poster">PLAYIT</div>'}
           <span class="catalog-rating">${score>0?'★ '+score.toFixed(1):'FILM'}</span></div>
-        <div class="catalog-card-copy"><h3>${title}</h3><p>${year?escape(year)+' · ':''}${state.type==='tv'?'Sorozat':'Film'}</p>
+        <div class="catalog-card-copy"><div class="catalog-card-kind">${state.type==='tv'?'SOROZAT':'FILM'} <span>✦</span> ${year?escape(year):'PLAYIT'}</div><h3>${title}</h3>
           <div class="catalog-dub-badge ${review?.status||'unknown'}">${status}</div>
-          <div class="catalog-review" role="group" aria-label="Magyar szinkron saját ellenőrzése">
+          <details class="catalog-review-drawer"><summary>Saját szinkronjelölés <span>+</span></summary><div class="catalog-review" role="group" aria-label="Magyar szinkron saját ellenőrzése">
             <button type="button" data-dub="${key}" data-status="hu" aria-label="Magyar szinkron igazolása">✓ Van</button>
             <button type="button" data-dub="${key}" data-status="no" aria-label="Magyar szinkron hiányának jelölése">Nincs</button>
             <button type="button" data-dub="${key}" data-status="unknown" aria-label="Ellenőrzés visszavonása">?</button>
-          </div>
+          </div></details>
           <button type="button" class="catalog-audio-button" data-audio-check="${key}" ${audioPending.has(key)?'disabled':''}>${audioPending.has(key)?'Hangsávok lekérdezése…':audioData.get(key)?.providers?'↻ Hangsávadatok':'♪ Hangsávok ellenőrzése'}</button>
           ${audioMarkup(key)}
           <button type="button" class="catalog-details" data-catalog-details="${key}">Adatlap és elérhetőség →</button>
