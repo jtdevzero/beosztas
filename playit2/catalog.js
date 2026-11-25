@@ -256,6 +256,9 @@
     if(name.includes('apple'))return 'apple';
     if(name.includes('skyshowtime'))return 'skyshowtime';
     if(name.includes('mubi'))return 'mubi';
+    if(name.includes('crunchyroll'))return 'crunchyroll';
+    if(name.includes('curiosity'))return 'curiosity';
+    if(name.includes('zee5'))return 'zee5';
     return '';
   }
   function hasHungarianAudio(item) {
