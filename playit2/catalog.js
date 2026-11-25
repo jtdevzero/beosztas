@@ -9,7 +9,7 @@
   const dubStorage = 'playit2.dub-review.v1';
   const readReviews = () => { try { const saved = JSON.parse(localStorage.getItem(dubStorage)); return saved && typeof saved === 'object' ? saved : {}; } catch { return {}; } };
   const reviews = readReviews();
-  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false };
+  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, error:'' };
   let dialog, previousFocus, currentController;
   async function api(path, signal) {
     let token = ''; let profile = '';
@@ -67,7 +67,12 @@
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
     dialog.querySelectorAll('[data-catalog-type]').forEach(button => button.addEventListener('click',() => setType(button.dataset.catalogType)));
-    dialog.querySelector('.catalog-search').addEventListener('submit',event => {event.preventDefault();state.query=$('#catalog-query').value.trim();load(false);});
+    dialog.querySelector('.catalog-search').addEventListener('submit',event => {
+      event.preventDefault();
+      const value=$('#catalog-query').value.trim();
+      if(value.length===1) {state.error='A kereséshez legalább két karakter szükséges.';render();return;}
+      state.query=value;load(false);
+    });
     $('#catalog-provider').addEventListener('change',event => {state.provider=event.target.value;state.query='';$('#catalog-query').value='';load(false);});
     $('#catalog-genre').addEventListener('change',event => {state.genre=event.target.value;state.query='';$('#catalog-query').value='';load(false);});
     $('#catalog-confirmed').addEventListener('change',event => {state.confirmedOnly=event.target.checked;render();});
@@ -119,7 +124,8 @@
       state.providers=config.providers||[];state.genres=config.genres||[];
       $('#catalog-provider').innerHTML=options(state.providers,'Minden szolgáltató','provider_name','provider_id');
       $('#catalog-genre').innerHTML=options(state.genres,'Minden műfaj','name','id');
-    } catch(error){ $('#catalog-status').textContent=error.message; }
+    } catch(error){state.error=error.message;}
+    if(state.type!==type)return;
     await load(false);
   }
   async function load(more) {
@@ -129,7 +135,7 @@
     const serial=++state.serial;
     const page=more?state.nextPage:1;
     if (!more) {state.page=1;state.items=[];}
-    state.busy=true;render();
+    state.error='';state.busy=true;render();
     try {
       let url;
       if (state.query.length>=2) {
@@ -151,7 +157,7 @@
       state.hasMore=typeof result.hasMore==='boolean'?result.hasMore:page<(result.total_pages||1);
     } catch(error) {
       if(serial!==state.serial||error.name==='AbortError')return;
-      $('#catalog-status').textContent=error.message;
+      state.error=error.message;
     } finally {if(serial===state.serial){state.busy=false;render();}}
   }
   function render() {
@@ -177,7 +183,7 @@
           <button type="button" class="catalog-details" data-catalog-details="${key}">Adatlap és elérhetőség →</button>
         </div></article>`;
     }).join('');
-    status.textContent=state.busy?'Filmek betöltése…':items.length?items.length+' találat a katalógusban'+(state.confirmedOnly?' (saját ellenőrzés)':''):state.confirmedOnly?'Még nincs általad igazolt magyar szinkronos cím.':'Nincs találat. Próbálj másik szűrőt.';
+    status.textContent=state.error|| (state.busy?'Filmek betöltése…':items.length?items.length+' találat a katalógusban'+(state.confirmedOnly?' (saját ellenőrzés)':''):state.confirmedOnly?'Még nincs általad igazolt magyar szinkronos cím.':'Nincs találat. Próbálj másik szűrőt.');
     more.hidden=!state.hasMore||state.busy;
     more.disabled=state.busy;
   }
