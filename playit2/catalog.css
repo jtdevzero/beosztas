@@ -448,3 +448,7 @@ body.catalog-open {overflow:hidden!important;}
 .catalog-bottom-nav button:active{background:#6f573834}
 .catalog-heading,.catalog-results-title{scroll-margin-top:16px}
 @media(max-width:420px){.catalog-platforms button{padding:0 13px;min-height:42px}.catalog-curations button{padding:9px 11px}.catalog-bottom-nav{bottom:-28px}}
+
+/* Always-visible navigation, independent of catalog scroll position. */
+.catalog-bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,900px);margin:0;padding:8px 12px calc(11px + env(safe-area-inset-bottom,0px));border-radius:15px 15px 0 0}
+.catalog-shell{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
