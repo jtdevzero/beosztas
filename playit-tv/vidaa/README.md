@@ -53,3 +53,19 @@ A Hisense C2 Ultra VIDAA U7 készüléken ezt még nem igazoltuk.
 A Debug telepítés **nem** azonos az alkalmazásbolti publikálással. Az ikonos indítás és a távirányítós viselkedés eszközön ellenőrizendő.
 
 Forrás: https://www.vidaa.com/wp-content/uploads/2020/12/WebApp_Development_Guide_for_VIDAA.pdf , 2. Quick Deploying.
+
+## Q0730 firmware valós készülékteszt
+
+A felhasználó által közölt firmware: `V0000.09.61U.Q0730` (C2 Ultra, VIDAA U7).
+Ezen a készüléken a `hisense://debug` címre "helytelen cím" hiba jelent meg.
+**Nem bizonyított**, hogy a Q0730 támogatja a dokumentációban szereplő közvetlen telepítési eljárást; a korábbi útmutató csak feltételes teszt.
+
+A teljes alkalmazás D-pad kezelése a VIDAA fejlesztői dokumentációban jelzett `keyCode` értékeket is figyelembe veszi:
+- Bal: 37, Fel: 38, Jobb: 39, Le: 40
+- OK: 13, Vissza: 8 (alternatív: 461)
+- Színes gombok: piros 403, zöld 404, sárga 405, kék 406.
+
+Külön távirányító diagnosztika: https://jtdevzero.github.io/beosztas/playit-tv/vidaa/remote-test.html
+A tesztoldal nem küld telemetriát, a megnyomott gombok csak a képernyőn láthatók.
+A valódi VIDAA App Store / fejlesztői alkalmazástelepítéshez partneri jogosultságot és jóváhagyott tesztelési útvonalat kell egyeztetni.
+
