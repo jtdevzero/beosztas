@@ -2,6 +2,10 @@
 (() => {
   'use strict';
   const API = document.querySelector('meta[name="maeste-api-origin"]')?.content || location.origin;
+  const AUDIO_API = 'https://playit-hu-audio-proxy.turcsi.chatgpt.site';
+  const audioData = new Map();
+  const audioPending = new Set();
+  const serviceNames = {netflix:'Netflix',disney:'Disney+',hbo:'HBO Max',prime:'Prime Video',apple:'Apple TV+',skyshowtime:'SkyShowtime',mubi:'MUBI',crunchyroll:'Crunchyroll',curiosity:'Curiosity Stream',zee5:'ZEE5'};
   const $ = selector => document.querySelector(selector);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   const image = path => typeof path === 'string' && /^\/[A-Za-z0-9._/-]+$/.test(path) ? 'https://image.tmdb.org/t/p/w342' + path : '';
@@ -61,7 +65,7 @@
           <label>Műfaj<select id="catalog-genre"><option value="">Minden műfaj</option></select></label>
         </div>
         <label class="catalog-dub-filter"><input id="catalog-confirmed" type="checkbox"> Csak általam igazolt magyar szinkronos címek</label>
-        <p class="catalog-note">A szolgáltató és a magyar hangsáv elérhetősége változhat. A szinkront csak saját ellenőrzés után jelöljük.</p>
+        <p class="catalog-note">A „Hangsávok ellenőrzése” gomb élő magyarországi streamingadatot kér le. A szolgáltatók nem minden címnél adnak teljes nyelvi adatot; az ilyen eredmény „Nincs adat”. Saját jelöléseid külön megmaradnak.</p>
         <div id="catalog-status" role="status" aria-live="polite"></div>
         <div id="catalog-grid" class="catalog-grid"></div>
         <button type="button" id="catalog-more" hidden>További találatok</button>
@@ -108,6 +112,8 @@
         try {localStorage.setItem(dubStorage,JSON.stringify(reviews));} catch {}
         render(); return;
       }
+      const audioButton = event.target.closest('[data-audio-check]');
+      if (audioButton) { checkAudio(audioButton.dataset.audioCheck); return; }
       const details = event.target.closest('[data-catalog-details]');
       if (details) {
         const key = details.dataset.catalogDetails;
@@ -180,6 +186,33 @@
       state.error=error.message;
     } finally {if(serial===state.serial){state.busy=false;render();}}
   }
+  async function checkAudio(key) {
+    if (!/^(movie|tv):\d{1,9}$/.test(key) || audioPending.has(key)) return;
+    const existing = audioData.get(key);
+    if (existing?.checkedAt && Date.now() - new Date(existing.checkedAt).getTime() < 86400000) return;
+    audioPending.add(key);render();
+    try {
+      const [type, id] = key.split(':');
+      const response = await fetch(`${AUDIO_API}/api/audio?` + new URLSearchParams({ type, id }), { credentials:'omit' });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'A hangsávadat nem elérhető.');
+      audioData.set(key, result);
+    } catch (error) { audioData.set(key, { error: error.message || 'Sikertelen ellenőrzés.' }); }
+    finally { audioPending.delete(key);render(); }
+  }
+  function audioMarkup(key) {
+    const result = audioData.get(key);
+    if (!result) return '<div class="catalog-audio-hint">Szolgáltatónkénti magyar hangsávadat</div>';
+    if (result.error) return '<div class="catalog-audio-hint catalog-audio-error">'+escape(result.error)+'</div>';
+    if (!result.providers?.length) return '<div class="catalog-audio-hint">Ehhez a címhez nincs ellenőrzött előfizetéses magyarországi adat.</div>';
+    return '<div class="catalog-audio-list">' + result.providers.map(p => {
+      const sound = p.audio==='yes'?'✓ HU hang':p.audio==='no'?'Nincs HU hangadat':'Hang: nincs adat';
+      const subs = p.subtitles==='yes'?'✓ HU felirat':p.subtitles==='no'?'Nincs HU feliratadat':'Felirat: nincs adat';
+      const name = escape(serviceNames[p.service] || p.service);
+      const link = /^https:\/\/[a-z0-9.-]+\//i.test(p.link || '') ? '<a href="'+escape(p.link)+'" target="_blank" rel="noopener noreferrer">Megnyitás</a>' : '';
+      return '<div class="catalog-audio-provider"><strong>'+name+'</strong><span class="'+(p.audio==='yes'?'audio-yes':'')+'">'+sound+'</span><span>'+subs+'</span>'+link+'</div>';
+    }).join('') + '</div><div class="catalog-audio-source">Streaming Availability API · '+escape(new Date(result.checkedAt).toLocaleDateString('hu-HU'))+'</div>';
+  }
   function render() {
     const grid=$('#catalog-grid'), status=$('#catalog-status'), more=$('#catalog-more');
     if(!grid)return;
@@ -200,6 +233,8 @@
             <button type="button" data-dub="${key}" data-status="no" aria-label="Magyar szinkron hiányának jelölése">Nincs</button>
             <button type="button" data-dub="${key}" data-status="unknown" aria-label="Ellenőrzés visszavonása">?</button>
           </div>
+          <button type="button" class="catalog-audio-button" data-audio-check="${key}" ${audioPending.has(key)?'disabled':''}>${audioPending.has(key)?'Hangsávok lekérdezése…':audioData.get(key)?.providers?'↻ Hangsávadatok':'♪ Hangsávok ellenőrzése'}</button>
+          ${audioMarkup(key)}
           <button type="button" class="catalog-details" data-catalog-details="${key}">Adatlap és elérhetőség →</button>
         </div></article>`;
     }).join('');
