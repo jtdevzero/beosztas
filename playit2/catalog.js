@@ -80,17 +80,6 @@
       </div>`;
     document.body.append(dialog);
     launcher.addEventListener('click',open);
-    // A direct, shareable URL to the catalog works after the existing password gate.
-    if (new URLSearchParams(location.search).get('catalog') === '1') {
-      const shell = document.querySelector('.app-shell');
-      let opened = false;
-      const showWhenUnlocked = () => {
-        if (opened || !shell || shell.hidden) return;
-        opened = true; open();
-      };
-      if (shell) new MutationObserver(showWhenUnlocked).observe(shell, {attributes:true,attributeFilter:['hidden']});
-      showWhenUnlocked();
-    }
     dialog.querySelector('.catalog-close').addEventListener('click',close);
     dialog.addEventListener('click',event => { if (event.target === dialog) close(); });
     document.addEventListener('keydown',event => { if (!dialog.hidden && event.key === 'Escape') {event.preventDefault();close();} });
