@@ -66,3 +66,88 @@ body.playit-tv-edition #tv-mode-banner{
 @media(max-width:950px){body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:1fr!important}
 body.playit-tv-edition #playit-catalog .catalog-shell{padding-inline:24px!important}}
 @media(prefers-reduced-motion:reduce){body.playit-tv-edition .catalog-shell{scroll-behavior:auto!important}}
+
+/* TV-specific stable two-column layout: side navigation never overlaps the film grid. */
+body.playit-tv-edition #playit-catalog{padding:0!important;background:#07090ef5!important}
+body.playit-tv-edition #playit-catalog .catalog-shell{
+ position:absolute!important;top:0!important;right:0!important;left:248px!important;
+ width:calc(100% - 248px)!important;height:100vh!important;height:100dvh!important;
+ max-width:none!important;margin:0!important;padding:27px 42px 90px!important;
+ overflow-y:auto!important;overflow-x:hidden!important;scroll-behavior:auto!important;
+ background:linear-gradient(145deg,#10151e,#080a0f 60%,#130e0d)!important;
+ border:0!important;border-left:1px solid #b58b533d!important;
+ display:flex!important;flex-direction:column!important;gap:15px!important;
+}
+body.playit-tv-edition #playit-catalog .catalog-bottom-nav{display:none!important}
+body.playit-tv-edition #playit-catalog .catalog-heading{min-height:38px!important;margin:0!important;padding:0!important}
+body.playit-tv-edition #playit-catalog .catalog-tile-head{margin:0!important;min-height:26px!important}
+body.playit-tv-edition #playit-catalog .catalog-tile-rail{scroll-behavior:auto!important}
+body.playit-tv-edition #playit-catalog .catalog-platforms{
+ display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ overflow:visible!important;gap:12px!important;min-height:0!important;
+ padding:3px 4px 9px!important;height:auto!important
+}
+body.playit-tv-edition #playit-catalog .catalog-platforms>button{
+ width:100%!important;min-width:0!important;max-width:none!important;
+ flex:auto!important;height:104px!important;min-height:104px!important
+}
+body.playit-tv-edition #playit-catalog .catalog-platforms .tile-art{min-height:0!important;height:68px!important}
+body.playit-tv-edition #playit-catalog .catalog-platforms .tile-art img{max-height:62px!important}
+body.playit-tv-edition #playit-catalog .catalog-tabs{max-width:850px!important}
+body.playit-tv-edition #playit-catalog .catalog-tabs button{min-height:58px!important;font-size:22px!important}
+body.playit-tv-edition #playit-catalog .catalog-search{max-width:1100px!important}
+body.playit-tv-edition #playit-catalog .catalog-search input,
+body.playit-tv-edition #playit-catalog .catalog-search button{min-height:56px!important;font-size:21px!important}
+body.playit-tv-edition #playit-catalog .catalog-genre-disclosure{max-width:1160px!important}
+body.playit-tv-edition #playit-catalog .catalog-quick-filters{flex-wrap:wrap!important}
+body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:20px!important}
+body.playit-tv-edition #playit-catalog .catalog-card{overflow:hidden}
+body.playit-tv-edition #playit-catalog button:focus,
+body.playit-tv-edition #playit-catalog a:focus,
+body.playit-tv-edition #playit-catalog input:focus,
+body.playit-tv-edition #playit-catalog summary:focus{
+ outline:3px solid #eac283!important;outline-offset:2px!important;
+ box-shadow:0 0 0 5px #241a0ddd,0 0 20px #d39e5366!important
+}
+body.playit-tv-edition .tv-side-menu{
+ position:absolute;inset:0 auto 0 0;width:248px;box-sizing:border-box;
+ padding:27px 16px 25px;display:flex;flex-direction:column;gap:7px;
+ background:linear-gradient(175deg,#1a1b21,#090c12 65%,#130e0c);
+ border-right:1px solid #af844d55;z-index:5;overflow:auto
+}
+body.playit-tv-edition .tv-menu-brand{color:#f0d1a1;font:800 25px system-ui;letter-spacing:.015em;padding:11px 12px 25px}
+body.playit-tv-edition .tv-menu-brand small{display:block;color:#a99e91;font-size:12px;letter-spacing:.2em;margin-top:8px}
+body.playit-tv-edition .tv-menu-item{
+ flex:none;display:flex;align-items:center;gap:13px;min-height:56px;
+ padding:11px 13px;text-align:left;border:1px solid transparent;border-radius:13px;
+ color:#d8d4ce;background:transparent;font:650 17px system-ui;cursor:pointer
+}
+body.playit-tv-edition .tv-menu-item .tv-menu-icon{font-size:22px;width:28px;text-align:center;color:#d3ac72}
+body.playit-tv-edition .tv-menu-item[aria-current="page"]{
+ color:#f7ddb0;background:linear-gradient(110deg,#70502c66,#2a1d15);
+ border-color:#b98c5577
+}
+body.playit-tv-edition .tv-menu-item:focus{
+ outline:3px solid #ffda9e!important;outline-offset:2px!important;
+ background:#543d2a!important;color:#fff!important
+}
+body.playit-tv-edition .tv-menu-help{margin-top:auto;color:#aaa39a;font:14px/1.65 system-ui;padding:14px 8px}
+body.playit-tv-edition .tv-menu-help strong{color:#eac183}
+body.playit-tv-edition .tv-menu-spacer{height:12px;flex:none}
+body.playit-tv-edition .tv-menu-divider{height:1px;background:#a77b4455;margin:6px 8px}
+@media(max-width:1100px){
+ body.playit-tv-edition .tv-side-menu{width:190px!important}
+ body.playit-tv-edition #playit-catalog .catalog-shell{left:190px!important;width:calc(100% - 190px)!important;padding:22px 24px 70px!important}
+ body.playit-tv-edition #playit-catalog .catalog-platforms{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.playit-tv-edition .tv-menu-item{font-size:15px!important}
+}
+@media(max-width:700px){
+ body.playit-tv-edition .tv-side-menu{width:64px!important;padding:14px 5px!important}
+ body.playit-tv-edition .tv-menu-brand{font-size:12px!important;padding:12px 0!important;text-align:center}
+ body.playit-tv-edition .tv-menu-brand small,body.playit-tv-edition .tv-menu-label,body.playit-tv-edition .tv-menu-help{display:none!important}
+ body.playit-tv-edition .tv-menu-item{justify-content:center!important;min-height:48px!important;padding:8px 0!important}
+ body.playit-tv-edition #playit-catalog .catalog-shell{left:64px!important;width:calc(100% - 64px)!important;padding:15px 14px 50px!important}
+ body.playit-tv-edition #playit-catalog .catalog-platforms{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:1fr!important}
+}
