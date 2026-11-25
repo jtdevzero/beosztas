@@ -151,3 +151,24 @@ body.playit-tv-edition .tv-menu-divider{height:1px;background:#a77b4455;margin:6
  body.playit-tv-edition #playit-catalog .catalog-platforms{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  body.playit-tv-edition #playit-catalog .catalog-grid{grid-template-columns:1fr!important}
 }
+
+/* Remote-control polish: quick focus transitions and comfortable auto-follow. */
+body.playit-tv-edition #playit-catalog .catalog-shell{
+ scroll-padding-top:85px!important;scroll-padding-bottom:100px!important;
+ overscroll-behavior-y:contain!important;overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch;
+}
+body.playit-tv-edition #playit-catalog button,
+body.playit-tv-edition #playit-catalog a,
+body.playit-tv-edition #playit-catalog summary{
+ transition:outline-color .12s ease,box-shadow .12s ease,border-color .12s ease,background-color .12s ease!important;
+}
+body.playit-tv-edition #playit-catalog .tv-menu-item:focus,
+body.playit-tv-edition #playit-catalog .catalog-platforms>button:focus,
+body.playit-tv-edition #playit-catalog .catalog-card button:focus{
+ transform:scale(1.025);transform-origin:center;
+}
+@media(prefers-reduced-motion:reduce){
+ body.playit-tv-edition #playit-catalog button,
+ body.playit-tv-edition #playit-catalog a{transition:none!important;transform:none!important}
+}
