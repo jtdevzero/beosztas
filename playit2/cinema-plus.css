@@ -81,3 +81,21 @@
 .cine-dialog .cine-compare-rows strong{color:#f5d8a7;font-size:15px}
 .cine-dialog .cine-compare-rows span{color:#eee4d5;font-size:13px}
 .cine-dialog .cine-compare-rows small{color:#aeb5ad;font-size:12px}
+
+/* Phase 2 cinematic interaction and spotlight controls */
+#playit-catalog .cine-mini-wrap{position:relative;flex:0 0 auto;min-width:0;scroll-snap-align:start}
+#playit-catalog .cine-mini-wrap .cine-mini{width:100%;height:100%;scroll-snap-align:none}
+#playit-catalog .cine-mini-save{position:absolute;top:8px;right:8px;z-index:2;border:1px solid #f2d198b0;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;color:#ffe6b2;background:#101113e0;font-size:18px;line-height:1;box-shadow:0 4px 10px #0008}
+#playit-catalog .cine-mini-wrap:focus-within .cine-mini,#playit-catalog .cine-mini-wrap:hover .cine-mini{border-color:var(--provider-accent,#d2a86f);box-shadow:0 6px 20px #000a,0 0 12px var(--provider-border,#c79c4b33)}
+#playit-catalog .cine-hero{transition:border-color .2s,box-shadow .2s}
+#playit-catalog .cine-spotlight-controls{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:7px;color:#f7ddb8;font:700 11px system-ui;background:#090a0bd9;border:1px solid #b99c6380;border-radius:999px;padding:3px 5px}
+#playit-catalog .cine-spotlight-controls button{color:#ffe2b5;border:0;background:transparent;font-size:22px;line-height:1;min-width:29px;min-height:28px}
+#playit-catalog .catalog-bottom-nav{transition:transform .18s ease,opacity .18s ease}
+#playit-catalog .catalog-bottom-nav.is-collapsed{transform:translateY(120%);opacity:0;pointer-events:none}
+#playit-catalog .catalog-bottom-nav:focus-within{transform:none!important;opacity:1!important;pointer-events:auto!important}
+#playit-catalog.catalog-branding .cine-mini-wrap:hover .cine-mini{border-color:var(--provider-accent)}
+@media(prefers-reduced-motion:reduce){#playit-catalog .cine-mini-wrap .cine-mini,#playit-catalog .cine-hero,#playit-catalog .catalog-bottom-nav{transition:none!important}}
+
+#playit-catalog .cine-rail-scroll>.cine-mini-wrap{flex:0 0 clamp(124px,32vw,174px);width:clamp(124px,32vw,174px)}
+#playit-catalog .cine-mini-wrap>.cine-mini{flex:none;box-sizing:border-box}
+@media(max-width:450px){#playit-catalog .cine-rail-scroll>.cine-mini-wrap{flex-basis:132px;width:132px}}
