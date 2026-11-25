@@ -390,7 +390,9 @@
     }
     more.hidden=('IntersectionObserver' in window)||!state.hasMore||state.busy;
     more.disabled=state.busy;
+    document.dispatchEvent(new Event('playit:catalog-render'));
   }
+  window.PLAYIT_CATALOG={getItems:()=>state.items.slice(),getType:()=>state.type,getAudio:key=>audioData.get(key),getService:selectedService,getState:()=>({...state,items:state.items.slice()}),setType};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
   else build();
 })();
