@@ -14,28 +14,16 @@ document.addEventListener('touchstart',function(e){
  if(e.touches.length!==1){finger=null;return;}
  var rail=railFrom(e.target);
  if(!rail||rail.scrollWidth<=rail.clientWidth+4){finger=null;return;}
- var t=e.touches[0];finger={rail:rail,x:t.clientX,y:t.clientY,left:rail.scrollLeft,lastX:t.clientX,mode:''};
+ var t=e.touches[0];finger={rail:rail,x:t.clientX,y:t.clientY,left:rail.scrollLeft};
 },{passive:true});
-document.addEventListener('touchmove',function(e){
- if(!finger||e.touches.length!==1)return;
- var t=e.touches[0],dx=t.clientX-finger.x,dy=t.clientY-finger.y;
- if(!finger.mode&&Math.abs(dx)+Math.abs(dy)>12)finger.mode=Math.abs(dx)>Math.abs(dy)*1.2?'horizontal':'vertical';
- if(finger.mode!=='horizontal')return;
- if(e.cancelable)e.preventDefault();
- finger.rail.scrollLeft=finger.left-dx;
- finger.lastX=t.clientX;
-},{passive:false});
 document.addEventListener('touchend',function(e){
  if(!finger)return;
- if(finger.mode==='horizontal'){
-  var rail=finger.rail,items=rail.querySelectorAll('.cine-mini-wrap,.catalog-tile-rail>button,.catalog-platforms>button');
-  if(items.length){
-   var first=items[0],second=items[1];
-   var step=second?Math.abs(second.offsetLeft-first.offsetLeft):first.offsetWidth+12;
-   if(step>30){var goal=Math.round(rail.scrollLeft/step)*step;try{rail.scrollTo({left:goal,behavior:'smooth'});}catch(_){rail.scrollLeft=goal;}}
-  }
- }
- finger=null;
+ var touch=e.changedTouches&&e.changedTouches[0],start=finger;finger=null;
+ if(!touch)return;
+ var dx=touch.clientX-start.x,dy=touch.clientY-start.y;
+ if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.25)return;
+ var moved=Math.abs(start.rail.scrollLeft-start.left);
+ if(moved<20)scrollByPage(start.rail,dx<0?1:-1);
 },{passive:true});
 document.addEventListener('touchcancel',function(){finger=null;},{passive:true});
 function addPager(rail){
