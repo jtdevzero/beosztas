@@ -99,3 +99,20 @@
 #playit-catalog .cine-rail-scroll>.cine-mini-wrap{flex:0 0 clamp(124px,32vw,174px);width:clamp(124px,32vw,174px)}
 #playit-catalog .cine-mini-wrap>.cine-mini{flex:none;box-sizing:border-box}
 @media(max-width:450px){#playit-catalog .cine-rail-scroll>.cine-mini-wrap{flex-basis:132px;width:132px}}
+
+/* Editorial refinement — warmer cinematic type, legible metadata, quieter depth. */
+#playit-catalog .cine-rail{margin-block:2px 7px}
+#playit-catalog .cine-rail>h3,
+#playit-catalog .cine-ranking h3{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:clamp(21px,4.8vw,27px);letter-spacing:-.035em;line-height:1.18;color:#f4dfbc;text-wrap:balance}
+#playit-catalog .cine-rail>h3::before{content:'';display:inline-block;width:3px;height:.86em;border-radius:2px;background:linear-gradient(#f5d29d,#9d703e);margin-right:10px;vertical-align:-.05em}
+#playit-catalog .cine-mini-wrap>.cine-mini{border-color:#725a3d8c;background:linear-gradient(170deg,#1b1713,#0b0b0b 65%);box-shadow:0 8px 26px #0008,inset 0 1px #e6c1870a}
+#playit-catalog .cine-mini strong{font-size:14px;line-height:1.32;color:#f5eadb}
+#playit-catalog .cine-mini small{font-size:12px;letter-spacing:.01em;color:#d5ac73}
+#playit-catalog .cine-mini-art{box-shadow:inset 0 0 0 1px #ffffff11}
+#playit-catalog .cine-mini-art img{transition:transform .18s ease,filter .18s ease}
+@media(hover:hover){#playit-catalog .cine-mini:hover img{transform:scale(1.035);filter:brightness(1.05)}}
+#playit-catalog .cine-mini-save{background:linear-gradient(145deg,#17120eec,#080a0bee);border-color:#caa574a8;backdrop-filter:blur(5px)}
+#playit-catalog .cine-rail-pager button{border-radius:50%;background:linear-gradient(160deg,#2a2118,#0e0d0d);box-shadow:0 3px 12px #0009}
+#playit-catalog .cine-hero h2{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:-.035em;line-height:1.06}
+#playit-catalog .cine-hero{border-color:#caab7766;box-shadow:0 16px 38px #0008,inset 0 1px #e7cb9940}
+@media(prefers-reduced-motion:reduce){#playit-catalog .cine-mini-art img{transition:none}}
