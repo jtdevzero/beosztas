@@ -49,7 +49,7 @@
     const k=keyOf(item),p=poster(item),year=(item.release_date||item.first_air_date||'').slice(0,4);
     return `<article class="cine-mini-wrap"><button type="button" class="cine-mini" data-cine-detail="${esc(k)}" aria-label="${esc(titleOf(item))} adatlapja"><span class="cine-mini-art">${p?`<img loading="lazy" decoding="async" src="${esc(p)}" alt="">`:'<span>PLAYIT</span>'}${rank?`<b>${rank}</b>`:''}</span><strong>${esc(titleOf(item))}</strong><small>${checkedYes(item)?'✓ HU hangsáv':year||'Film / sorozat'}</small></button><button type="button" class="cine-mini-save" data-cine-watch="${esc(k)}" aria-label="${esc(titleOf(item))} ${personal.watchlist.includes(k)?'eltávolítása a listáról':'mentése a listára'}">${personal.watchlist.includes(k)?'♥':'♡'}</button></article>`;
   }
-  function rail(title,items,ranked=false){return `<section class="cine-rail" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cine-rail-scroll">${items.length?items.slice(0,20).map((item,i)=>card(item,ranked?i+1:null)).join(''):'<p class="cine-empty">Ehhez a sorhoz még nincs elegendő ellenőrzött adat.</p>'}</div></section>`;}
+  function rail(title,items,ranked=false){return `<section class="cine-rail" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cine-rail-pager"><button type="button" data-cine-page="-1" aria-label="Előző filmek">‹</button><button type="button" data-cine-page="1" aria-label="Következő filmek">›</button></div><div class="cine-rail-scroll">${items.length?items.slice(0,20).map((item,i)=>card(item,ranked?i+1:null)).join(''):'<p class="cine-empty">Ehhez a sorhoz még nincs elegendő ellenőrzött adat.</p>'}</div></section>`;}
   function renderHome() {
     const host=$('#cine-explore');if(!host)return;
     const all=visibleItems(),filters=C()?.getState();const items=filters?.audioOnly?all.filter(checkedYes):all;const spot=spotlightPool();const picked=spot.length?spot[spotlightIndex%spot.length]:items.find(item=>poster(item))||items[0];
@@ -62,7 +62,10 @@
       hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>${spot.length>1?`<div class="cine-spotlight-controls" aria-label="Kiemelt filmek"><button type="button" data-spotlight="prev" aria-label="Előző kiemelt film">‹</button><span>${spotlightIndex%spot.length+1} / ${spot.length}</span><button type="button" data-spotlight="next" aria-label="Következő kiemelt film">›</button></div>`:''}`;
     } else $('#cine-hero').innerHTML='<div class="cine-hero-shade"><span class="cine-eyebrow">PLAYIT SPOTLIGHT</span><h2>Fedezd fel a következő filmed.</h2><p>Válassz szolgáltatót vagy műfajt, és megjelennek a filmek.</p></div>';
     const topLabel=dubbed.length?'Magyar szinkronos kedvencek':'Magyar szinkronos ajánlók';
-    $('#cine-rails').innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · az elérhető címek közül',recommendations)+rail('Felfedezés',items);
+    const railHost=$('#cine-rails');
+    const oldScroll=[...railHost.querySelectorAll('.cine-rail-scroll')].map(node=>node.scrollLeft);
+    railHost.innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · az elérhető címek közül',recommendations)+rail('Felfedezés',items);
+    railHost.querySelectorAll('.cine-rail-scroll').forEach((node,i)=>{node.scrollLeft=Math.min(oldScroll[i]||0,Math.max(0,node.scrollWidth-node.clientWidth));});
     $('#cine-stat').textContent='Az ajánlók a jelenleg betöltött címekből állnak össze.';
     renderRanking();
     const tracker=$('#cine-tracker');if(tracker&&!tracker.hidden)renderTracker();
@@ -86,6 +89,8 @@
     const modal=document.createElement('div');modal.id='cine-dialog';modal.className='cine-dialog';modal.hidden=true;document.body.append(modal);
     document.addEventListener('playit:catalog-render',()=>{if(!$('#playit-catalog')?.hidden)requestAnimationFrame(renderHome)});
     shell.addEventListener('click',event=>{
+      const page=event.target.closest('[data-cine-page]');
+      if(page){const rail=page.closest('.cine-rail')?.querySelector('.cine-rail-scroll');if(rail){const distance=Math.max(rail.clientWidth*.76,140)*Number(page.dataset.cinePage);rail.scrollBy({left:distance,behavior:'smooth'});}return;}
       const button=event.target.closest('[data-spotlight],[data-cine-detail],[data-cine-watch],[data-cine-pick],[data-cine-wizard],[data-cine-compare],[data-cine-match],[data-cine-lists],[data-cine-track-open],[data-cine-tracker-close],[data-cine-remove],[data-cine-progress]');if(!button)return;
       const k=button.dataset.cineDetail||button.dataset.cineWatch||button.dataset.cineRemove||button.dataset.cineProgress;
       if(button.dataset.spotlight){const len=spotlightPool().length;if(len){spotlightIndex=(spotlightIndex+(button.dataset.spotlight==='next'?1:len-1))%len;renderHome();}return;}
