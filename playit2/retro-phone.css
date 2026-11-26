@@ -243,3 +243,11 @@
 .retro-dial-screen{background:linear-gradient(180deg,#0b080b,#1b1114)!important}
 .retro-key{background:linear-gradient(145deg,#332426,#171316 75%)!important}
 .retro-key:active{background:#56402d!important}
+
+/* Integrated black-on-black access panel: no rectangular card outline. */
+#access-gate:has(.retro-phone) .access-card{
+ border:0!important;border-radius:28px!important;
+ background:linear-gradient(180deg,#050405e6,#080507ec 75%,#0a0507e0)!important;
+ box-shadow:0 15px 68px #0009!important;
+}
+#access-gate:has(.retro-phone) .access-card::before{color:#d1b48c}
