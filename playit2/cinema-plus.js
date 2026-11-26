@@ -23,7 +23,8 @@
     const result=C()?.getAudio(keyOf(item));
     const chosen=C()?.getService();
     const providers=C()?.getState()?.selectedPlatforms||[];
-    return result?.providers?.some(p=>p.audio==='yes'&&(!providers.length||providers.includes(p.service))&&(!chosen||p.service===chosen))||false;
+    const known=[...(Array.isArray(result?.providers)?result.providers:[]),...(Array.isArray(item.providers)?item.providers:[])];
+    return known.some(p=>p.audio==='yes'&&(!providers.length||providers.includes(p.service))&&(!chosen||p.service===chosen));
   };
   const score=item=>Number(item.vote_average)||0;
   // Prefer well-supported high-rated titles; avoid ranking a single-vote title above familiar films.
@@ -69,10 +70,10 @@
     const recent=[...unique].sort((a,b)=>
       String(b.release_date||b.first_air_date||'').localeCompare(String(a.release_date||a.first_air_date||''))||quality(b)-quality(a));
     const recommendations=[...unique].filter(item=>!personal.seen.includes(keyOf(item))).
-      sort((a,b)=>(matchScore(b,favorites)*10+quality(b))-(matchScore(a,favorites)*10+quality(a)));
+      sort((a,b)=>(matchScore(b,favorites)*10+quality(b))-(matchScore(a,favorites)*10+quality(a))||String(b.release_date||b.first_air_date||'').localeCompare(String(a.release_date||a.first_air_date||'')));
     const used=new Set();
     const take=(candidates,limit)=>{const list=[];for(const item of candidates){const key=keyOf(item);if(used.has(key))continue;used.add(key);list.push(item);if(list.length>=limit)break;}return list;};
-    const featured=take(ranked.length?ranked:recommendations,6);
+    const featured=take(ranked.length?ranked:recent,6);
     const tailored=take(recommendations,8);
     const fresh=take(recent,8);
     const discovery=take(unique,20);
@@ -87,8 +88,12 @@
       fresh.length?rail('Friss címek',fresh):'',
       discovery.length?rail('Felfedezés',discovery):''
     ].filter(Boolean);
-    railHost.innerHTML=sections.join('');
-    railHost.querySelectorAll('.cine-rail').forEach(node=>{const scroller=node.querySelector('.cine-rail-scroll');scroller.scrollLeft=Math.min(before.get(node.getAttribute('aria-label'))||0,Math.max(0,scroller.scrollWidth-scroller.clientWidth));});
+    const markup=sections.join('');
+    // Preserve live touch targets when an audio lookup triggers an identical render.
+    if(railHost.__playitMarkup!==markup){
+      railHost.innerHTML=markup;railHost.__playitMarkup=markup;
+      railHost.querySelectorAll('.cine-rail').forEach(node=>{const scroller=node.querySelector('.cine-rail-scroll');scroller.scrollLeft=Math.min(before.get(node.getAttribute('aria-label'))||0,Math.max(0,scroller.scrollWidth-scroller.clientWidth));});
+    }
     $('#cine-stat').textContent='Az ajánlók a jelenleg betöltött címekből állnak össze.';
     renderRanking();
     const tracker=$('#cine-tracker');if(tracker&&!tracker.hidden)renderTracker();
