@@ -31,7 +31,7 @@
     comparisonPromise=fetch(AUDIO_API+'/api/collection/status',{credentials:'omit'}).then(async r=>{if(!r.ok)throw Error('A mentett katalógus statisztikája nem elérhető.');const data=await r.json();comparison={at:Date.now(),data};try{sessionStorage.setItem('playit2.catalog.comparison.v1',JSON.stringify(comparison));}catch{}return data;}).finally(()=>{comparisonPromise=null});return comparisonPromise;
   }
   function rankedCandidates(){const state=C()?.getState();return visibleItems().filter(item=>checkedYes(item)&&score(item)>0&&(!state?.audioOnly||checkedYes(item))).sort((a,b)=>score(b)-score(a)||titleOf(a).localeCompare(titleOf(b),'hu')).slice(0,100);}
-  function renderRanking(){const host=$('#cine-ranking');if(!host)return;const ranked=rankedCandidates();host.innerHTML='<div class="cine-panel-head"><h3>Magyar szinkronos TOP 100</h3><span>'+ranked.length+' / 100 cím</span></div><p class="cine-subtle">Értékelés szerint rendezett, igazolt magyar hangsávos címek a jelenleg betöltött találatokból. Nem teljes piaci toplista.</p><div class="cine-rail-scroll">'+(ranked.length?ranked.slice(0,100).map((item,i)=>card(item,i+1)).join(''):'<p class="cine-empty">Görgess a további címekért, vagy válassz másik szolgáltatót. Csak igazolt magyar hangsáv kerül ide.</p>')+'</div>';
+  function renderRanking(){const host=$('#cine-ranking');if(!host)return;const ranked=rankedCandidates();if(ranked.length<12){host.hidden=true;host.innerHTML='';return;}host.hidden=false;host.innerHTML='<div class="cine-panel-head"><h3>Magyar szinkronos TOP 100</h3><span>'+ranked.length+' / 100 cím</span></div><p class="cine-subtle">Értékelés szerint rendezett, igazolt magyar hangsávos címek a jelenleg betöltött találatokból. Nem teljes piaci toplista.</p><div class="cine-rail-scroll">'+(ranked.length?ranked.slice(0,100).map((item,i)=>card(item,i+1)).join(''):'<p class="cine-empty">Görgess a további címekért, vagy válassz másik szolgáltatót. Csak igazolt magyar hangsáv kerül ide.</p>')+'</div>';
   }
   function showWizard(){const modal=$('#cine-dialog');modal.innerHTML='<div class="cine-sheet cine-wizard"><button class="cine-x" data-cine-close aria-label="Bezárás">×</button><span class="cine-eyebrow">PLAYIT · MOZIASSZISZTENS</span><h2>Mit nézzek ma?</h2><p>Három gyors választás, utána személyes ajánlók az aktuális katalógusból.</p><form id="cine-wizard-form"><label>Hangulat<select name="mood"><option value="any">Bármi jöhet</option><option value="thrill">Izgalmas / pörgős</option><option value="light">Könnyed / vicces</option><option value="heart">Érzelmes</option><option value="mystery">Rejtélyes</option></select></label><label>Mennyi időd van?<select name="duration"><option value="any">Nincs időkorlát</option><option value="short">90 perc alatt</option><option value="normal">Legfeljebb 2 óra</option></select></label><label>Kivel nézed?<select name="company"><option value="solo">Egyedül</option><option value="pair">Párban</option></select></label><button type="submit">Mutasd az ajánlásokat</button></form><div id="cine-wizard-results"></div></div>';modal.hidden=false;}
   function wizardRecommendations(form){const data=new FormData(form);const mood=data.get('mood'),duration=data.get('duration'),pair=data.get('company')==='pair';const words={thrill:/akci|thrill|harc|menek|veszély|fight|war|crime/i,light:/víg|comedy|humor|nevet|szerelem|family|barát/i,heart:/dráma|drama|szerel|család|érzel|romance/i,mystery:/rejt|mystery|nyomoz|titok|detective|krimi/i};const favorites=visibleItems().filter(item=>personal.profiles.mine.includes(keyOf(item)));let candidates=visibleItems().filter(item=>!personal.seen.includes(keyOf(item)));const state=C()?.getState();if(state?.audioOnly)candidates=candidates.filter(checkedYes);const durationMinutes=item=>Number(item.runtime||item.duration||item.movie_runtime||0);if(duration!=='any')candidates=candidates.filter(item=>{const m=durationMinutes(item);return !m||m<=(duration==='short'?90:120)});const ranked=candidates.map(item=>{const txt=titleOf(item)+' '+(item.overview||'');let points=score(item)+matchScore(item,favorites)*12+(checkedYes(item)?2:0);if(words[mood]?.test(txt))points+=4;if(pair&&personal.profiles.partner.includes(keyOf(item)))points+=5;if(pair&&personal.profiles.mine.includes(keyOf(item)))points+=3;return {item,points};}).sort((a,b)=>b.points-a.points).slice(0,5);const target=$('#cine-wizard-results');target.innerHTML='<p class="cine-subtle">'+(duration==='any'?'':'Az időkorlát csak ismert játékidő esetén érvényesíthető. ')+(pair?'Közös kedvencek előnyben. ':'')+'A jelenleg betöltött katalógus alapján.</p>'+(ranked.length?ranked.map(({item})=>'<button type="button" data-cine-detail="'+esc(keyOf(item))+'">'+esc(titleOf(item))+' <span>'+ (checkedYes(item)?'✓ Magyar hang':'Hangsáv: nincs biztos adat')+'</span></button>').join(''):'<p>Nincs megfelelő cím a betöltött találatok között.</p>');}
@@ -53,19 +53,34 @@
   function renderHome() {
     const host=$('#cine-explore');if(!host)return;
     const all=visibleItems(),filters=C()?.getState();const items=filters?.audioOnly?all.filter(checkedYes):all;const spot=spotlightPool();const picked=spot.length?spot[spotlightIndex%spot.length]:items.find(item=>poster(item))||items[0];
-    const sorted=[...items].filter(item=>score(item)>0).sort((a,b)=>score(b)-score(a));
-    const dubbed=sorted.filter(checkedYes);
-    const favorites=items.filter(item=>personal.profiles.mine.includes(keyOf(item)));
-    const recommendations=[...items].filter(item=>!personal.seen.includes(keyOf(item))&&!personal.profiles.mine.includes(keyOf(item))).sort((a,b)=>
-      (matchScore(b,favorites)*10+score(b))-(matchScore(a,favorites)*10+score(a)));
+    // Each editorial rail gets its own titles. Never refill a short rail
+    // by repeating the same three posters from the previous one.
+    const unique=[...new Map(items.map(item=>[keyOf(item),item])).values()];
+    const favorites=unique.filter(item=>personal.profiles.mine.includes(keyOf(item)));
+    const ranked=[...unique].filter(checkedYes).sort((a,b)=>score(b)-score(a));
+    const recent=[...unique].sort((a,b)=>
+      String(b.release_date||b.first_air_date||'').localeCompare(String(a.release_date||a.first_air_date||''))||score(b)-score(a));
+    const recommendations=[...unique].filter(item=>!personal.seen.includes(keyOf(item))).
+      sort((a,b)=>(matchScore(b,favorites)*10+score(b))-(matchScore(a,favorites)*10+score(a)));
+    const used=new Set();
+    const take=(candidates,limit)=>{const list=[];for(const item of candidates){const key=keyOf(item);if(used.has(key))continue;used.add(key);list.push(item);if(list.length>=limit)break;}return list;};
+    const featured=take(ranked.length?ranked:recommendations,6);
+    const tailored=take(recommendations,8);
+    const fresh=take(recent,8);
+    const discovery=take(unique,20);
     if(picked){const p=poster(picked);const hero=$('#cine-hero');hero.style.setProperty('--cine-hero-image',p?`url("${p.replace(/"/g,'%22')}")`:'none');
       hero.innerHTML=`<div class="cine-hero-shade"><span class="cine-eyebrow">✦ PLAYIT SPOTLIGHT</span><h2>${esc(titleOf(picked))}</h2><p>${esc(String(picked.overview||'Fedezd fel a filmet, a szolgáltatókat és az ellenőrzött hangsávot.').slice(0,165))}</p><div class="cine-hero-actions"><button type="button" data-cine-detail="${esc(keyOf(picked))}">Részletek</button><button type="button" data-cine-watch="${esc(keyOf(picked))}">♡ Listámra</button></div></div>${spot.length>1?`<div class="cine-spotlight-controls" aria-label="Kiemelt filmek"><button type="button" data-spotlight="prev" aria-label="Előző kiemelt film">‹</button><span>${spotlightIndex%spot.length+1} / ${spot.length}</span><button type="button" data-spotlight="next" aria-label="Következő kiemelt film">›</button></div>`:''}`;
     } else $('#cine-hero').innerHTML='<div class="cine-hero-shade"><span class="cine-eyebrow">PLAYIT SPOTLIGHT</span><h2>Fedezd fel a következő filmed.</h2><p>Válassz szolgáltatót vagy műfajt, és megjelennek a filmek.</p></div>';
-    const topLabel=dubbed.length?'Magyar szinkronos kedvencek':'Magyar szinkronos ajánlók';
     const railHost=$('#cine-rails');
-    const oldScroll=[...railHost.querySelectorAll('.cine-rail-scroll')].map(node=>node.scrollLeft);
-    railHost.innerHTML=rail(topLabel,dubbed,true)+rail(favorites.length?'Neked ajánljuk · kedvenceid leírása alapján':'Érdekelhet · az elérhető címek közül',recommendations)+rail('Felfedezés',items);
-    railHost.querySelectorAll('.cine-rail-scroll').forEach((node,i)=>{node.scrollLeft=Math.min(oldScroll[i]||0,Math.max(0,node.scrollWidth-node.clientWidth));});
+    const before=new Map([...railHost.querySelectorAll('.cine-rail')].map(node=>[node.getAttribute('aria-label'),node.querySelector('.cine-rail-scroll')?.scrollLeft||0]));
+    const sections=[
+      featured.length?rail(ranked.length?'Magyar szinkronos kiemeltek':'Kiemelt filmek',featured,true):'',
+      tailored.length?rail(favorites.length?'Neked ajánljuk':'Érdekelhet',tailored):'',
+      fresh.length?rail('Friss címek',fresh):'',
+      discovery.length?rail('Felfedezés',discovery):''
+    ].filter(Boolean);
+    railHost.innerHTML=sections.join('');
+    railHost.querySelectorAll('.cine-rail').forEach(node=>{const scroller=node.querySelector('.cine-rail-scroll');scroller.scrollLeft=Math.min(before.get(node.getAttribute('aria-label'))||0,Math.max(0,scroller.scrollWidth-scroller.clientWidth));});
     $('#cine-stat').textContent='Az ajánlók a jelenleg betöltött címekből állnak össze.';
     renderRanking();
     const tracker=$('#cine-tracker');if(tracker&&!tracker.hidden)renderTracker();
