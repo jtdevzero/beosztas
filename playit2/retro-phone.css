@@ -227,3 +227,19 @@
 @media(max-height:780px){.retro-keypad{max-width:258px;gap:9px}.retro-dial-screen{margin-bottom:11px}.retro-phone-tools{margin-top:6px}}
 @media(max-width:350px){.retro-keypad{gap:8px}.retro-key{border-radius:12px}.retro-key strong{font-size:22px}.retro-mode-hint{display:none}}
 @media(prefers-reduced-motion:reduce){.retro-key{transition:none}}
+
+/* Private cinema — burgundy velvet and brass, no teal backdrop. */
+#access-gate:has(.retro-phone){
+ background:
+ linear-gradient(180deg,#03030585 0%,#0806097d 45%,#080305bb 100%),
+ url('./assets/playit-login-cinema.webp') center center / cover no-repeat!important;
+}
+#access-gate:has(.retro-phone) .access-card{
+ background:linear-gradient(155deg,#181013ee,#100d10f5 70%,#160c10f7)!important;
+ border-color:#c5a47785!important;
+ box-shadow:0 30px 100px #000d,inset 0 1px #fff1!important;
+ backdrop-filter:blur(12px);
+}
+.retro-dial-screen{background:linear-gradient(180deg,#0b080b,#1b1114)!important}
+.retro-key{background:linear-gradient(145deg,#332426,#171316 75%)!important}
+.retro-key:active{background:#56402d!important}
