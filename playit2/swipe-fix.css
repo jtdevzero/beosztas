@@ -45,3 +45,5 @@
  #playit-catalog .cine-rail-scroll{scroll-padding-inline:5px;padding-right:12px}
  #playit-catalog .cine-rail-pager{top:-3px}
 }
+
+#playit-catalog .cine-rail-scroll{overflow-anchor:none!important;scroll-behavior:auto!important}
