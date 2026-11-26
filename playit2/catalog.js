@@ -29,7 +29,7 @@
   const dubStorage = 'playit2.dub-review.v1';
   const readReviews = () => { try { const saved = JSON.parse(localStorage.getItem(dubStorage)); return saved && typeof saved === 'object' ? saved : {}; } catch { return {}; } };
   const reviews = readReviews();
-  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', selectedPlatforms:[], selectedGenres:[], query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, audioOnly:false, quickRating:false, quickNew:false, quickShort:false, sort:'popular', error:'' };
+  const state = { type:'movie', providers:[], genres:[], provider:'', genre:'', selectedPlatforms:[], selectedGenres:[], query:'', page:1, nextPage:2, hasMore:false, items:[], busy:false, serial:0, confirmedOnly:false, audioOnly:true, quickRating:false, quickNew:false, quickShort:false, sort:'popular', error:'' };
   let dialog, previousFocus, currentController;
   async function api(path, signal) {
     let token = ''; let profile = '';
@@ -93,7 +93,7 @@
         </div></div>
         <div class="catalog-active-filters" id="catalog-active-filters" hidden aria-label="Aktív szűrők"></div>
         <div class="catalog-quick-filters" role="group" aria-label="Gyorsszűrők"><button type="button" data-quick="rating" aria-pressed="false">★ 8+ értékelés</button><button type="button" data-quick="new" aria-pressed="false">✦ Újdonságok</button><button type="button" data-quick="short" aria-pressed="false">◷ 90 perc alatt</button><button type="button" data-quick="recommend">♡ Neked ajánljuk</button></div>
-        <div class="catalog-audio-control" id="catalog-audio-control"><div class="catalog-audio-control-copy"><span class="catalog-audio-control-icon">♫</span><div><strong>Csak magyar szinkron</strong><small>Szolgáltatónként ellenőrzött hangsáv</small></div></div><label class="catalog-switch"><input id="catalog-hu-filter" type="checkbox" aria-label="Csak magyar szinkronos címek"><span class="catalog-switch-track"></span></label></div>
+        <div class="catalog-audio-control" id="catalog-audio-control"><div class="catalog-audio-control-copy"><span class="catalog-audio-control-icon">♫</span><div><strong>Csak magyar szinkron</strong><small>Szolgáltatónként ellenőrzött hangsáv</small></div></div><label class="catalog-switch"><input id="catalog-hu-filter" type="checkbox" checked aria-label="Csak magyar szinkronos címek"><span class="catalog-switch-track"></span></label></div>
         <div id="catalog-audio-progress" class="catalog-audio-progress" aria-live="polite" hidden></div>
         <button type="button" id="catalog-check-more" hidden>+ További 8 cím ellenőrzése</button>
         
@@ -331,7 +331,7 @@
         const rows=payloads.map(payload=>payload.items||[]);
         const merged=[];
         for(let index=0;index<20;index++)for(const row of rows)if(row[index])merged.push(row[index]);
-        result={results:merged.map(item=>({id:item.tmdb_id,media_type:state.type,title:item.title,release_date:item.release_year?item.release_year+'-01-01':'',poster_path:item.poster_url,providers:item.providers})),hasMore:payloads.some(p=>p.hasMore),nextPage:page+1};
+        result={results:merged.map(item=>({id:item.tmdb_id,media_type:state.type,title:item.title,release_date:item.release_year?item.release_year+'-01-01':'',poster_path:item.poster_url,providers:item.providers,overview:item.overview||item.description||'',popularity:Number(item.popularity)||0,vote_average:Number(item.vote_average??item.tmdb_rating??item.rating??item.imdb_rating)||0,vote_count:Number(item.vote_count??item.rating_count)||0})),hasMore:payloads.some(p=>p.hasMore),nextPage:page+1};
         state.selectedPlatforms.forEach((service,i)=>{if(payloads[i]?.hasMore)collectionPage(service,state.type,page+1,state.audioOnly).catch(()=>{});});
       } else result=await api(url,currentController.signal);
       if(serial!==state.serial)return;
@@ -435,7 +435,7 @@
   }
   function sortSignals(item){
     const popularity=Number(item.popularity)||0;
-    const rating=Number(item.vote_average)||0;
+    const rating=Number(item.vote_average??item.imdb_rating??item.rating)||0;
     const votes=Number(item.vote_count)||0;
     return {popularity,rating,votes,year:Number(String(item.release_date||item.first_air_date||'').slice(0,4))||0};
   }
@@ -454,7 +454,7 @@
       if(mode==='new')return s.year;
       if(mode==='dubbed')return (hasHungarianAudio(item)?100000:0)+(s.popularity||s.rating);
       if(mode==='personal')return personalSortScore(item,favorites)*10+(s.popularity||s.rating);
-      return s.popularity>0?s.popularity:s.rating>0?s.rating*Math.log1p(s.votes||1):0;
+      return s.popularity>0?s.popularity:s.rating>0?s.rating*Math.log1p(s.votes||1):s.year>0?s.year/10000:0;
     };
     const ranked=items.map(item=>({item,rank:metric(item),index:original.get(keyOf(item))||0}));
     ranked.sort((a,b)=>b.rank-a.rank||a.index-b.index);
@@ -474,7 +474,7 @@
     const grid=$('#catalog-grid'), status=$('#catalog-status'), more=$('#catalog-more');
     if(!grid)return;
     const items=visibleCatalogItems();
-    const note=$('#catalog-sort-note');if(note){const hasRanking=items.some(item=>sortSignals(item).popularity>0||sortSignals(item).rating>0);const hasDates=items.some(item=>sortSignals(item).year>0);const warning=state.sort==='popular'&&!hasRanking?'Nincs népszerűségi vagy értékelési adat ezekhez a mentett címekhez; ilyenkor megmarad az eredeti sorrend.':state.sort==='rating'&&!hasRanking?'Ehhez a listához nincs megbízható értékelési adat.':state.sort==='new'&&!hasDates?'Nincs megjelenési év az aktuális találatokhoz.':state.sort==='personal'?'A jelenleg betöltött kedvenceid alapján rendezve.':'';note.textContent=warning;note.hidden=!warning;}
+    const note=$('#catalog-sort-note');if(note){note.textContent='';note.hidden=true;}
     const checked=state.items.filter(item=>audioData.get(keyOf(item))?.checkedAt).length;
     const loading=state.items.filter(item=>audioPending.has(keyOf(item))).length;
     const progress=$('#catalog-audio-progress'),checkMore=$('#catalog-check-more'),audioControl=$('#catalog-audio-control');
@@ -503,7 +503,7 @@
         </div></article>`;
     }).join('');
     if(state.audioOnly) {
-      status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?items.length+' igazolt magyar szinkronos találat':checked<state.items.length?'További filmek ellenőrzésére van szükség.':'A most ellenőrzött filmek között nincs igazolt magyar szinkronos találat.');
+      status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?'':checked<state.items.length?'További filmek ellenőrzésére van szükség.':'A most ellenőrzött filmek között nincs igazolt magyar szinkronos találat.');
     } else {
       status.textContent=state.error||(state.busy?'Filmek betöltése…':items.length?items.length+' találat a katalógusban':'Nincs találat. Próbálj másik szűrőt.');
     }
