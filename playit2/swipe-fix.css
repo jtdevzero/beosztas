@@ -1,0 +1,28 @@
+/* PLAYIT 2: reliable mobile horizontal swipe and visible carousel paging. */
+#playit-catalog .cine-rail{position:relative}
+#playit-catalog .cine-rail-scroll,
+#playit-catalog .catalog-platforms,
+#playit-catalog .catalog-tile-rail,
+#playit-catalog .catalog-quick-filters,
+#playit-catalog .cine-tools{
+ touch-action:pan-y pinch-zoom!important;
+ -webkit-overflow-scrolling:touch!important;
+ overflow-x:auto!important;
+ overscroll-behavior-x:contain;
+ scroll-behavior:smooth;
+}
+#playit-catalog .cine-rail-pager{
+ display:flex;position:absolute;right:0;top:-7px;gap:6px;z-index:2;
+}
+#playit-catalog .cine-rail-pager button{
+ width:38px;height:34px;display:grid;place-items:center;
+ border:1px solid #ad865d99;border-radius:10px;background:#171310e8;
+ color:#f2d6a8;font:700 27px/1 system-ui;
+}
+#playit-catalog .cine-rail-pager button:active{background:#75542d;color:white}
+#playit-catalog .cine-rail>h3{padding-right:90px}
+@media(max-width:480px){
+ #playit-catalog .cine-rail-pager{top:-4px}
+ #playit-catalog .cine-rail-pager button{width:36px;height:31px}
+}
+@media(prefers-reduced-motion:reduce){#playit-catalog .cine-rail-scroll{scroll-behavior:auto!important}}
