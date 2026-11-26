@@ -5,7 +5,7 @@
 #playit-catalog .catalog-tile-rail,
 #playit-catalog .catalog-quick-filters,
 #playit-catalog .cine-tools{
- touch-action:pan-y pinch-zoom!important;
+ touch-action:auto!important;
  -webkit-overflow-scrolling:touch!important;
  overflow-x:auto!important;
  overscroll-behavior-x:contain;
