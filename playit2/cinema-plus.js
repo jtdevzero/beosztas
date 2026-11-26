@@ -16,6 +16,8 @@
   const titleOf=item=>item?.title||item?.name||item?.original_title||item?.original_name||'Cím nélkül';
   const visibleItems=()=>C()?.getVisibleItems?.()||C()?.getItems()||[];
   let spotlightIndex=0;
+  const railOffsets=new Map();
+  window.PLAYIT_RAIL_OFFSETS=railOffsets;
   const spotlightPool=()=>visibleItems().filter(item=>!personal.seen.includes(keyOf(item))&&poster(item)).slice(0,12);
   const checkedYes=item=>{
     const result=C()?.getAudio(keyOf(item));
@@ -24,13 +26,15 @@
     return result?.providers?.some(p=>p.audio==='yes'&&(!providers.length||providers.includes(p.service))&&(!chosen||p.service===chosen))||false;
   };
   const score=item=>Number(item.vote_average)||0;
+  // Prefer well-supported high-rated titles; avoid ranking a single-vote title above familiar films.
+  const quality=item=>{const rating=score(item),votes=Number(item.vote_count)||0,popularity=Number(item.popularity)||0;return (votes>0?rating*(.38+.62*Math.min(1,Math.log1p(votes)/Math.log(301))):rating*.55)+Math.log1p(popularity)*.85;};
   async function getComparison(){
     if(comparison&&Date.now()-comparison.at<21600000)return comparison.data;
     try{const saved=JSON.parse(sessionStorage.getItem('playit2.catalog.comparison.v1')||'null');if(saved&&Date.now()-saved.at<21600000){comparison=saved;return saved.data;}}catch{}
     if(comparisonPromise)return comparisonPromise;
     comparisonPromise=fetch(AUDIO_API+'/api/collection/status',{credentials:'omit'}).then(async r=>{if(!r.ok)throw Error('A mentett katalógus statisztikája nem elérhető.');const data=await r.json();comparison={at:Date.now(),data};try{sessionStorage.setItem('playit2.catalog.comparison.v1',JSON.stringify(comparison));}catch{}return data;}).finally(()=>{comparisonPromise=null});return comparisonPromise;
   }
-  function rankedCandidates(){const state=C()?.getState();return visibleItems().filter(item=>checkedYes(item)&&score(item)>0&&(!state?.audioOnly||checkedYes(item))).sort((a,b)=>score(b)-score(a)||titleOf(a).localeCompare(titleOf(b),'hu')).slice(0,100);}
+  function rankedCandidates(){const state=C()?.getState();return visibleItems().filter(item=>checkedYes(item)&&score(item)>0&&(!state?.audioOnly||checkedYes(item))).sort((a,b)=>quality(b)-quality(a)||titleOf(a).localeCompare(titleOf(b),'hu')).slice(0,100);}
   function renderRanking(){const host=$('#cine-ranking');if(!host)return;const ranked=rankedCandidates();if(ranked.length<12){host.hidden=true;host.innerHTML='';return;}host.hidden=false;host.innerHTML='<div class="cine-panel-head"><h3>Magyar szinkronos TOP 100</h3><span>'+ranked.length+' / 100 cím</span></div><p class="cine-subtle">Értékelés szerint rendezett, igazolt magyar hangsávos címek a jelenleg betöltött találatokból. Nem teljes piaci toplista.</p><div class="cine-rail-scroll">'+(ranked.length?ranked.slice(0,100).map((item,i)=>card(item,i+1)).join(''):'<p class="cine-empty">Görgess a további címekért, vagy válassz másik szolgáltatót. Csak igazolt magyar hangsáv kerül ide.</p>')+'</div>';
   }
   function showWizard(){const modal=$('#cine-dialog');modal.innerHTML='<div class="cine-sheet cine-wizard"><button class="cine-x" data-cine-close aria-label="Bezárás">×</button><span class="cine-eyebrow">PLAYIT · MOZIASSZISZTENS</span><h2>Mit nézzek ma?</h2><p>Három gyors választás, utána személyes ajánlók az aktuális katalógusból.</p><form id="cine-wizard-form"><label>Hangulat<select name="mood"><option value="any">Bármi jöhet</option><option value="thrill">Izgalmas / pörgős</option><option value="light">Könnyed / vicces</option><option value="heart">Érzelmes</option><option value="mystery">Rejtélyes</option></select></label><label>Mennyi időd van?<select name="duration"><option value="any">Nincs időkorlát</option><option value="short">90 perc alatt</option><option value="normal">Legfeljebb 2 óra</option></select></label><label>Kivel nézed?<select name="company"><option value="solo">Egyedül</option><option value="pair">Párban</option></select></label><button type="submit">Mutasd az ajánlásokat</button></form><div id="cine-wizard-results"></div></div>';modal.hidden=false;}
@@ -49,7 +53,11 @@
     const k=keyOf(item),p=poster(item),year=(item.release_date||item.first_air_date||'').slice(0,4);
     return `<article class="cine-mini-wrap"><button type="button" class="cine-mini" data-cine-detail="${esc(k)}" aria-label="${esc(titleOf(item))} adatlapja"><span class="cine-mini-art">${p?`<img loading="lazy" decoding="async" src="${esc(p)}" alt="">`:'<span>PLAYIT</span>'}${rank?`<b>${rank}</b>`:''}</span><strong>${esc(titleOf(item))}</strong><small>${checkedYes(item)?'✓ HU hangsáv':year||'Film / sorozat'}</small></button><button type="button" class="cine-mini-save" data-cine-watch="${esc(k)}" aria-label="${esc(titleOf(item))} ${personal.watchlist.includes(k)?'eltávolítása a listáról':'mentése a listára'}">${personal.watchlist.includes(k)?'♥':'♡'}</button></article>`;
   }
-  function rail(title,items,ranked=false){return `<section class="cine-rail" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cine-rail-pager"><button type="button" data-cine-page="-1" aria-label="Előző filmek">‹</button><button type="button" data-cine-page="1" aria-label="Következő filmek">›</button></div><div class="cine-rail-scroll">${items.length?items.slice(0,20).map((item,i)=>card(item,ranked?i+1:null)).join(''):'<p class="cine-empty">Ehhez a sorhoz még nincs elegendő ellenőrzött adat.</p>'}</div></section>`;}
+  function rail(title,items,ranked=false){
+    const offset=items.length?(railOffsets.get(title)||0)%items.length:0;
+    const ordered=items.length?[...items.slice(offset),...items.slice(0,offset)]:items;
+    return `<section class="cine-rail" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div class="cine-rail-pager"><button type="button" data-cine-page="-1" aria-label="Előző filmek">‹</button><button type="button" data-cine-page="1" aria-label="Következő filmek">›</button></div><div class="cine-rail-scroll">${ordered.length?ordered.slice(0,20).map((item,i)=>card(item,ranked?((offset+i)%items.length)+1:null)).join('') :'<p class="cine-empty">Ehhez a sorhoz még nincs elegendő ellenőrzött adat.</p>'}</div></section>`;
+  }
   function renderHome() {
     const host=$('#cine-explore');if(!host)return;
     const all=visibleItems(),filters=C()?.getState();const items=filters?.audioOnly?all.filter(checkedYes):all;const spot=spotlightPool();const picked=spot.length?spot[spotlightIndex%spot.length]:items.find(item=>poster(item))||items[0];
@@ -57,11 +65,11 @@
     // by repeating the same three posters from the previous one.
     const unique=[...new Map(items.map(item=>[keyOf(item),item])).values()];
     const favorites=unique.filter(item=>personal.profiles.mine.includes(keyOf(item)));
-    const ranked=[...unique].filter(checkedYes).sort((a,b)=>score(b)-score(a));
+    const ranked=[...unique].filter(item=>checkedYes(item)&&score(item)>=6).sort((a,b)=>quality(b)-quality(a));
     const recent=[...unique].sort((a,b)=>
-      String(b.release_date||b.first_air_date||'').localeCompare(String(a.release_date||a.first_air_date||''))||score(b)-score(a));
+      String(b.release_date||b.first_air_date||'').localeCompare(String(a.release_date||a.first_air_date||''))||quality(b)-quality(a));
     const recommendations=[...unique].filter(item=>!personal.seen.includes(keyOf(item))).
-      sort((a,b)=>(matchScore(b,favorites)*10+score(b))-(matchScore(a,favorites)*10+score(a)));
+      sort((a,b)=>(matchScore(b,favorites)*10+quality(b))-(matchScore(a,favorites)*10+quality(a)));
     const used=new Set();
     const take=(candidates,limit)=>{const list=[];for(const item of candidates){const key=keyOf(item);if(used.has(key))continue;used.add(key);list.push(item);if(list.length>=limit)break;}return list;};
     const featured=take(ranked.length?ranked:recommendations,6);
@@ -105,7 +113,7 @@
     document.addEventListener('playit:catalog-render',()=>{if(!$('#playit-catalog')?.hidden)requestAnimationFrame(renderHome)});
     shell.addEventListener('click',event=>{
       const page=event.target.closest('[data-cine-page]');
-      if(page){const rail=page.closest('.cine-rail')?.querySelector('.cine-rail-scroll');if(rail){const distance=Math.max(rail.clientWidth*.76,140)*Number(page.dataset.cinePage);rail.scrollBy({left:distance,behavior:'smooth'});}return;}
+      if(page){const section=page.closest('.cine-rail');if(section)window.PLAYIT_RAILS?.step(section.querySelector('.cine-rail-scroll'),Number(page.dataset.cinePage));return;}
       const button=event.target.closest('[data-spotlight],[data-cine-detail],[data-cine-watch],[data-cine-pick],[data-cine-wizard],[data-cine-compare],[data-cine-match],[data-cine-lists],[data-cine-track-open],[data-cine-tracker-close],[data-cine-remove],[data-cine-progress]');if(!button)return;
       const k=button.dataset.cineDetail||button.dataset.cineWatch||button.dataset.cineRemove||button.dataset.cineProgress;
       if(button.dataset.spotlight){const len=spotlightPool().length;if(len){spotlightIndex=(spotlightIndex+(button.dataset.spotlight==='next'?1:len-1))%len;renderHome();}return;}
