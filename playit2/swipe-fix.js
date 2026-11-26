@@ -13,6 +13,7 @@
    rail.scrollLeft=0;
    if(direction>0)rail.appendChild(rail.firstElementChild);
    else rail.insertBefore(rail.lastElementChild,rail.firstElementChild);
+   rail.scrollLeft=0;
   }
  };
  let drag=null,suppress=false,lastTurn=0;
