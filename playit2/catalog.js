@@ -283,13 +283,14 @@
     if(state.type!==type)return;
     renderGenreTiles();updateCatalogSelections();await load(false);
   }
+  let autoPages=0;
   async function load(more) {
-    if (!dialog || dialog.hidden) return;
+    if (!dialog || dialog.hidden || (more && state.busy)) return;
     currentController?.abort();
     currentController=new AbortController();
     const serial=++state.serial;
     const page=more?state.nextPage:1;
-    if (!more) {state.page=1;state.items=[];state.nextCursor='';}
+    if (!more) {state.page=1;state.items=[];state.nextCursor='';autoPages=0;}
     state.error='';state.busy=true;render();
     try {
       let url;
@@ -345,7 +346,16 @@
     } catch(error) {
       if(serial!==state.serial||error.name==='AbortError')return;
       state.error=error.message;
-    } finally {if(serial===state.serial){state.busy=false;render();hydrateCachedResults(state.items,state.type,serial).finally(()=>{if(serial===state.serial&&state.audioOnly)checkNextAudioBatch();});}}
+    } finally {if(serial===state.serial){
+      state.busy=false;render();
+      hydrateCachedResults(state.items,state.type,serial).finally(()=>{if(serial===state.serial&&state.audioOnly)checkNextAudioBatch();});
+      // Saved provider collections are paginated and already checked for audio.
+      // Warm a small bounded window so the first screen is not limited to page one.
+      if(state.selectedPlatforms.length&&!state.selectedGenres.length&&!state.query&&state.hasMore&&state.items.length<60&&autoPages<3){
+        autoPages++;
+        setTimeout(()=>{if(serial===state.serial&&!dialog.hidden&&!state.busy)load(true);},120);
+      }
+    }}
   }
   async function checkAudio(key) {
     if (!/^(movie|tv):\d{1,9}$/.test(key) || audioPending.has(key)) return;
@@ -391,12 +401,15 @@
   function hasHungarianAudio(item) {
     const result=audioData.get(keyOf(item));
     const service=selectedService();
-    return Array.isArray(result?.providers)&&result.providers.some(p=>p.audio==='yes'&&(!state.selectedPlatforms.length||state.selectedPlatforms.includes(p.service))&&(!service||p.service===service));
+    // Saved collection rows already contain service-specific verified audio.
+    // Do not hide those rows while waiting for a second live check.
+    const providers=[...(Array.isArray(result?.providers)?result.providers:[]),...(Array.isArray(item.providers)?item.providers:[])];
+    return providers.some(p=>p.audio==='yes'&&(!state.selectedPlatforms.length||state.selectedPlatforms.includes(p.service))&&(!service||p.service===service));
   }
   let batchRunning=false;
   async function checkNextAudioBatch() {
     if(batchRunning||!state.audioOnly||!state.items.length)return;
-    const pending=state.items.filter(item=>!audioData.get(keyOf(item))?.checkedAt).slice(0,8);
+    const pending=state.items.filter(item=>!audioData.get(keyOf(item))?.checkedAt&&!item.providers?.some(p=>p.audio==='yes'||p.audio==='no')).slice(0,8);
     if(!pending.length){render();return;}
     batchRunning=true;render();
     try {
@@ -475,7 +488,7 @@
     if(!grid)return;
     const items=visibleCatalogItems();
     const note=$('#catalog-sort-note');if(note){note.textContent='';note.hidden=true;}
-    const checked=state.items.filter(item=>audioData.get(keyOf(item))?.checkedAt).length;
+    const checked=state.items.filter(item=>audioData.get(keyOf(item))?.checkedAt||item.providers?.some(p=>p.audio==='yes'||p.audio==='no')).length;
     const loading=state.items.filter(item=>audioPending.has(keyOf(item))).length;
     const progress=$('#catalog-audio-progress'),checkMore=$('#catalog-check-more'),audioControl=$('#catalog-audio-control');
     if(audioControl)audioControl.classList.toggle('is-active',state.audioOnly);
