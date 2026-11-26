@@ -15,7 +15,7 @@
    else rail.insertBefore(rail.lastElementChild,rail.firstElementChild);
   }
  };
- let drag=null,suppress=false;
+ let drag=null,suppress=false,lastTurn=0;
  document.addEventListener('touchstart',event=>{
   if(event.touches.length!==1){drag=null;return;}
   const target=event.target.closest&&event.target.closest('.cine-rail-scroll,'+selectors);
@@ -39,10 +39,26 @@
   const dx=t?t.clientX-state.x:0,dy=t?t.clientY-state.y:0;
   if(Math.abs(dx)<38||Math.abs(dx)<Math.abs(dy)*1.2)return;
   suppress=true;setTimeout(()=>suppress=false,220);
-  if(state.rail)rails.step(state.target,dx<0?1:-1);
+  if(state.rail){rails.step(state.target,dx<0?1:-1);lastTurn=Date.now();}
  },{passive:true});
  document.addEventListener('touchcancel',()=>drag=null,{passive:true});
  document.addEventListener('click',event=>{
   if(suppress&&event.target.closest&&event.target.closest('.cine-rail-scroll')){event.preventDefault();event.stopImmediatePropagation();suppress=false;}
  },true);
+ // Pointer Events complement touch events on iOS webviews and desktop touch emulation.
+ let pointer=null;
+ document.addEventListener('pointerdown',event=>{
+  if(event.pointerType==='mouse'||!event.isPrimary)return;
+  const rail=event.target.closest&&event.target.closest('.cine-rail-scroll');
+  if(rail)pointer={rail,x:event.clientX,y:event.clientY};
+ },{passive:true});
+ document.addEventListener('pointerup',event=>{
+  if(!pointer)return;
+  const state=pointer;pointer=null;
+  const dx=event.clientX-state.x,dy=event.clientY-state.y;
+  if(Math.abs(dx)<40||Math.abs(dx)<Math.abs(dy)*1.2||Date.now()-lastTurn<300)return;
+  rails.step(state.rail,dx<0?1:-1);lastTurn=Date.now();
+ },{passive:true});
+ document.addEventListener('pointercancel',()=>{pointer=null;},{passive:true});
+
 })();
