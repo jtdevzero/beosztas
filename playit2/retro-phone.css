@@ -206,3 +206,24 @@
   letter-spacing:.2em!important;
 }
 #access-form .retro-dial-screen > #access-password[readonly] {caret-color:transparent;}
+
+/* v9: gallery-grade 1–8 private dial, small enough for one mobile viewport. */
+#access-gate:has(.retro-phone) .access-card{width:min(100%,380px);padding:24px 20px 20px!important;border-color:#c6a36a66!important;background:linear-gradient(155deg,#142028f8,#080d12fc 76%)!important;box-shadow:0 30px 90px #000c,inset 0 1px #fff2!important}
+.retro-phone-head{font-size:10px;letter-spacing:.23em;color:#d4b782;margin:3px 0 13px}
+.retro-dial-screen{height:54px;margin-bottom:17px;border:1px solid #c8a77773;border-radius:12px;background:linear-gradient(180deg,#030709,#0c1720);box-shadow:inset 0 2px 14px #000c,0 1px #fff1}
+.retro-keypad{width:min(100%,300px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:auto}
+.retro-key{aspect-ratio:1;min-height:0;border-radius:16px;padding:0;background:linear-gradient(150deg,#29333a,#11191e 75%)!important;border:1px solid #b79c715d;box-shadow:inset 0 1px #ffffff2d,0 5px 12px #0006;transition:transform .13s,border-color .13s,background .13s}
+.retro-key::before{border-radius:13px;height:27%}
+.retro-key strong{font-size:25px;font-weight:500;color:#f6e8d1}
+.retro-key:active{transform:scale(.95);border-color:#edc687;background:#483827!important}
+.retro-phone-tools{margin:14px 0 0;gap:7px;min-height:36px}
+.retro-phone-tools button{font-size:11px;color:#d5ba90;min-height:35px}
+.retro-mode-hint{font:600 9px/1.1 system-ui;letter-spacing:.1em;color:#797b7a}
+.retro-phone-tools .retro-keyboard{white-space:nowrap}
+#access-form:has(.retro-phone) #access-submit{margin-top:6px;min-height:49px}
+.retro-native .retro-keypad{display:none}
+.retro-native .retro-mode-hint{display:none}
+.retro-native .retro-phone-tools .retro-clear{visibility:hidden}
+@media(max-height:780px){.retro-keypad{max-width:258px;gap:9px}.retro-dial-screen{margin-bottom:11px}.retro-phone-tools{margin-top:6px}}
+@media(max-width:350px){.retro-keypad{gap:8px}.retro-key{border-radius:12px}.retro-key strong{font-size:22px}.retro-mode-hint{display:none}}
+@media(prefers-reduced-motion:reduce){.retro-key{transition:none}}
